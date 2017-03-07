@@ -10,3 +10,4 @@ topological complexes.
 '''
 
 from .simplicialcomplex import SimplicialComplex
+from .triangularlattice import TriangularLattice
