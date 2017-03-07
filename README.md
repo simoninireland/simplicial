@@ -1,7 +1,6 @@
 # simplicial
 
-A Python package for representing and manipulating simplicial
-topological complexes.
+Simplicial topology in Python.
 
 This package arose from explorations of using ideas from algebraic
 topology in the context of wireless sensor networks, to tackle

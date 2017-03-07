@@ -1,4 +1,4 @@
-# Initialisation for simplicial package
+# Initialisation of test suite
 #
 # Copyright (C) 2017 Simon Dobson
 # 
@@ -16,10 +16,3 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
-
-'''`simplicial` is a Python package for manipulating simplicial
-topological complexes.
-'''
-
-from .simplicialcomplex import SimplicialComplex
-from .triangularlattice import TriangularLattice

@@ -1,4 +1,4 @@
-# Initialisation for simplicial package
+# Test suite
 #
 # Copyright (C) 2017 Simon Dobson
 # 
@@ -17,9 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-'''`simplicial` is a Python package for manipulating simplicial
-topological complexes.
-'''
+import unittest
 
-from .simplicialcomplex import SimplicialComplex
-from .triangularlattice import TriangularLattice
+from .simplicialcomplex import SimplicialComplexTests
+
+simplicialcomplexSuite = unittest.TestLoader().loadTestsFromTestCase(SimplicialComplexTests)
+
+suite = unittest.TestSuite([ simplicialcomplexSuite ])
+
+if __name__ == '__main__':
+    unittest.TextTestRunner(verbosity = 2).run(suite)

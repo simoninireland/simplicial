@@ -1,9 +1,21 @@
 # Base class for simplicial complexes
 #
 # Copyright (C) 2017 Simon Dobson
+# 
+# This file is part of simplicial, simplicial topology in Python.
 #
-# Licensed under the GNU General Public Licence v.3.0
+# Simplicial is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
+# Simplicial is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 class SimplicialComplex(object):
     '''A finite simplicial complex.
@@ -70,6 +82,11 @@ class SimplicialComplex(object):
         if attr is None:
             # no attributes
             attr = dict()
+
+        # we need at least two faces, defining at least a 1-simplex, since
+        # 0-simplices don't have any faces
+        if len(fs) == 1:
+            raise Exception('Need at least two faces, defining a 1-simplex')
         
         # place faces into canonical order
         ofs = self._orderIndices(fs)
