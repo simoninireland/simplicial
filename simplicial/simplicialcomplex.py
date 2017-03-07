@@ -238,12 +238,12 @@ class SimplicialComplex(object):
     
     def partOf( self, s ):
         '''Return the transitive closure of all simplices of which the simplex
-        is part: a face of, or a face of a face of, and so forth. This is
+        is part: itself, a face of, or a face of a face of, and so forth. This is
         the dual of closureOf().
         
         :param s: the simplex
         :returns: a simplices the simplex is part of'''
-        parts = set()
+        parts = set([ s ])
         fs = self._faces[s]
         for f in fs:
             parts = parts.union(set([ f ]))

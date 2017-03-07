@@ -1,23 +1,24 @@
 # Tests of simplicial complex class
 #
-# Copyright (C) 2014-2017 Simon Dobson
+# Copyright (C) 2017 Simon Dobson
 # 
-# This file is part of Complex networks, complex processes (CNCP).
+# This file is part of simplicial, simplicial topology in Python.
 #
-# CNCP is free software: you can redistribute it and/or modify
+# Simplicial is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# CNCP is distributed in the hope that it will be useful,
+# Simplicial is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with CNCP. If not, see <http://www.gnu.org/licenses/gpl.html>.
+# along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import unittest
+import copy
 from simplicial import *
 
 class SimplicialComplexTests(unittest.TestCase):
@@ -147,3 +148,120 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertItemsEqual(c.closureOf(13), [ 1, 3, 13 ])
         self.assertItemsEqual(c.closureOf(23), [ 2, 3, 23 ])
         self.assertItemsEqual(c.closureOf(123), [ 1, 2, 3, 12, 13, 23, 123 ])
+
+    def testPart( self ):
+        '''Test that we correctly form the part-of (co-closure) of various simplices'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        self.assertItemsEqual(c.partOf(1), [ 1, 12, 13, 123 ])
+        self.assertItemsEqual(c.partOf(2), [ 2, 23, 12, 123 ])
+        self.assertItemsEqual(c.partOf(3), [ 3, 13, 23, 123 ])
+        self.assertItemsEqual(c.partOf(12), [ 12, 123 ])
+        self.assertItemsEqual(c.partOf(13), [ 13, 123 ])
+        self.assertItemsEqual(c.partOf(23), [ 23, 123 ])
+        self.assertItemsEqual(c.partOf(123), [ 123 ])
+
+    def testBasis( self ):
+        '''Test that we correctly form the basis of various simplices'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        self.assertItemsEqual(c.basisOf(123), [ 1, 2, 3 ])
+        self.assertItemsEqual(c.basisOf(12), [ 1, 2 ])
+        self.assertItemsEqual(c.basisOf(13), [ 1, 3 ])
+        self.assertItemsEqual(c.basisOf(23), [ 2, 3 ])
+        self.assertItemsEqual(c.basisOf(1), [ 1 ])
+        self.assertItemsEqual(c.basisOf(2), [ 2 ])
+        self.assertItemsEqual(c.basisOf(3), [ 3 ])
+
+    def testRestrictBasis( self ):
+        '''Test that we correctly restrict the basis of a complex to the right sub-space.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        cprime = copy.deepcopy(c)
+        cprime.restrictBasisTo([ 1 ])
+        self.assertItemsEqual(cprime.simplices(), [ 1 ])
+
+        cprime = copy.deepcopy(c)
+        cprime.restrictBasisTo([ 1, 2 ])
+        self.assertItemsEqual(cprime.simplices(), [ 1, 2, 12 ])
+
+        cprime = copy.deepcopy(c)
+        cprime.restrictBasisTo([ 1, 2, 3 ])
+        self.assertItemsEqual(cprime.simplices(), c.simplices())
+
+    def testRestrictBasisIsBasis( self ):
+        '''Test that we correctly require a basis to be 0-simplices.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        cprime = copy.deepcopy(c)
+        with self.assertRaises(Exception):
+            cprime.restrictBasisTo([ 12 ])
+
+    def testEuler1hole( self ):
+        '''Test that the Euler characteristic for a simplex with an unfilled triangle.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 24, fs = [ 2, 4 ]) 
+        c.addSimplex(id = 34, fs = [ 3, 4 ])
+        self.assertEqual(c.eulerCharacteristic(), 0)
+
+        c.addSimplex(id = 234, fs = [ 24, 34, 23 ])
+        self.assertEqual(c.eulerCharacteristic(), 1)
+        
+    def testEuler2islands( self ):
+        '''Test that the Euler characteristic for a simplex with two unconnected triangles.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 5)
+        c.addSimplex(id = 6)
+        c.addSimplex(id = 45, fs = [ 4, 5 ]) 
+        c.addSimplex(id = 46, fs = [ 4, 6 ]) 
+        c.addSimplex(id = 56, fs = [ 5, 6 ]) 
+        c.addSimplex(id = 456, fs = [ 45, 46, 56 ])
+        self.assertEqual(c.eulerCharacteristic(), 2)
+
+        c.addSimplex(id = 14, fs = [ 1, 4 ]) 
+        self.assertEqual(c.eulerCharacteristic(), 1)
+
+
+        
