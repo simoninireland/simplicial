@@ -18,7 +18,8 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 # The version we're building
-VERSION = 0.1
+VERSION = 0.1.1
+
 
 # ----- Sources -----
 
@@ -115,7 +116,7 @@ MANIFEST: Makefile
 
 # The setup.py script
 setup.py: $(SOURCES_SETUP_IN) Makefile
-	$(CAT) $(SOURCES_SETUP_IN) | $(SED) -e 's/VERSION/$(VERSION)/g' -e 's/REQ_SETUP/$(REQ_SETUP)/g' >$@
+	$(CAT) $(SOURCES_SETUP_IN) | $(SED) -e 's/VERSION/$(VERSION)/g' >$@
 
 
 # ----- Usage -----
