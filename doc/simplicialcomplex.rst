@@ -50,6 +50,8 @@ Querying simplices
 
 .. automethod:: SimplicialComplex.numberOfSimplicesOfOrder
 
+.. automethod:: SimplicialComplex.disjoint
+
 
 Retrieving simplices
 --------------------

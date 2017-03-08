@@ -381,8 +381,33 @@ class SimplicialComplex(object):
         # remove the marked simplices
         for s in self._orderSortedSimplices(remove, reverse = True):
             self._deleteSimplex(s)
+
+    def disjoint( self, ss ):
+        '''Test whether a set of simplices are disjoint, defined as if
+        they share no common simplices in their closures. (It doesn't
+        mean that they aren't part of a common super-simplex, however.)
+
+        :param ss: the simplices
+        :returns: boolean'''
+        cl = None
+        for s in ss:
+            if cl is None:
+                # first simplex, grab its closure
+                cl = set(self.closureOf(s))
+            else:
+                # next simplex, check for intersection of closure
+                clprime = set(self.closureOf(s))
+                if cl.isdisjoint(clprime):
+                    # closures are disjoint, unify them
+                    cl = cl.update(clprime)
+                else:
+                    # closures intersect, we fail
+                    return False
+
+        # if we get here, all the simplices were disjoint
+        return True
             
-    def eulerCharacteristic( self ):
+    def  eulerCharacteristic( self ):
         '''Return the Euler characteristic of this complex, which is a
         measure of its topological structure.
         
