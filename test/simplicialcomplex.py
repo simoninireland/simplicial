@@ -132,9 +132,9 @@ class SimplicialComplexTests(unittest.TestCase):
                                 12, 13, 23, 45, 46, 56,
                                 123, 456 ])
 
-    def testCopyRename( self ):
+    def testCopyRenameFunction( self ):
         '''Test copying simplices from one complex to another, with a renaming
-        mapping for the simplices.'''
+        function for the simplices.'''
         c = SimplicialComplex()
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
@@ -154,6 +154,38 @@ class SimplicialComplexTests(unittest.TestCase):
         d.addSimplex(id = 7, fs = [ 4, 5, 6 ])
 
         c.addSimplicesFrom(d, rename = lambda s: s + 1000)
+        self.assertItemsEqual(c.simplices(),
+                              [ 1, 2, 3, 1001, 1002, 1003,
+                                12, 13, 23, 1004, 1005, 1006,
+                                123, 1007 ])
+        self.assertItemsEqual(c.faces(1004), [ 1001, 1002 ])
+        self.assertItemsEqual(c.faces(1007), [ 1004, 1005, 1006 ])
+        
+    def testCopyRenameMap( self ):
+        '''Test copying simplices from one complex to another, with a renaming
+        map for the simplices.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        d = SimplicialComplex()
+        d.addSimplex(id = 1)    # these will collide unless renamed
+        d.addSimplex(id = 2)
+        d.addSimplex(id = 3)
+        d.addSimplex(id = 4, fs = [ 1, 2 ]) 
+        d.addSimplex(id = 5, fs = [ 1, 3 ]) 
+        d.addSimplex(id = 6, fs = [ 2, 3 ]) 
+        d.addSimplex(id = 7, fs = [ 4, 5, 6 ])
+
+        r = dict()
+        for i in xrange(1, 8):
+            r[i] = i + 1000
+        c.addSimplicesFrom(d, rename = r)
         self.assertItemsEqual(c.simplices(),
                               [ 1, 2, 3, 1001, 1002, 1003,
                                 12, 13, 23, 1004, 1005, 1006,
