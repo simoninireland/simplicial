@@ -148,6 +148,13 @@ class SimplicialComplex(object):
         it's almost always better to use :meth:`deleteSimplex`.
         
         :param s: the simplex'''
+
+        # delete the simplex from the face lists of its faces
+        ts = self.faces(s)
+        for t in ts:
+            self._faces[t].remove(s)
+            
+        # delete the simplex' elements
         del self._simplices[s]
         del self._attributes[s]
         del self._faces[s]
@@ -190,14 +197,34 @@ class SimplicialComplex(object):
             else:
                 orders[o] = orders[o] + 1
         return orders
+
+    def _orderCmp( self, s, t, reverse = False ):
+        '''Comparison function for simplices based on their order.
+
+        :param s: the first simplex
+        :param t: the second simplex
+        :returns: -1, 0, 1 for less than, equal, greater than (or reversed)'''
+        return cmp(self.order(s), self.order(t))
+
+    def _orderSortedSimplices( self, ss, reverse = False ):
+        '''Return the list of simplices sorted into increasing order
+        of their order, or decreasing order if revere is True.
+        :param ss: the simplices
+        :param reverse: (optional) sort in decreasing order
+        :returns: the list of simplices in increasing/decreasing order of order'''
+        return sorted(ss,
+                      cmp = lambda s, t: self._orderCmp(s, t),
+                      reverse = reverse)
         
-    def simplices( self ):
+    def simplices( self, reverse = False ):
         '''Return all the simplices in the complex. The simplices come
         out in order of their orders, so all the 0-simplices
-        first, then all the 1-simplices, and so on
+        first, then all the 1-simplices, and so on: if the reverse
+        parameter is `True`, then the order is reversed.
         
+        :param reverse: (optional) reverse the sort order if True
         :returns: a list of simplices'''
-        return self._orderIndices(self._simplices)  # sd: do we need to order them?
+        return self._orderSortedSimplices(self._simplices, reverse)
 
     def simplicesOfOrder( self, o ):
         '''Return a list of all simplices of the given order. This will
@@ -209,7 +236,7 @@ class SimplicialComplex(object):
         for s in self._simplices:
             if max(len(self.faces(s)) - 1, 0) == o:
                 ss.append(s)
-        return self._orderIndices(ss)
+        return ss
     
     def __getitem__( self, s ):
         '''Return the attributes associated with the given simplex.
@@ -314,29 +341,29 @@ class SimplicialComplex(object):
                 raise Exception('Higher-order simplex {s} in basis set'.format(s = s))
         
         # find all simplices that need to be excluded
-        remove = []
+        remove = set([])
         for s in self._simplices:
             if self.order(s) == 0:
                 # it's a vertex, is it in the set?
                 if s not in ss:
                     # no, mark it for dropping
-                    remove.append(s)
+                    remove.add(s)
             else:
                 # it's a higher-order simplex, is its basis wholly in the set?
                 bs = self.basisOf(s)
                 for b in bs:
                     if not b in ss:
                         # non-element of set, mark it for removal
-                        remove.append(s)
+                        remove.add(s)
                         break
         
         # close the set of simplices to be removed
-        rs = set(remove)
-        for r in rs:
-            rs = rs.union(self.partOf(r))
+        for r in remove:
+            rs = remove.union(self.partOf(r))
             
         # remove the marked simplices
-        for s in rs:
+        for s in self._orderSortedSimplices(remove, reverse = True):
+            print "remove", s
             self._deleteSimplex(s)
             
     def eulerCharacteristic( self ):

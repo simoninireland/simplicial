@@ -20,10 +20,14 @@
 import unittest
 
 from .simplicialcomplex import SimplicialComplexTests
+from .randomplanes import RandomPlanesTests
 
 simplicialcomplexSuite = unittest.TestLoader().loadTestsFromTestCase(SimplicialComplexTests)
+randomplanesSuite = unittest.TestLoader().loadTestsFromTestCase(RandomPlanesTests)
 
-suite = unittest.TestSuite([ simplicialcomplexSuite ])
+suite = unittest.TestSuite([ simplicialcomplexSuite,
+                             #randomplanesSuite
+                           ])
 
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity = 2).run(suite)

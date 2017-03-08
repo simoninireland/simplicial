@@ -354,6 +354,35 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertItemsEqual(c.simplicesOfOrder(1), [ 13, 23 ])
         self.assertItemsEqual(c.simplicesOfOrder(0), [ 1, 2, 3])
 
+    def testOrdering( self ):
+        '''Test that we can order simplices in order of order.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        ios = c.simplices()
+        for i in xrange(len(ios) - 1):
+            self.assertTrue(c.order(ios[i]) <= c.order(ios[i + 1]))
+        dos = c.simplices(reverse = True)
+        for i in xrange(len(dos) - 1):
+            self.assertTrue(c.order(dos[i]) >= c.order(dos[i + 1]))
+
+    def testDeleteWithFaces( self ):
+        '''Test that we correctly delete face list elements.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        c.deleteSimplex(12)
+        self.assertItemsEqual(c.partOf(1), [ 1, 13 ])
 
     def testEuler1hole( self ):
         '''Test that the Euler characteristic for a simplex with an unfilled triangle.'''
