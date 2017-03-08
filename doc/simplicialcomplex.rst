@@ -100,4 +100,4 @@ the Euler characteristic of a space.
 
 .. automethod:: SimplicialComplex.eulerIntegral
 
-(For more details see :ref:`Ghrist and Baryshnikov <BG09a>`.)
+(For more details see :ref:`Baryshnikov and Ghrist <BG09a>`.)
