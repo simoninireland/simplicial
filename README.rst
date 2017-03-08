@@ -32,13 +32,13 @@ copy, just clone the repo:
 Documentation
 -------------
 
-The `API documentation <https://pythonhosted.org/simplicial/>` is hosted on PythonHosted.
+The `API documentation <https://pythonhosted.org/simplicial/>`_ is hosted on PythonHosted.
 
 
 Author and license
 ------------------
 
-Copyright (c) 2016, Simon Dobson <simon.dobson@computer.org>
+Copyright (c) 2017, Simon Dobson <simon.dobson@computer.org>
 
-Licensed under the `GNU General Public Licence v.3.0 <https://www.gnu.org/licenses/gpl-3.0.en.html>`.
+Licensed under the `GNU General Public Licence v.3.0 <https://www.gnu.org/licenses/gpl-3.0.en.html>`_.
 
