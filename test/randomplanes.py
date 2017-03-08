@@ -88,4 +88,4 @@ class RandomPlanesTests(unittest.TestCase):
         self.assertEqual(self._complex.eulerCharacteristic(), 0)
                 
         # plane with a random number of non-adjacent triangles removed
-        
+        # TBD

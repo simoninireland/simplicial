@@ -26,7 +26,7 @@ simplicialcomplexSuite = unittest.TestLoader().loadTestsFromTestCase(SimplicialC
 randomplanesSuite = unittest.TestLoader().loadTestsFromTestCase(RandomPlanesTests)
 
 suite = unittest.TestSuite([ simplicialcomplexSuite,
-                             #randomplanesSuite
+                             randomplanesSuite
                            ])
 
 if __name__ == '__main__':
