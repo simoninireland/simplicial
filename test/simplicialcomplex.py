@@ -92,6 +92,74 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 1)
         with self.assertRaises(Exception):
             c.addSimplex(id = 2, fs = [ 1 ])
+
+    def testName( self ):
+        '''Test we get the name of a simplex back.'''
+        c = SimplicialComplex()
+        n = c.addSimplex(id = 1)
+        self.assertEqual(n, 1)
+
+    def testNameGeneration( self ):
+        '''Test we generate unique simplex names correctly.'''
+        c = SimplicialComplex()
+        n = c.addSimplex()
+        self.assertIn(n, c.simplices())
+        self.assertEqual(len(c.simplices()), 1)
+
+    def testCopy( self ):
+        '''Test copying simplices from one complex to another.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        d = SimplicialComplex()
+        d.addSimplex(id = 4)
+        d.addSimplex(id = 5)
+        d.addSimplex(id = 6)
+        d.addSimplex(id = 45, fs = [ 4, 5 ]) 
+        d.addSimplex(id = 46, fs = [ 4, 6 ]) 
+        d.addSimplex(id = 56, fs = [ 5, 6 ]) 
+        d.addSimplex(id = 456, fs = [ 45, 46, 56 ])
+
+        c.addSimplicesFrom(d)
+        self.assertItemsEqual(c.simplices(),
+                              [ 1, 2, 3, 4, 5, 6,
+                                12, 13, 23, 45, 46, 56,
+                                123, 456 ])
+
+    def testCopyRename( self ):
+        '''Test copying simplices from one complex to another, with a renaming
+        mapping for the simplices.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        d = SimplicialComplex()
+        d.addSimplex(id = 1)    # these will collide unless renamed
+        d.addSimplex(id = 2)
+        d.addSimplex(id = 3)
+        d.addSimplex(id = 4, fs = [ 1, 2 ]) 
+        d.addSimplex(id = 5, fs = [ 1, 3 ]) 
+        d.addSimplex(id = 6, fs = [ 2, 3 ]) 
+        d.addSimplex(id = 7, fs = [ 4, 5, 6 ])
+
+        c.addSimplicesFrom(d, rename = lambda s: s + 1000)
+        self.assertItemsEqual(c.simplices(),
+                              [ 1, 2, 3, 1001, 1002, 1003,
+                                12, 13, 23, 1004, 1005, 1006,
+                                123, 1007 ])
+        self.assertItemsEqual(c.faces(1004), [ 1001, 1002 ])
+        self.assertItemsEqual(c.faces(1007), [ 1004, 1005, 1006 ])
         
     def testOrderViolation( self ):
         '''Test that we throw an exception if we try to add a face with the wrong order.'''
@@ -109,7 +177,7 @@ class SimplicialComplexTests(unittest.TestCase):
         with self.assertRaises(Exception):
             c.addSimplex(id = bad3, fs = [ 1, 2, 3 ])
         
-    def testDimplucateSimplices( self ):
+    def testDuplicateSimplices( self ):
         '''Test that we fail if we try to add a duplicate simplex.'''
         c = SimplicialComplex()
         c.addSimplex(id = 1)

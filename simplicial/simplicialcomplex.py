@@ -69,7 +69,8 @@ class SimplicialComplex(object):
         
         :param id: (optional) identifier for the simplex 
         :param fs: (optional) a list of faces of the simplex
-        :param attr: (optional) dict of attributes'''
+        :param attr: (optional) dict of attributes
+        :returns: the name of the new simplex'''
         
         # fill in defaults
         if id is None:
@@ -111,15 +112,36 @@ class SimplicialComplex(object):
         # record the faces
         for f in ofs:
             self._faces[f].append(id)
+
+        # return the simplices' name
+        return id
+    
+    def addSimplicesFrom( self, c, rename = None ):
+        '''Add simplices from the given complex. The rename parameter
+        is is an optional mapping of the names in c that can be provided
+        as a dict or a function.
         
-    def addSimplicesFrom( self, c ):
-        '''Add simplices from the given complex.
-        
-        :param c: the other complex'''
+        :param c: the other complex
+        :param rename: (optional) renaming dict or function
+        :returns: a list of simplex names'''
+
+        # fill-out the defaults
+        if rename is None:
+            f = lambda s: s
+        else:
+            if isinstance(rename, dict):
+                f = lambda s: rename[s]
+            else:
+                f = rename
+
+        # perform the copy, renaming the nodes as they come in
+        ns = []
         for s in c.simplices():
-            self.addSimplex(id = s,
-                            fs = c.faces(s),
-                            attr = c[s])
+            id = self.addSimplex(id = f(s),
+                                 fs = map(f, c.faces(s)),
+                                 attr = c[s])
+            ns.append(id)
+        return ns
     
     def _deleteSimplex( self, s ):
         '''Delete a simplex. This can result in a broken complex, so
