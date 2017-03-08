@@ -323,6 +323,38 @@ class SimplicialComplexTests(unittest.TestCase):
         with self.assertRaises(Exception):
             cprime.restrictBasisTo([ 12 ])
 
+    def testDelete1( self ):
+        '''Test that we correctly delete a single simplex.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        c.deleteSimplex(123)
+        self.assertItemsEqual(c.simplicesOfOrder(2), [])
+        self.assertItemsEqual(c.simplicesOfOrder(1), [ 12, 13, 23 ])
+        self.assertItemsEqual(c.simplicesOfOrder(0), [ 1, 2, 3])
+
+    def testDeleteWithParts( self ):
+        '''Test that we correctly cascade deletion to all the simplices
+        that the requested simplex is part of.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        c.deleteSimplex(12)
+        self.assertItemsEqual(c.simplicesOfOrder(2), [])
+        self.assertItemsEqual(c.simplicesOfOrder(1), [ 13, 23 ])
+        self.assertItemsEqual(c.simplicesOfOrder(0), [ 1, 2, 3])
+
+
     def testEuler1hole( self ):
         '''Test that the Euler characteristic for a simplex with an unfilled triangle.'''
         c = SimplicialComplex()

@@ -160,7 +160,6 @@ class SimplicialComplex(object):
         ss = self.partOf(s)
         for t in ss:
             self._deleteSimplex(t)
-        self._deleteSimplex(s)
     
     def order( self, s ):
         '''Return the order of a simplex.
