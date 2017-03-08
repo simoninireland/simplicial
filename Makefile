@@ -28,7 +28,8 @@ SOURCES_SETUP_IN = setup.py.in
 SOURCES_CODE = \
 	simplicial/__init__.py \
 	simplicial/simplicialcomplex.py \
-	simplicial/triangularlattice.py
+	simplicial/triangularlattice.py \
+	simplicial/drawing/drawing.py
 SOURCES_TESTS = \
 	test/__init__.py \
 	test/__main__.py \
@@ -43,7 +44,9 @@ SOURCES_DOC_ZIP = simplicial-doc-$(VERSION).zip
 SOURCES_DOCUMENTATION = \
 	doc/index.rst \
 	doc/simplicialcomplex.rst \
-	doc/glossary.rst
+	doc/drawing.rst \
+	doc/glossary.rst \
+	doc/bibliography.rst
 
 SOURCES_EXTRA = \
 	README.md \

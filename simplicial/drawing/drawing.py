@@ -1,0 +1,86 @@
+# Drawing routines for simplicial complexes
+#
+# Copyright (C) 2017 Simon Dobson
+# 
+# This file is part of simplicial, simplicial topology in Python.
+#
+# Simplicial is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Simplicial is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+
+def draw_complex( c, pos, ax = None, color = None, color_simplex = None, node_size = 0.02 ):
+    '''Draw a simplicial complex.
+    
+    At present we only deal with simplices of order 2 and less.
+    
+    :param c: the complex
+    :param pos: positions of the 0-simplices
+    :param ax: the axes to draw in (defaults to main axes)
+    :param color: an array of colours for the different simplex orders (defaults to a "reasonable" scheme)
+    :param color_simplex: a function from simplex and order to a colour (defaults to order color)
+    :param node_size: the size of the node (0-simplex) markers'''
+    
+    # fill in the argument defaults where not specified
+    if ax is None:
+        # main figure axes
+        ax = plt.gca()
+    no = c.maxOrder()
+    if color is None:
+        # a simple colour scheme that seems to work
+        color = [ 'blue', 'black', 'red' ]
+    else:
+        if isinstance(color, collections.Sequence):
+            # make sure we have enough colours for all the simplex orders
+            if len(color) < no:
+                color.append([ 'blue' ] * ((no + 1) - len(color)))
+    if color_simplex is None:
+        # no per-node coloursm default to the color array
+        color_simplex = lambda s, o: color[o]
+        
+    # set up the axes
+    ax.set_xlim([-0.2, 1.2])      # axes bounded around 1
+    ax.set_ylim([-0.2, 1.2])
+    ax.grid(False)                # no grid
+    ax.get_xaxis().set_ticks([])  # no ticks on the axes
+    ax.get_yaxis().set_ticks([])
+            
+    # draw the node markers
+    for s, (x, y) in pos.iteritems():
+        circ = plt.Circle([ x, y ],
+                          radius = node_size,
+                          edgecolor = 'black', facecolor = color_simplex(s, 0),
+                          zorder = 3)
+        ax.add_patch(circ)
+        
+    # draw the edges
+    for s in c.simplicesOfOrder(1):
+        fs = c.basisOf(s)
+        (x0, y0) = pos[fs[0]]
+        (x1, y1) = pos[fs[1]]
+        line = plt.Line2D([ x0, x1 ], [y0, y1 ],
+                          color = 'black', # color = color_simplex(s, 1),
+                          zorder = 2)
+        ax.add_line(line)
+    
+    # fill in the triangles
+    for s in c.simplicesOfOrder(2):
+        fs = c.basisOf(s)
+        (x0, y0) = pos[fs[0]]
+        (x1, y1) = pos[fs[1]]
+        (x2, y2) = pos[fs[2]]
+        tri = plt.Polygon([ [ x0, y0 ], [ x1, y1 ], [ x2, y2 ] ],
+                          edgecolor = 'black', facecolor = color_simplex(s, 2),
+                          zorder = 1)
+        ax.add_patch(tri)

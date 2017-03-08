@@ -1,4 +1,4 @@
-# Initialisation for simplicial package
+# Initialisation for simplicial's drawing routines
 #
 # Copyright (C) 2017 Simon Dobson
 # 
@@ -34,10 +34,4 @@ more work for them to be really useful.
 
 '''
 
-# representation and computation
-from .simplicialcomplex import SimplicialComplex
-from .triangularlattice import TriangularLattice
-
-# drawing support
-import simplicial.drawing
-from .drawing import draw_*
+from .drawing import draw_complex

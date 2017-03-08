@@ -13,7 +13,8 @@ simplicial: Simplicial topology in Python
 
    simplicialcomplex
    triangularlattice
-
+   drawing
+   
 
 Indices and tables
 ==================
