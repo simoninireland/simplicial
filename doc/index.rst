@@ -20,5 +20,6 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`glossary`
+* :ref:`bibliography`
 * :ref:`search`
 

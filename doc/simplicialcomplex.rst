@@ -94,13 +94,10 @@ and its numerical derivatives. These are useful for computing various
 global topological properties.
 
 Euler integrals are (as the name suggests) integrals computed against
-the Euler characteristic of a space. For more details see Yuri
-Baryshnikov and Robert Ghrist. `Target enumeration via Euler
-characteristic integrals <http://dx.doi.org/10.1137/070687293>`_. SIAM
-Journal of Applied Mathematics 70(3). 2009.
+the Euler characteristic of a space.
 
 .. automethod:: SimplicialComplex.eulerCharacteristic
 
 .. automethod:: SimplicialComplex.eulerIntegral
 
-		
+(For more details see :ref:`Ghrist and Baryshnikov <BG09a>`.)

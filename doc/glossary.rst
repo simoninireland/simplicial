@@ -1,3 +1,5 @@
+.. _glossary:
+
 Glossary
 ========
 
@@ -42,7 +44,7 @@ Glossary
       :term:`order` that defines the number of 0-simplices in its
       :term:`basis`. 
 
-   topology:
+   topology
       "The stratosphere of human thought! ! In the twenty-fourth
       century it might possibly be of use to someone..." (Alexander
-      Solzhenitsyn, The First Circle)
+      Solzhenitsyn, The First Circle).
