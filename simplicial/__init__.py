@@ -19,6 +19,19 @@
 
 '''`simplicial` is a Python package for manipulating simplicial
 topological complexes.
+
+Simplicial complexes are generalisations of the triangulation of a
+plane. A :term:`complex` is built from simplices (singular:
+:term:`simplex`), and can be used for a number of purposes: as
+discrete approximations of continuous spaces or manifolds, or as
+abstract descriptions of information relationships that can then be
+explored and anlysed using techniques from algebraic :term:`topology`.
+
+`simplicial` provides a class of :class:`SimplicialComplex` to
+represents complexes and provide some topological operations. It also
+provides functiosn to visualise complxes, although these need a lot
+more work for them to be really useful.
+
 '''
 
 from .simplicialcomplex import SimplicialComplex
