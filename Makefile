@@ -40,7 +40,9 @@ SOURCES_DOC_BUILD_DIR = doc/_build
 SOURCES_DOC_BUILD_HTML_DIR = $(SOURCES_DOC_BUILD_DIR)/html
 SOURCES_DOC_ZIP = simplicial-doc-$(VERSION).zip
 SOURCES_DOCUMENTATION = \
-	doc/index.rst
+	doc/index.rst \
+	doc/simplicialcomplex.rst \
+	doc/glossary.rst
 
 SOURCES_EXTRA = \
 	README.md \
@@ -48,8 +50,7 @@ SOURCES_EXTRA = \
 	HISTORY
 SOURCES_GENERATED = \
 	MANIFEST \
-	setup.py \
-	$(SOURCES_DOC_CONF)
+	setup.py
 
 
 # ----- Tools -----
@@ -81,17 +82,17 @@ RUN_SPHINX_HTML = make html
 help:
 	@make usage
 
+# RUn the test suite
+.PHONY: test
+test:
+	$(IPYTHON) -m $(TESTSUITE)
+
 # Build the API documentation using Sphinx
 .PHONY: doc
 doc: $(SOURCES_DOCUMENTATION) $(SOURCES_DOC_CONF)
-	($(CHDIR) $(ENV_COMPUTATIONAL) && $(ACTIVATE) && $(CHDIR) ../doc && PYTHONPATH=.. $(RUN_SPHINX_HTML))
-	($(CHDIR) $(SOURCES_DOC_BUILD_HTML_DIR) && $(ZIP) $(SOURCES_DOC_ZIP) *)
+	$(CHDIR) doc && PYTHONPATH=.. $(RUN_SPHINX_HTML)
+	$(CHDIR) $(SOURCES_DOC_BUILD_HTML_DIR) && $(ZIP) $(SOURCES_DOC_ZIP) *
 	$(CP) $(SOURCES_DOC_BUILD_HTML_DIR)/$(SOURCES_DOC_ZIP) .
-
-# Run a server for writing the documentation
-.PHONY: docserver
-docserver:
-	($(CHDIR) $(ENV_COMPUTATIONAL) && $(ACTIVATE) && $(CHDIR) ../doc && PYTHONPATH=.. $(RUN_NOTEBOOK))
 
 # Build a source distribution
 dist: $(SOURCES_GENERATED)
@@ -103,30 +104,7 @@ upload: $(SOURCES_GENERATED)
 
 # Clean up the distribution build 
 clean:
-	$(RM) $(SOURCES_GENERATED) epyc.egg-info dist $(SOURCES_DOC_BUILD_DIR) $(SOURCES_DOC_ZIP)
-
-# Clean up everything, including the computational environment (which is expensive to rebuild)
-reallyclean: clean
-	$(RM) $(ENV_COMPUTATIONAL)
-
-
-# ----- Helper targets -----
-
-# Build a computational environment in which to run the test suite
-env-computational: $(ENV_COMPUTATIONAL)
-
-# Build a new, updated, requirements.txt file ready for commiting to the repo
-# Only commit if we're sure we pass the test suite!
-newenv-computational:
-	echo $(PY_COMPUTATIONAL)  $(PY_INTERACTIVE) | $(TR) ' ' '\n' >$(REQ_COMPUTATIONAL)
-	make env-computational
-	$(NON_REQUIREMENTS) $(ENV_COMPUTATIONAL)/requirements.txt >$(REQ_COMPUTATIONAL)
-
-# Only re-build computational environment if the directory is missing
-$(ENV_COMPUTATIONAL):
-	$(VIRTUALENV) $(ENV_COMPUTATIONAL)
-	$(CP) $(REQ_COMPUTATIONAL) $(ENV_COMPUTATIONAL)/requirements.txt
-	$(CHDIR) $(ENV_COMPUTATIONAL) && $(ACTIVATE) && $(PIP) install -r requirements.txt && $(PIP) freeze >requirements.txt
+	$(RM) $(SOURCES_GENERATED) simplicial.egg-info dist $(SOURCES_DOC_BUILD_DIR) $(SOURCES_DOC_ZIP)
 
 
 # ----- Generated files -----
@@ -144,14 +122,10 @@ setup.py: $(SOURCES_SETUP_IN) Makefile
 
 define HELP_MESSAGE
 Available targets:
-   make test         run the test suite in a suitable virtualenv
-   make doc          build the API documentation using Sphinx
-   make cluster      run a small compute cluster for use by the tests
-   make docserver    run a Jupyter notebook to edit the tutorial
+   make test         run the test suite
    make dist         create a source distribution
    make upload       upload distribution to PyPi
    make clean        clean-up the build
-   make reallyclean  clean up the virtualenv as well
 
 endef
 export HELP_MESSAGE

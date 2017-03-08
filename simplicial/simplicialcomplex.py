@@ -20,15 +20,21 @@
 class SimplicialComplex(object):
     '''A finite simplicial complex.
     
-    A simplicial complex is a generalisation of a network in which vertices (0-simplices)
-    and edges (1-simplices) can be composed into triangles (2-simplices), tetrahedrons
-    (3-simplices) and so forth. This classs actually implements closed simplicial
-    complexes that contain every simplex, every face of that simplex, every face of
-    those simplices, and so forth. Operations to add and remove simplices cascade to
-    keep the complex closed.
+    A simplicial complex is a generalisation of a network in which
+    vertices (0-simplices) and edges (1-simplices) can be composed
+    into triangles (2-simplices), tetrahedrons (3-simplices) and so
+    forth. This class actually implements closed simplicial complexes
+    that contain every simplex, every face of that simplex, every face
+    of those simplices, and so forth. Operations to add and remove
+    simplices cascade to keep the complex closed: if a simplex is an
+    element of a complex, then all its faces are also elements, and so
+    on recursively.
 
-    The class also includes some topological operations, notably for computing
-    Euler characteristics of spaces and performing Euler integration.'''
+    The class also includes some topological operations, notably for
+    computing Euler characteristics of spaces and performing Euler
+    integration.
+
+    '''
     
     def __init__( self ):
         '''Create an empty complex.'''
@@ -39,7 +45,7 @@ class SimplicialComplex(object):
 
     def _newUniqueIndex( self, d ):
         '''Generate a new unique identifier for a simplex. The default naming
-        schemem uses a sequence number and a leading dimension indicator. Users
+        scheme uses a sequence number and a leading dimension indicator. Users
         can name simplices anything they want tyo get meaningful names. 
         
         :param d: dimension of the simplex to be identified
@@ -120,6 +126,10 @@ class SimplicialComplex(object):
         '''Add simplices from the given complex. The rename parameter
         is is an optional mapping of the names in c that can be provided
         as a dict or a function.
+
+        (Be careful with attributes: if a simplex has an attribute the
+        value of which is the name of another simplex, then renaming
+        will destroy the connection and lead to problems.)
         
         :param c: the other complex
         :param rename: (optional) renaming dict or function
@@ -160,12 +170,11 @@ class SimplicialComplex(object):
         del self._faces[s]
         
     def deleteSimplex( self, s ):
-        '''Delete a simplex and all simplices of which it is a part. We have
-        to do this to guarantee the closure of the simplicial complex. 
+        '''Delete a simplex and all simplices of which it is a part. 
         
         :param s: the simplex'''
-        ss = self.partOf(s)
-        for t in ss:
+        for t in self.partOf(s, reverse = True):
+            # delete in decreasing order, down to the basis
             self._deleteSimplex(t)
     
     def order( self, s ):
@@ -198,12 +207,12 @@ class SimplicialComplex(object):
                 orders[o] = orders[o] + 1
         return orders
 
-    def _orderCmp( self, s, t, reverse = False ):
+    def _orderCmp( self, s, t ):
         '''Comparison function for simplices based on their order.
 
         :param s: the first simplex
         :param t: the second simplex
-        :returns: -1, 0, 1 for less than, equal, greater than (or reversed)'''
+        :returns: -1, 0, 1 for less than, equal, greater than'''
         return cmp(self.order(s), self.order(t))
 
     def _orderSortedSimplices( self, ss, reverse = False ):
@@ -259,13 +268,15 @@ class SimplicialComplex(object):
         :param s: the simplex'''
         self.deleteSimplex(s)
         
-    def allSimplices( self, p ):
+    def allSimplices( self, p, reverse = False ):
         '''Return all the simplices that match the given predicate, which should
-        be a function from complex and simplex to boolean.
+        be a function from complex and simplex to boolean. The simplices are
+        sorted according to their orders.
         
         :param p: a predicate
+        :param reverse: (optional) reverse the order 
         :returns: the set of simplices satisfying the predicate'''
-        return [ s for s in self._simplices if p(self, s) ]
+        return self._orderSortedSimplices([ s for s in self._simplices if p(self, s) ], reverse)
     
     def faces( self, s ):
         '''Return a list of the faces in a simplex.
@@ -284,19 +295,20 @@ class SimplicialComplex(object):
         :returns: a list of simplices'''''
         return self._faces[s]
     
-    def partOf( self, s ):
+    def partOf( self, s, reverse = False ):
         '''Return the transitive closure of all simplices of which the simplex
         is part: itself, a face of, or a face of a face of, and so forth. This is
         the dual of closureOf().
         
         :param s: the simplex
+        :param reverse: (optional) reverse the sort order
         :returns: a simplices the simplex is part of'''
         parts = set([ s ])
         fs = self._faces[s]
         for f in fs:
             parts = parts.union(set([ f ]))
             parts = parts.union(self.partOf(f))
-        return parts
+        return self._orderSortedSimplices(parts, reverse)
         
     def basisOf( self,  s ):
         '''Return the basis of a simplex, the set of 0-simplices that
@@ -305,28 +317,33 @@ class SimplicialComplex(object):
         
         :param s: the simplex
         :returns: the simplices that form the basis of s'''
-        cl = self.closureOf(s)
-        bs = [ f for f in cl if self.order(f) == 0 ]  # sd: not the most elegant way to do this....
-        return bs
+
+        # sd: not the most elegant way to do this....
+        return [ f for f in self.closureOf(s) if self.order(f) == 0 ]  
     
-    def closureOf( self, s ):
+    def closureOf( self, s, reverse = False ):
         '''Return the closure of a simplex. The closure is defined
         as the simplex plus all its faces, transitively down to its basis.
         
         :param s: the simplex
+        :param reverse: (optional) reverse the sort order 
         :returns: the closure of the simplex'''
-        fs = self.faces(s)
-        if len(fs) == 0:
-            # 0-simplex, return it
-            return set([ s ])
-        else:
-            # k-simplex, return a list of it and its faces
-            faces = set()
-            for f in fs:
-                faces = faces.union(self.closureOf(f))
-            faces = faces.union(set([ s ]))
-            return set(faces)
-        
+
+        def _close( t ):
+            fs = self.faces(t)
+            if len(fs) == 0:
+                # 0-simplex, return it
+                return set([ t ])
+            else:
+                # k-simplex, return a list of it and its faces
+                faces = set()
+                for f in fs:
+                    faces = faces.union(_close(f))
+                faces = faces.union(set([ t ]))
+                return faces
+
+        return self._orderSortedSimplices(_close(s), reverse)
+
     def restrictBasisTo( self, ss ):
         '''Restrict the complex to include only those simplices whose 
         bases are wholly contained in the given set of 0-simplices.
@@ -363,7 +380,6 @@ class SimplicialComplex(object):
             
         # remove the marked simplices
         for s in self._orderSortedSimplices(remove, reverse = True):
-            print "remove", s
             self._deleteSimplex(s)
             
     def eulerCharacteristic( self ):

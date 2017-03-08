@@ -1,0 +1,17 @@
+To do
+=====
+
+Simplicial complexes:
+
+- Make allSimplices more optimised, selecting for the order of
+  simplices up-front etc
+
+- Allow deletion of a set of simplices in one operation
+
+- Other ways to create sub-complexes as well as basis restriction
+
+
+Euler integration:
+
+- Optimise the construction of level sets
+
