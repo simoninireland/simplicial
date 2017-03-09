@@ -20,3 +20,9 @@ Applied Sciences and Technology. Springer. 2014.
 
 Robert Ghrist. Elementary applied topology. ISBN
 978-1-5028-8085-7. 2014.
+
+.. _Hat02:
+
+Allen Hatcher. `Algebraic topology
+<https://www.math.cornell.edu/~hatcher/AT/ATpage.html>`_. Cambridge
+University Press. ISBN 0-521-79540-0. 2002. (Free to download.)
