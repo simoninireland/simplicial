@@ -17,6 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+import copy
+
+
 class SimplicialComplex(object):
     '''A finite simplicial complex.
     
@@ -124,12 +127,16 @@ class SimplicialComplex(object):
     
     def addSimplicesFrom( self, c, rename = None ):
         '''Add simplices from the given complex. The rename parameter
-        is is an optional mapping of the names in c that can be provided
-        as a dict or a function.
+        is an optional mapping of the names in c that can be provided
+        as a dict of old names to new names or a function from names
+        to names.
 
-        (Be careful with attributes: if a simplex has an attribute the
-        value of which is the name of another simplex, then renaming
-        will destroy the connection and lead to problems.)
+        This operation is almost equivalent to re-labeling the other
+        complex using :math"`relabe;` and then copying its structure
+        directly -- but isn't quite, as it doesn't modify the other
+        complex. However, the caveats on attributes containing simplex
+        names mentioned in respect to :meth:`relabel` apply to
+        :meth:`assFimplicesFrom` too.
         
         :param c: the other complex
         :param rename: (optional) renaming dict or function
@@ -152,7 +159,42 @@ class SimplicialComplex(object):
                                  attr = c[s])
             ns.append(id)
         return ns
-    
+
+    def relabel( self, rename ):
+        '''Re-label simplices using the given renaming, which may be a
+        dict from old names to new names or a function taking a name
+        and returning a new name.
+
+        (Be careful with attributes: if a simplex has an attribute the
+        value of which is the name of another simplex, then renaming
+        will destroy the connection and lead to problems.)
+
+        :param rename: the renaming, a dict or function
+        :returns: a list of new names used'''
+
+        # force the map to be a function
+        if isinstance(rename, dict):
+            f = lambda s: rename[s]
+        else:
+            f = rename
+
+        # perform the renaming
+        newSimplices = dict()
+        newFaces = dict()
+        newAttributes = dict()
+        for s in self._simplices.keys():
+            newSimplices[f(s)] = map(f, self._simplices[s])
+            newFaces[f(s)] = map(f, self._faces[s])
+            newAttributes[f(s)] = copy.copy(self._attributes[s])
+
+        # replace the old names with the new
+        self._simplices = newSimplices
+        self._faces = newFaces
+        self._attributes = newAttributes
+
+        # return the new names of all the simplices
+        return self.simplices()
+        
     def _deleteSimplex( self, s ):
         '''Delete a simplex. This can result in a broken complex, so
         it's almost always better to use :meth:`deleteSimplex`.
@@ -298,7 +340,7 @@ class SimplicialComplex(object):
     def partOf( self, s, reverse = False ):
         '''Return the transitive closure of all simplices of which the simplex
         is part: itself, a face of, or a face of a face of, and so forth. This is
-        the dual of closureOf().
+        the dual of :meth:`closureOf`.
         
         :param s: the simplex
         :param reverse: (optional) reverse the sort order

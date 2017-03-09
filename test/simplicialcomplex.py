@@ -192,7 +192,31 @@ class SimplicialComplexTests(unittest.TestCase):
                                 123, 1007 ])
         self.assertItemsEqual(c.faces(1004), [ 1001, 1002 ])
         self.assertItemsEqual(c.faces(1007), [ 1004, 1005, 1006 ])
-        
+
+    def testRelabelFunction( self ):
+        '''Test relabelling with a function.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        ns = c.relabel(lambda s: s + 1000)
+        self.assertItemsEqual(ns, [ 1001, 1002, 1003,
+                                    1012, 1013, 1023,
+                                    1123 ])
+        self.assertItemsEqual(ns, c.simplices())
+        self.assertItemsEqual(c.faces(1123), [ 1012, 1013, 1023 ])
+        self.assertItemsEqual(c.faces(1012), [ 1001, 1002 ])
+        self.assertItemsEqual(c.faces(1013), [ 1001, 1003 ])
+        self.assertItemsEqual(c.faces(1023), [ 1002, 1003 ])
+        self.assertItemsEqual(c.partOf(1001), [ 1001, 1012, 1013, 1123 ])
+        self.assertItemsEqual(c.partOf(1002), [ 1002, 1012, 1023, 1123 ])
+        self.assertItemsEqual(c.partOf(1003), [ 1003, 1013, 1023, 1123 ])
+                              
     def testOrderViolation( self ):
         '''Test that we throw an exception if we try to add a face with the wrong order.'''
         c = SimplicialComplex()
