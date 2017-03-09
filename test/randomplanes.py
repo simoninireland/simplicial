@@ -83,9 +83,13 @@ class RandomPlanesTests(unittest.TestCase):
         # plane with another adjacent triangle removed
         i = int(numpy.random.random() * len(fs))
         ts = self._complex.partOf(fs[i])
-        self.assertEqual(len(ts), 1)
+        self.assertEqual(len(ts), 2)
+        self._complex.deleteSimplex(ts[1])
+        self.assertEqual(self._complex.eulerCharacteristic(), -1)
+
+        # plane with the "strut" removed between the two adjacent triangles
         self._complex.deleteSimplex(ts[0])
         self.assertEqual(self._complex.eulerCharacteristic(), 0)
-                
+        
         # plane with a random number of non-adjacent triangles removed
         # TBD
