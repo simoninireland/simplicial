@@ -18,38 +18,39 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import copy
+import itertools
 
 
 class SimplicialComplex(object):
     '''A finite simplicial complex.
     
-    A simplicial complex is a generalisation of a network in which
+    A simplicial :term:`complex` is a generalisation of a network in which
     vertices (0-simplices) and edges (1-simplices) can be composed
     into triangles (2-simplices), tetrahedrons (3-simplices) and so
     forth. This class actually implements closed simplicial complexes
-    that contain every simplex, every face of that simplex, every face
+    that contain every simplex, every :term:`face` of that simplex, every face
     of those simplices, and so forth. Operations to add and remove
     simplices cascade to keep the complex closed: if a simplex is an
     element of a complex, then all its faces are also elements, and so
     on recursively.
 
     The class also includes some topological operations, notably for
-    computing Euler characteristics of spaces and performing Euler
-    integration.
+    computing the :term:`Euler characteristic` of a complex and
+    performing Euler integration.
 
     '''
     
     def __init__( self ):
         '''Create an empty complex.'''
-        self._sequence = 1        # sequence number for generating simplex names
-        self._simplices = dict()  # dict from simplex to faces
-        self._attributes = dict() # dict from simplex to attributes 
-        self._faces = dict()      # dict from simplex to simplices of which it is a face
+        self._sequence = 1           # sequence number for generating simplex names
+        self._simplices = dict()     # dict from simplex to faces
+        self._attributes = dict()    # dict from simplex to attributes 
+        self._faces = dict()         # dict from simplex to simplices of which it is a face
 
     def _newUniqueIndex( self, d ):
         '''Generate a new unique identifier for a simplex. The default naming
         scheme uses a sequence number and a leading dimension indicator. Users
-        can name simplices anything they want tyo get meaningful names. 
+        can name simplices anything they want to get meaningful names. 
         
         :param d: dimension of the simplex to be identified
         :returns: an identifier not currently used in the complex'''
@@ -75,9 +76,12 @@ class SimplicialComplex(object):
         If no faces are given then the simplex is a 0-simplex (point).
         If no id is provided one is created. If present, attr should be a
         dict of attributes for the simplex.
+
+        To add a simplex from its basis (rather than its faces) use
+        :meth:`addSimplexByBasis`.
         
-        :param id: (optional) identifier for the simplex 
         :param fs: (optional) a list of faces of the simplex
+        :param id: (optional) name for the simplex 
         :param attr: (optional) dict of attributes
         :returns: the name of the new simplex'''
         
@@ -124,6 +128,107 @@ class SimplicialComplex(object):
 
         # return the simplices' name
         return id
+
+    def addSimplexWithBasis( self, bs, id = None ):
+        '''Add a simplex by providing its basis, which uniquely defines it.
+        This method adds all the simplices necessary to define the new
+        simplex, using :meth:`simplexByBasis` to find and re-use any that are
+        already in the complex.
+
+        To add a simplex defined by its faces, use :meth:`addSimplex`.
+
+        If the simplex with the given basis  already exists in the complex,
+        this method does nothing.
+
+        Defining a k-simplex requires a (k + 1) basis. All elements of
+        the basis must be 0-simplices.
+
+        :param bs: the basis
+        :param id: (optional) the name of the new simplex
+        :returns: the name of the new simplex'''
+        so = len(bs) - 1   # order of the final simplex
+        fs = []            # faces in the final simplex
+
+        # make sure the list is a basis
+        for b in bs:
+            if b in self._simplices.keys():
+                # simplex exists, check it's an 0-simplex
+                if self.order(b) > 0:
+                    raise Exception('Higher-order simplex {s} in basis set'.format(s = b))
+                else:
+                    s = b
+            else:
+                # simplex doesn't exist, create it
+                s = self.addSimplex(id = b)
+
+            # capture the simplex as a face if we're building a 1-simplex
+            if so == 1:
+                fs.append(s)
+
+        # if for some reason we're adding just a single simplex,
+        # we're now finished
+        if so == 0:
+            return s
+
+        # iterate up through all the simplex orders, creating
+        # any missing ones and capturing the faces for the final simplex
+        for k in xrange(1, so):
+            # find all the bases for the simplices of this order
+            bss = set(itertools.combinations(bs, k + 1))
+            for pbs in bss:
+                # do we have the simplex with this basis?
+                s = self.simplexWithBasis(pbs)
+                if s is None:
+                    # no, create it
+                    s = self.addSimplex(fs = pbs)
+
+                # if we're at the final order, capture the simplex as a face
+                if k == so - 1:
+                    fs.append(s)
+
+        # check if we have a simplex with this basis
+        s = self.simplexWithBasis(bs)
+        if s is not None:
+            # we have, did we also get a name?
+            if id is not None:
+                # we did, so they have to match
+                if s != id:
+                    raise Exception('Simplex {s} with given basis already exists'.format(s = s))
+
+            # return this simplex
+            return s
+                    
+        # create a name for the new simplex if needed
+        if id is None:
+            id = self._newUniqueIndex(so)
+
+        # create the final simplex and return it
+        s = self.addSimplex(id = id,
+                            fs = fs) 
+        return s
+
+    def addSimplexOfOrder( self, o, id = None ):
+        '''Add a new simplex, disjoint from all others, with the given order.
+        This will create all the necessary faces and so on down to a new
+        basis.
+
+        :param o: the order of the new simplex
+        :param id: (optional) name of the new simplex
+        :returns: the name of the new simplex'''
+        if o == 0:
+            # it's an 0-simplex, just try to create a new one
+            if id is None:
+                return self.addSimplex()
+            else:
+                return self.addSimplexWithBasis([ id ])
+        else:
+            # create a basis of new names
+            bs = []
+            for i in xrange(o + 1):
+                bs.append(self._newUniqueIndex(0))
+
+            # create the new simplex and return it
+            return self.addSimplexWithBasis(bs, id)
     
     def addSimplicesFrom( self, c, rename = None ):
         '''Add simplices from the given complex. The rename parameter
@@ -131,12 +236,11 @@ class SimplicialComplex(object):
         as a dict of old names to new names or a function from names
         to names.
 
-        This operation is almost equivalent to re-labeling the other
-        complex using :math"`relabe;` and then copying its structure
-        directly -- but isn't quite, as it doesn't modify the other
-        complex. However, the caveats on attributes containing simplex
-        names mentioned in respect to :meth:`relabel` apply to
-        :meth:`assFimplicesFrom` too.
+        This operation is equivalent to copying the other complex,
+        re-labeling it using :meth:`relabel` and then copying it
+        into this complex directly. The caveats on attributes
+        containing simplex names mentioned in respect to :meth:`relabel`
+        apply to :meth:`addSimplicesFrom` too.
         
         :param c: the other complex
         :param rename: (optional) renaming dict or function
@@ -278,17 +382,46 @@ class SimplicialComplex(object):
         return self._orderSortedSimplices(self._simplices, reverse)
 
     def simplicesOfOrder( self, o ):
-        '''Return a list of all simplices of the given order. This will
+        '''Return all the simplices of the given order. This will
         be empty for any order not returned by :meth:`orders`.
         
         :param o: the desired order
-        :returns: a list of simplices, which may be empty'''
+        :returns: a set of simplices, which may be empty'''
         ss = []
         for s in self._simplices:
             if max(len(self.faces(s)) - 1, 0) == o:
                 ss.append(s)
-        return ss
-    
+        return set(ss)
+
+    def simplexWithBasis( self, bs ):
+        '''Return the simplex with the given basis, if it exists
+        in the complex. All elements of the basis must be 0-simplices.
+
+        :param bs: the basis
+        :returns: the simplex or None'''
+
+        # sanity check
+        for s in bs:
+            if self.order(s) > 0:
+                raise Exception('Higher-order simplex {s} in basis set'.format(s = s))
+
+        # check for a simplex with the given basis
+        so = len(bs) - 1
+        ss = None
+        for s in bs:
+            ps = set([ p for p in self.partOf(s) if self.order(p) == so ])
+            if ss is None:
+                ss = ps
+            else:
+                ss &= ps
+            if len(ss) == 0:
+                # no way to get a simplex, bail out
+                return None
+
+        # if we get here, we've found the simplex
+        # sd: should we check that the set size is 1, just for safety?
+        return ss.pop()
+
     def __getitem__( self, s ):
         '''Return the attributes associated with the given simplex.
         
@@ -321,11 +454,11 @@ class SimplicialComplex(object):
         return self._orderSortedSimplices([ s for s in self._simplices if p(self, s) ], reverse)
     
     def faces( self, s ):
-        '''Return a list of the faces in a simplex.
+        '''Return the faces of a simplex.
         
         :param s: the simplex
-        :returns: a list of faces'''
-        return self._simplices[s]
+        :returns: a set of faces'''
+        return set(self._simplices[s])
     
     def faceOf( self, s ):
         '''Return the simplices that the given simplex is a face of. This
@@ -358,10 +491,10 @@ class SimplicialComplex(object):
         than the order of the simplex.
         
         :param s: the simplex
-        :returns: the simplices that form the basis of s'''
+        :returns: the set of simplices that form the basis of s'''
 
         # sd: not the most elegant way to do this....
-        return [ f for f in self.closureOf(s) if self.order(f) == 0 ]  
+        return set([ f for f in self.closureOf(s) if self.order(f) == 0 ])  
     
     def closureOf( self, s, reverse = False ):
         '''Return the closure of a simplex. The closure is defined
@@ -386,17 +519,17 @@ class SimplicialComplex(object):
 
         return self._orderSortedSimplices(_close(s), reverse)
 
-    def restrictBasisTo( self, ss ):
+    def restrictBasisTo( self, bs ):
         '''Restrict the complex to include only those simplices whose 
         bases are wholly contained in the given set of 0-simplices.
         
-        :param ss: the basis 0-simplices
+        :param bs: the basis
         :returns: the complex'''
-
+        bs = set(bs)
+        
         # make sure we have a set of 0-simplices
-        for s in ss:
+        for s in bs:
             if self.order(s) > 0:
-                # sd: should we simply expand this to the simplex' own basis?
                 raise Exception('Higher-order simplex {s} in basis set'.format(s = s))
         
         # find all simplices that need to be excluded
@@ -404,17 +537,15 @@ class SimplicialComplex(object):
         for s in self._simplices:
             if self.order(s) == 0:
                 # it's a vertex, is it in the set?
-                if s not in ss:
+                if s not in bs:
                     # no, mark it for dropping
                     remove.add(s)
             else:
                 # it's a higher-order simplex, is its basis wholly in the set?
-                bs = self.basisOf(s)
-                for b in bs:
-                    if not b in ss:
-                        # non-element of set, mark it for removal
-                        remove.add(s)
-                        break
+                sbs = self.basisOf(s)
+                if not sbs <= bs:
+                    # basis is not wholly contained, mark it for removal
+                    remove.add(s)
         
         # close the set of simplices to be removed
         for r in remove:
@@ -481,4 +612,6 @@ class SimplicialComplex(object):
             
             # add to the integral
             a = a + chi
+
+        # return the accumulated integral
         return a

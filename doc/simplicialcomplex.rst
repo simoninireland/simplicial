@@ -21,7 +21,20 @@ faces, and a dict of attributes.
 
 .. automethod:: SimplicialComplex.addSimplex
 
-It is also possible to copy simplices from one complex to
+If we just want a new simplex with a given order, we can get one
+and `simplicial` will build all the component simplices, all of
+which will new new.
+
+.. automethod:: SimplicialComplex.addSimplexOfOrder
+
+Since a simplex is uniquely defined by its :term:`basis`, we can
+simply provide the basis and let `simplicial` work out all the
+other simplices that need to be added. This can be a major simplification
+for higher-order simplices.
+
+.. automethod:: SimplicialComplex.addSimplexWithBasis
+		
+Finally, it is also possible to copy simplices from one complex to
 another. This will cause problems if the two complexes share simplices
 with common names (since names must be unique), in which case  a
 renaming mapping can be applied automatically during the copy process.
@@ -35,8 +48,8 @@ Deleting simplices
 Since :class:`SimplicialComplex` represents closed simplicial
 complexes -- in which all the faces of all the simplices in a complex
 are also in the complex -- deletion requires that we cascade deletions
-to delete all the simplices of which a to-be-deleted simplex is a part
-(a face, or the face of a face, ad so forth).
+to delete all the simplices of which the to-be-deleted simplex is a part
+(a face, or the face of a face, and so forth).
 
 .. automethod:: SimplicialComplex.deleteSimplex
 
@@ -56,11 +69,19 @@ Querying simplices
 Retrieving simplices
 --------------------
 
+Simplices can be retrieved in a large number of ways. When we return a
+collection of simplices that are always of the same order (such as
+faces or basis) we return a Python set; if we potentially return
+simplices of different orders we return a list, sorted in terms of the
+simplex order (low-order simplices first by default).
+
 .. automethod:: SimplicialComplex.simplices
 
 .. automethod:: SimplicialComplex.simplicesOfOrder
 
 .. automethod:: SimplicialComplex.allSimplices
+
+.. automethod:: SimplicialComplex.simplexWithBasis
 
 .. automethod:: SimplicialComplex.faces
 
@@ -100,4 +121,4 @@ the Euler characteristic of a space.
 
 .. automethod:: SimplicialComplex.eulerIntegral
 
-(For more details see :ref:`Baryshnikov and Ghrist <BG09a>`.)
+(For more details about Euler integration see :ref:`Baryshnikov and Ghrist <BG09a>`.)
