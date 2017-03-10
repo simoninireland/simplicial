@@ -10,9 +10,9 @@ Simplicial complexes:
 
 - Other ways to create sub-complexes as well as basis restriction
 
-- Add extra tests for intersection, to complement disjoint()
+- Add a proper boundary operator
 
-- Add  boundary operator
+- File formats for complexes
 
 
 Euler integration:
