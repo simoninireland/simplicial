@@ -18,7 +18,7 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 # The version we're building
-VERSION = 0.1.1
+VERSION = 0.2.1
 
 
 # ----- Sources -----
@@ -49,7 +49,7 @@ SOURCES_DOCUMENTATION = \
 	doc/bibliography.rst
 
 SOURCES_EXTRA = \
-	README.md \
+	README.rst \
 	LICENSE \
 	HISTORY
 SOURCES_GENERATED = \

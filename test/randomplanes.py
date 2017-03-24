@@ -18,8 +18,8 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import unittest
-import copy
 import numpy
+import copy
 from simplicial import *
 
 class RandomPlanesTests(unittest.TestCase):
@@ -27,7 +27,7 @@ class RandomPlanesTests(unittest.TestCase):
     SizeOfRandomPlanes = 1000
     
     def setUp( self ):
-        '''Create a large random triangulated planar complex.'''
+        '''Create a large randomly-triangulated planar complex.'''
         c = SimplicialComplex()
 
         # create the first triangle
@@ -40,16 +40,17 @@ class RandomPlanesTests(unittest.TestCase):
         c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
 
         # the initial boundary is the set of edges
-        boundary = copy.copy(c.simplicesOfOrder(1))
+        boundary = list(copy.copy(c.simplicesOfOrder(1)))
         
         # add random triangles
         for n in xrange(self.SizeOfRandomPlanes):
             # choose a random boundary edge
-            i = int(numpy.random.random() * len(boundary))
+            i = (int) (numpy.random.random() * len(boundary))
             e0 = boundary[i]
 
             # add a new triangle to that edge
-            vs = c.faces(e0)
+            vs = list(c.faces(e0))
+            self.assertEquals(len(vs), 2)
             v2 = c.addSimplex()
             e1 = c.addSimplex(fs = [ vs[0], v2 ])
             e2 = c.addSimplex(fs = [ vs[1], v2 ])
@@ -57,7 +58,7 @@ class RandomPlanesTests(unittest.TestCase):
 
             # update the boundary
             del boundary[i]
-            boundary = boundary + [ e1, e2 ]
+            boundary.extend([ e1, e2 ])
 
         # store the complex and the final boundary
         self._complex = c
@@ -74,22 +75,22 @@ class RandomPlanesTests(unittest.TestCase):
         self.assertEqual(self._complex.eulerCharacteristic(), 1)
 
         # plane with a random triangle removed
-        ts = self._complex.simplicesOfOrder(2)
-        i = int(numpy.random.random() * len(ts))
-        fs = self._complex.faces(ts[i])    # for next test
-        self._complex.deleteSimplex(ts[i])
+        ts = list(self._complex.simplicesOfOrder(2))
+        t = ts[int(numpy.random.random() * len(ts))]
+        fs = list(self._complex.faces(t))                   # for next test
+        self.assertEqual(len(fs), 3)
+        self._complex.deleteSimplex(t)
         self.assertEqual(self._complex.eulerCharacteristic(), 0)
 
         # plane with another adjacent triangle removed
-        i = int(numpy.random.random() * len(fs))
-        ts = self._complex.partOf(fs[i])
-        self.assertEqual(len(ts), 2)
-        self._complex.deleteSimplex(ts[1])
+        f = fs[int(numpy.random.random() * len(fs))]
+        ts = list(self._complex.faceOf(f))
+        self.assertEqual(len(ts), 1)
+        t = ts[0]
+        self._complex.deleteSimplex(t)
         self.assertEqual(self._complex.eulerCharacteristic(), -1)
 
-        # plane with the "strut" removed between the two adjacent triangles
-        self._complex.deleteSimplex(ts[0])
+        # plane with the "strut" removed between the two adjacent triangles,
+        # thereby collapsing the two holes into one
+        self._complex.deleteSimplex(f)
         self.assertEqual(self._complex.eulerCharacteristic(), 0)
-        
-        # plane with a random number of non-adjacent triangles removed
-        # TBD
