@@ -21,7 +21,7 @@
 
 from setuptools import setup
 
-with open('README.md') as f:
+with open('README.rst') as f:
     longDescription = f.read()
 
 setup(name = 'simplicial',
@@ -40,6 +40,6 @@ setup(name = 'simplicial',
                       'Topic :: Scientific/Engineering :: Physics' ],
       packages = [ 'simplicial' ],
       zip_safe = True,
-      install_requires = [ "numpy", "matplotlib", "sphinx", ])
+      install_requires = [ "numpy", ])
 
 
