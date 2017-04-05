@@ -5,12 +5,6 @@
    
 .. autoclass:: SimplicialComplex
 
-
-Creating a complex
-------------------
-
-.. automethod:: SimplicialComplex.__init__
-	       
 	       
 Adding simplices
 ----------------
@@ -121,4 +115,5 @@ the Euler characteristic of a space.
 
 .. automethod:: SimplicialComplex.eulerIntegral
 
-(For more details about Euler integration see :ref:`Baryshnikov and Ghrist <BG09a>`.)
+(For more details about Euler integration see :ref:`Baryshnikov and
+Ghrist <BG09a>` or :ref:`Curry <CGR14>`.)

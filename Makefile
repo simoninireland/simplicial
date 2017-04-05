@@ -29,12 +29,14 @@ SOURCES_CODE = \
 	simplicial/__init__.py \
 	simplicial/simplicialcomplex.py \
 	simplicial/triangularlattice.py \
-	simplicial/drawing/drawing.py
+	simplicial/drawing/drawing.py \
+	simplicial/drawing/layout.py
 SOURCES_TESTS = \
 	test/__init__.py \
 	test/__main__.py \
 	test/simplicialcomplex.py \
-	test/randomplaces.py
+	test/triangularlattice.py \
+	test/randomplanes.py
 TESTSUITE = test
 
 SOURCES_DOC_CONF = doc/conf.py
@@ -44,7 +46,9 @@ SOURCES_DOC_ZIP = simplicial-doc-$(VERSION).zip
 SOURCES_DOCUMENTATION = \
 	doc/index.rst \
 	doc/simplicialcomplex.rst \
+	doc/triangularlattice.rst \
 	doc/drawing.rst \
+	doc/installation.rst \
 	doc/glossary.rst \
 	doc/bibliography.rst
 

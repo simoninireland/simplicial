@@ -8,7 +8,9 @@ simplicial: Simplicial topology in Python
 
 .. automodule:: simplicial
 
-.. toctree::
+:ref:`installation`
+
+ .. toctree::
    :maxdepth: 2
 
    simplicialcomplex

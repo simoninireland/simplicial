@@ -9,6 +9,13 @@ Yuri Baryshnikov and Robert Ghrist. `Target enumeration via Euler
 characteristic integrals <http://dx.doi.org/10.1137/070687293>`_. SIAM
 Journal of Applied Mathematics 70(3). 2009.
 
+.. _CGR14:
+
+Justin Curry, Robert Ghrist, and Michael Robinson. `Euler calculus
+with applications to signals and sensing
+<https://arxiv.org/abs/1202.0275>`_. Technical report
+arXiv:1202.0275. 2012.
+
 .. _Ede14:
 
 Herbert Edelsbrunner. `A short course in computational geometry and

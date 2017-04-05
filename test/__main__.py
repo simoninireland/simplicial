@@ -21,12 +21,15 @@ import unittest
 
 from .simplicialcomplex import SimplicialComplexTests
 from .randomplanes import RandomPlanesTests
+from .triangularlattice import TriangularLatticeTests
 
 simplicialcomplexSuite = unittest.TestLoader().loadTestsFromTestCase(SimplicialComplexTests)
 randomplanesSuite = unittest.TestLoader().loadTestsFromTestCase(RandomPlanesTests)
+triangularlatticeSuite = unittest.TestLoader().loadTestsFromTestCase(TriangularLatticeTests)
 
 suite = unittest.TestSuite([ simplicialcomplexSuite,
-                             randomplanesSuite
+                             randomplanesSuite,
+                             triangularlatticeSuite,
                            ])
 
 if __name__ == '__main__':

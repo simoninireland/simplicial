@@ -41,7 +41,6 @@ class SimplicialComplex(object):
     '''
     
     def __init__( self ):
-        '''Create an empty complex.'''
         self._sequence = 1           # sequence number for generating simplex names
         self._simplices = dict()     # dict from simplex to faces
         self._attributes = dict()    # dict from simplex to attributes 
@@ -88,7 +87,7 @@ class SimplicialComplex(object):
         # fill in defaults
         if id is None:
             # no identifier, make one
-            id = self._newUniqueIndex(len(fs) - 1)
+            id = self._newUniqueIndex(max(len(fs) - 1, 0))
         else:
             # check we've got a new id
             if id in self._simplices.keys():
@@ -236,6 +235,10 @@ class SimplicialComplex(object):
         as a dict of old names to new names or a function from names
         to names.
 
+        If the relabeling is a dict it may be incomplete, in which
+        case simplices retain their names.  (If the relabeling is a
+        function, it has to handle all names.)
+
         This operation is equivalent to copying the other complex,
         re-labeling it using :meth:`relabel` and then copying it
         into this complex directly. The caveats on attributes
@@ -251,34 +254,48 @@ class SimplicialComplex(object):
             f = lambda s: s
         else:
             if isinstance(rename, dict):
-                f = lambda s: rename[s]
+                f = lambda s: rename[s] if s in rename.keys() else s
             else:
                 f = rename
 
         # perform the copy, renaming the nodes as they come in
         ns = []
         for s in c.simplices():
-            id = self.addSimplex(id = f(s),
+            t = f(s)
+            if s != t and t in self._simplices.keys():
+                raise Exception('Copying attempting to re-write {s} to the name of an existing simplex {t}'.format(s = s, t = t))
+            id = self.addSimplex(id = t,
                                  fs = map(f, c.faces(s)),
                                  attr = c[s])
             ns.append(id)
         return ns
 
     def relabel( self, rename ):
-        '''Re-label simplices using the given renaming, which may be a
+        '''Re-label simplices using the given relabeling, which may be a
         dict from old names to new names or a function taking a name
         and returning a new name.
+
+        If the relabeling is a dict it may be incomplete, in which
+        case unmentioned simplices retain their names. (If the relabeling is a
+        function, it has to handle all names.)
+
+        In both cases, :meth:`relabel` will complain if the relabeling
+        generates as a "new" name a name already in the complex. (This
+        detection isn't completely foolproof: just don't do it.) If you want
+        to unify simplices, use :meth:`unifyBasis` instead.
 
         (Be careful with attributes: if a simplex has an attribute the
         value of which is the name of another simplex, then renaming
         will destroy the connection and lead to problems.)
 
-        :param rename: the renaming, a dict or function
-        :returns: a list of new names used'''
+        :param rename: the relabeling, a dict or function
+        :returns: a list of new names used
+
+        '''
 
         # force the map to be a function
         if isinstance(rename, dict):
-            f = lambda s: rename[s]
+            f = lambda s: rename[s] if s in rename.keys() else s
         else:
             f = rename
 
@@ -287,9 +304,12 @@ class SimplicialComplex(object):
         newFaces = dict()
         newAttributes = dict()
         for s in self._simplices.keys():
-            newSimplices[f(s)] = map(f, self._simplices[s])
-            newFaces[f(s)] = map(f, self._faces[s])
-            newAttributes[f(s)] = copy.copy(self._attributes[s])
+            t = f(s)
+            if s != t and t in self._simplices.keys():
+                raise Exception('Relabeling attempting to re-write {s} to existing name {t}'.format(s = s, t = t))
+            newSimplices[t] = map(f, self._simplices[s])
+            newFaces[t] = map(f, self._faces[s])
+            newAttributes[t] = copy.copy(self._attributes[s])
 
         # replace the old names with the new
         self._simplices = newSimplices
@@ -322,7 +342,7 @@ class SimplicialComplex(object):
         for t in self.partOf(s, reverse = True):
             # delete in decreasing order, down to the basis
             self._deleteSimplex(t)
-    
+
     def order( self, s ):
         '''Return the order of a simplex.
         
@@ -470,18 +490,22 @@ class SimplicialComplex(object):
         :returns: a list of simplices'''''
         return self._faces[s]
     
-    def partOf( self, s, reverse = False ):
+    def partOf( self, s, reverse = False, exclude_self = False ):
         '''Return the transitive closure of all simplices of which the simplex
-        is part: itself, a face of, or a face of a face of, and so forth. This is
-        the dual of :meth:`closureOf`.
+        is part: a face of, or a face of a face of, and so forth. This is
+        the dual of :meth:`closureOf`. If exclude_self is False (the default),
+        the set include the simplex itself.
         
         :param s: the simplex
         :param reverse: (optional) reverse the sort order
+        :param exclude_self: (optional) exclude the simplex itself (default to False)
         :returns: a simplices the simplex is part of'''
-        parts = set([ s ])
+        if exclude_self:
+            parts = set()
+        else:
+            parts = set([ s ])
         fs = self._faces[s]
         for f in fs:
-            parts = parts.union(set([ f ]))
             parts = parts.union(self.partOf(f))
         return self._orderSortedSimplices(parts, reverse)
         
@@ -496,12 +520,14 @@ class SimplicialComplex(object):
         # sd: not the most elegant way to do this....
         return set([ f for f in self.closureOf(s) if self.order(f) == 0 ])  
     
-    def closureOf( self, s, reverse = False ):
+    def closureOf( self, s, reverse = False, exclude_self = False ):
         '''Return the closure of a simplex. The closure is defined
         as the simplex plus all its faces, transitively down to its basis.
-        
+        If exclude_self is True, the closure excludes the simplex itself.
+
         :param s: the simplex
         :param reverse: (optional) reverse the sort order 
+        :param exclude_self: (optional) exclude the simplex itself (defaults to False)
         :returns: the closure of the simplex'''
 
         def _close( t ):
@@ -517,7 +543,10 @@ class SimplicialComplex(object):
                 faces = faces.union(set([ t ]))
                 return faces
 
-        return self._orderSortedSimplices(_close(s), reverse)
+        ss = _close(s)
+        if exclude_self:
+            ss.remove(s)
+        return self._orderSortedSimplices(ss, reverse)
 
     def restrictBasisTo( self, bs ):
         '''Restrict the complex to include only those simplices whose 
@@ -579,7 +608,34 @@ class SimplicialComplex(object):
 
         # if we get here, all the simplices were disjoint
         return True
-            
+
+    def unifyBasis( self, ps ):
+        '''Unify pairs of 0-simplices. The pairs of simplices are unified, and
+        any simplices having any of the simp[lices in their basis are modified
+        accordingly.
+
+        For example, suppose we have three pairs of simplices to unify: (a, x),
+        (b, y), and (c, z). Suppose further that the complex contains a three
+        1-simplices [a, b], [a, d] (for some other simplex d), and [x, y]. Performing the
+        unification will relabel a->x, b->y, and c->z; change the two 1-simplices
+        to have bases [x, y] and [x, d]; and then, since there are now two simplices
+        with basis [x, y], unify them to to maintain the complex.
+
+        Essentially this operation "folds" the simplicial complex by identifying
+        some of its points. See :class:`ToroidalLattice` for an example.
+
+        :param ps: a collection of pairs of simplices to unify'''
+
+        # make sure all the simplices are 0-simplices
+        for (i, j) in ps:
+            if self.order(i) > 0:
+                raise Exception('Higher-order simplex {s} in basis set'.format(s = i))
+            if self.order(j) > 0:
+                raise Exception('Higher-order simplex {s} in basis set'.format(s = j))
+
+        # TBD
+                
+    
     def  eulerCharacteristic( self ):
         '''Return the Euler characteristic of this complex, which is a
         measure of its topological structure.

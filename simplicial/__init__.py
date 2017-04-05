@@ -29,15 +29,23 @@ explored and anlysed using techniques from algebraic :term:`topology`.
 
 `simplicial` provides a class of :class:`SimplicialComplex` to
 represents complexes and provide some topological operations. It also
-provides functiosn to visualise complxes, although these need a lot
-more work for them to be really useful.
+provides some "standard" complexes, typically representatives of a
+particularly structured class of spaces, that can be used as building
+blocks for larger complexes.
+
+`simplicial` also provides functions to visualise complexes, although
+these need a lot more work for them to be really useful.
 
 '''
 
 # representation and computation
 from .simplicialcomplex import SimplicialComplex
+
+# some sample figures
 from .triangularlattice import TriangularLattice
+from .toroidallattice import ToroidalLattice
 
 # drawing support
-import simplicial.drawing
-from .drawing import draw_*
+#import simplicial.drawing
+#from simplicial.drawing import *
+

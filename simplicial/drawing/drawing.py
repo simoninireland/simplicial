@@ -17,6 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+from simplicial import *
+
+import collections
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
@@ -66,7 +70,7 @@ def draw_complex( c, pos, ax = None, color = None, color_simplex = None, node_si
         
     # draw the edges
     for s in c.simplicesOfOrder(1):
-        fs = c.basisOf(s)
+        fs = list(c.basisOf(s))
         (x0, y0) = pos[fs[0]]
         (x1, y1) = pos[fs[1]]
         line = plt.Line2D([ x0, x1 ], [y0, y1 ],
@@ -76,7 +80,7 @@ def draw_complex( c, pos, ax = None, color = None, color_simplex = None, node_si
     
     # fill in the triangles
     for s in c.simplicesOfOrder(2):
-        fs = c.basisOf(s)
+        fs = list(c.basisOf(s))
         (x0, y0) = pos[fs[0]]
         (x1, y1) = pos[fs[1]]
         (x2, y2) = pos[fs[2]]

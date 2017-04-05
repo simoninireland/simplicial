@@ -20,15 +20,16 @@
 from simplicial import *
 
 class TriangularLattice(SimplicialComplex):
-
     '''A triangular simplicial tiling of a plane. Triangular lattices have simplices
-    of order 0, 1, and 2, connecting the 0-simplces very regularly.'''
+    of order 0, 1, and 2, connecting the 0-simplices very regularly.
+
+    :param r: the number of rows
+    :param c: the number of columns
+
+    '''
+ 
     
     def __init__( self, r, c ):
-        '''Create a triangulated lattice with the given number of rows and columns.
-        
-        :param r: the number of rows
-        :param c: the number of columns'''
         super(TriangularLattice, self).__init__()
         self._rows = r
         self._columns = c

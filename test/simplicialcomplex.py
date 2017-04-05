@@ -132,6 +132,29 @@ class SimplicialComplexTests(unittest.TestCase):
                                 12, 13, 23, 45, 46, 56,
                                 123, 456 ])
 
+    def testCopyRenameCollision( self ):
+        '''Test that we fail if we try to re-use a simplex name when copying.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        d = SimplicialComplex()
+        d.addSimplex(id = 1)
+        d.addSimplex(id = 5)
+        d.addSimplex(id = 6)
+        d.addSimplex(id = 15, fs = [ 1, 5 ]) 
+        d.addSimplex(id = 16, fs = [ 1, 6 ]) 
+        d.addSimplex(id = 56, fs = [ 5, 6 ]) 
+        d.addSimplex(id = 156, fs = [ 15, 16, 56 ])
+
+        with self.assertRaises(Exception):
+            c.addSimplicesFrom(d)
+        
     def testCopyRenameFunction( self ):
         '''Test copying simplices from one complex to another, with a renaming
         function for the simplices.'''
@@ -193,6 +216,33 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertItemsEqual(c.faces(1004), [ 1001, 1002 ])
         self.assertItemsEqual(c.faces(1007), [ 1004, 1005, 1006 ])
 
+    def testCopyRenameMapCollision( self ):
+        '''Test that we fail if we try to re-use a simplex name when copying and renaming.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        d = SimplicialComplex()
+        d.addSimplex(id = 4)
+        d.addSimplex(id = 5)
+        d.addSimplex(id = 6)
+        d.addSimplex(id = 45, fs = [ 4, 5 ]) 
+        d.addSimplex(id = 46, fs = [ 4, 6 ]) 
+        d.addSimplex(id = 56, fs = [ 5, 6 ]) 
+        d.addSimplex(id = 456, fs = [ 45, 46, 56 ])
+
+        r = dict()
+        for i in xrange(1, 8):
+            r[i] = i + 1000
+        r[4] = 1
+        with self.assertRaises(Exception):
+            c.addSimplicesFrom(d, rename = r)
+        
     def testAddWithBasis0New( self ):
         '''Check adding a 0-simplex.'''
         c = SimplicialComplex()
@@ -337,7 +387,81 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertItemsEqual(c.partOf(1001), [ 1001, 1012, 1013, 1123 ])
         self.assertItemsEqual(c.partOf(1002), [ 1002, 1012, 1023, 1123 ])
         self.assertItemsEqual(c.partOf(1003), [ 1003, 1013, 1023, 1123 ])
-                              
+
+    def testRelabelMap( self ):
+        '''Test relabelling with a dict.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        rename = dict()
+        for i in c.simplices():
+            rename[i] = i + 1000
+        ns = c.relabel(rename)
+        self.assertItemsEqual(ns, [ 1001, 1002, 1003,
+                                    1012, 1013, 1023,
+                                    1123 ])
+        self.assertItemsEqual(ns, c.simplices())
+        self.assertItemsEqual(c.faces(1123), [ 1012, 1013, 1023 ])
+        self.assertItemsEqual(c.faces(1012), [ 1001, 1002 ])
+        self.assertItemsEqual(c.faces(1013), [ 1001, 1003 ])
+        self.assertItemsEqual(c.faces(1023), [ 1002, 1003 ])
+        self.assertItemsEqual(c.partOf(1001), [ 1001, 1012, 1013, 1123 ])
+        self.assertItemsEqual(c.partOf(1002), [ 1002, 1012, 1023, 1123 ])
+        self.assertItemsEqual(c.partOf(1003), [ 1003, 1013, 1023, 1123 ])
+
+    def testRelabelIncomplete( self ):
+        '''Test relabelling with a dict that doesn't cover all simplices.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        rename = dict()
+        for i in c.simplices():
+            rename[i] = i + 1000
+        del rename[1]
+        del rename[123]
+        ns = c.relabel(rename)
+        self.assertItemsEqual(ns, [ 1, 1002, 1003,
+                                    1012, 1013, 1023,
+                                    123 ])
+        self.assertItemsEqual(ns, c.simplices())
+        self.assertItemsEqual(c.faces(123), [ 1012, 1013, 1023 ])
+        self.assertItemsEqual(c.faces(1012), [ 1, 1002 ])
+        self.assertItemsEqual(c.faces(1013), [ 1, 1003 ])
+        self.assertItemsEqual(c.faces(1023), [ 1002, 1003 ])
+        self.assertItemsEqual(c.partOf(1), [ 1, 1012, 1013, 123 ])
+        self.assertItemsEqual(c.partOf(1002), [ 1002, 1012, 1023, 123 ])
+        self.assertItemsEqual(c.partOf(1003), [ 1003, 1013, 1023, 123 ])
+
+    def testRelabelCollision( self ):
+        '''Test relabelling with a collision in the names.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        rename = dict()
+        for i in c.simplices():
+            rename[i] = i + 1000
+        rename[1] = 2
+        with self.assertRaises(Exception):
+            ns = c.relabel(rename)
+
     def testOrderViolation( self ):
         '''Test that we throw an exception if we try to add a face with the wrong order.'''
         c = SimplicialComplex()
@@ -413,6 +537,24 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertItemsEqual(c.closureOf(13), [ 1, 3, 13 ])
         self.assertItemsEqual(c.closureOf(23), [ 2, 3, 23 ])
         self.assertItemsEqual(c.closureOf(123), [ 1, 2, 3, 12, 13, 23, 123 ])
+          
+    def testClosureExclude( self ):
+        '''Test that we correctly exclude the simplex itself from its closure when requested.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ]) 
+        self.assertItemsEqual(c.closureOf(1, exclude_self = True), [ ])
+        self.assertItemsEqual(c.closureOf(2, exclude_self = True), [ ])
+        self.assertItemsEqual(c.closureOf(3, exclude_self = True), [ ])
+        self.assertItemsEqual(c.closureOf(12, exclude_self = True), [ 1, 2 ])
+        self.assertItemsEqual(c.closureOf(13, exclude_self = True), [ 1, 3 ])
+        self.assertItemsEqual(c.closureOf(23, exclude_self = True), [ 2, 3 ])
+        self.assertItemsEqual(c.closureOf(123, exclude_self = True), [ 1, 2, 3, 12, 13, 23 ])
 
     def testPart( self ):
         '''Test that we correctly form the part-of (co-closure) of various simplices'''
@@ -431,6 +573,24 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertItemsEqual(c.partOf(13), [ 13, 123 ])
         self.assertItemsEqual(c.partOf(23), [ 23, 123 ])
         self.assertItemsEqual(c.partOf(123), [ 123 ])
+
+    def testPartExcludeSelf( self ):
+        '''Test that we correctly exclud the simplex itself when requested.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        self.assertItemsEqual(c.partOf(1, exclude_self = True), [ 12, 13, 123 ])
+        self.assertItemsEqual(c.partOf(2, exclude_self = True), [ 23, 12, 123 ])
+        self.assertItemsEqual(c.partOf(3, exclude_self = True), [ 13, 23, 123 ])
+        self.assertItemsEqual(c.partOf(12, exclude_self = True), [ 123 ])
+        self.assertItemsEqual(c.partOf(13, exclude_self = True), [ 123 ])
+        self.assertItemsEqual(c.partOf(23, exclude_self = True), [ 123 ])
+        self.assertItemsEqual(c.partOf(123, exclude_self = True), [])
 
     def testDisjoint( self ):
         '''Test we can detect disjoint simplices.'''
