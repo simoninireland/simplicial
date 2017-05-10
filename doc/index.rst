@@ -28,4 +28,5 @@ Indices and tables
 * :ref:`glossary`
 * :ref:`bibliography`
 * :ref:`search`
+* :ref:`acknowledgements`
 

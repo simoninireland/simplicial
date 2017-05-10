@@ -18,7 +18,7 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 # The version we're building
-VERSION = 0.3.1
+VERSION = 0.4.1
 
 
 # ----- Sources -----
@@ -55,6 +55,7 @@ SOURCES_DOCUMENTATION = \
 	doc/file.rst \
 	doc/installation.rst \
 	doc/glossary.rst \
+	doc/acknowledgements.rst \
 	doc/bibliography.rst
 
 SOURCES_EXTRA = \

@@ -1,4 +1,15 @@
-Versiun 0.2.1 (5Apr2017)
+Version 0.4.1
+
+   - Added computations for boundary operators and Betti numbers
+   - Added references and acknowledgements to Rob Ghrist and
+     Jeremy Kun
+
+Version 0.3.1 (8May2017)
+
+   - Fixed some obscure bugs
+   - Added persistence to and from JSON
+
+Version 0.2.1 (5Apr2017)
 
    - Added triangular lattices
    - Added drawing functions

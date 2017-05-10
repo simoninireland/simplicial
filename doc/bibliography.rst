@@ -33,3 +33,13 @@ Robert Ghrist. Elementary applied topology. ISBN
 Allen Hatcher. `Algebraic topology
 <https://www.math.cornell.edu/~hatcher/AT/ATpage.html>`_. Cambridge
 University Press. ISBN 0-521-79540-0. 2002. (Free to download.)
+
+.. _Kun13:
+
+Jeremy Kun. `Computing homology
+<https://jeremykun.com/2013/04/10/computing-homology/>`_. 2013.
+
+.. _Kun14:
+
+Jeremy Kun. `Fixing bugs in "Computing homology"
+<https://jeremykun.com/2014/01/23/fixing-bugs-in-computing-homology/>`_. 2014.

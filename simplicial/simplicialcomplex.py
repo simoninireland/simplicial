@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+import numpy
 import copy
 import itertools
 
@@ -36,9 +37,11 @@ class SimplicialComplex(object):
 
     The class also includes some topological operations, notably for
     computing the :term:`Euler characteristic` of a complex and
-    performing Euler integration.
+    performing Euler integration, and for computational :term:`homology`.
 
     '''
+
+    # ---------- Initialisation and helpers ----------
     
     def __init__( self ):
         self._sequence = 1           # sequence number for generating simplex names
@@ -69,6 +72,9 @@ class SimplicialComplex(object):
         :param ls: a list of simplex names
         :returns: the simplex names in canonical order'''
         return sorted(ls)
+
+
+    # ---------- Adding simplices ----------
     
     def addSimplex( self, fs = [], id = None, attr = None ):
         '''Add a simplex to the complex whose faces are the elements of fs.
@@ -272,6 +278,9 @@ class SimplicialComplex(object):
             ns.append(id)
         return ns
 
+
+    # ---------- Relabelling ----------
+    
     def relabel( self, rename ):
         '''Re-label simplices using the given relabeling, which may be a
         dict from old names to new names or a function taking a name
@@ -320,7 +329,10 @@ class SimplicialComplex(object):
 
         # return the new names of all the simplices
         return self.simplices()
-        
+
+
+    # ---------- Deleting simplices ----------
+    
     def _deleteSimplex( self, s ):
         '''Delete a simplex. This can result in a broken complex, so
         it's almost always better to use :meth:`deleteSimplex`.
@@ -345,6 +357,52 @@ class SimplicialComplex(object):
             # delete in decreasing order, down to the basis
             self._deleteSimplex(t)
 
+    def __delitem__( self, s ):
+        '''Delete the simplex and all simplices of which it is a part.
+        Equivalent to :meth:`deleteSimplex`.
+        
+        :param s: the simplex'''
+        self.deleteSimplex(s)
+
+    def restrictBasisTo( self, bs ):
+        '''Restrict the complex to include only those simplices whose 
+        bases are wholly contained in the given set of 0-simplices.
+        
+        :param bs: the basis
+        :returns: the complex'''
+        bs = set(bs)
+        
+        # make sure we have a set of 0-simplices
+        for s in bs:
+            if self.order(s) > 0:
+                raise Exception('Higher-order simplex {s} in basis set'.format(s = s))
+        
+        # find all simplices that need to be excluded
+        remove = set([])
+        for s in self._simplices:
+            if self.order(s) == 0:
+                # it's a vertex, is it in the set?
+                if s not in bs:
+                    # no, mark it for dropping
+                    remove.add(s)
+            else:
+                # it's a higher-order simplex, is its basis wholly in the set?
+                sbs = self.basisOf(s)
+                if not sbs <= bs:
+                    # basis is not wholly contained, mark it for removal
+                    remove.add(s)
+        
+        # close the set of simplices to be removed
+        for r in remove:
+            rs = remove.union(self.partOf(r))
+            
+        # remove the marked simplices
+        for s in self._orderSortedSimplices(remove, reverse = True):
+            self._deleteSimplex(s)
+
+        
+    # ---------- Accessing simplices ----------
+    
     def order( self, s ):
         '''Return the order of a simplex.
         
@@ -447,6 +505,19 @@ class SimplicialComplex(object):
         # sd: should we check that the set size is 1, just for safety?
         return ss.pop()
 
+    def allSimplices( self, p, reverse = False ):
+        '''Return all the simplices that match the given predicate, which should
+        be a function from complex and simplex to boolean. The simplices are
+        sorted according to their orders.
+        
+        :param p: a predicate
+        :param reverse: (optional) reverse the order 
+        :returns: the set of simplices satisfying the predicate'''
+        return self._orderSortedSimplices([ s for s in self._simplices if p(self, s) ], reverse)
+
+    
+    # ---------- Attributes ----------
+    
     def __getitem__( self, s ):
         '''Return the attributes associated with the given simplex.
         
@@ -460,23 +531,9 @@ class SimplicialComplex(object):
         :param s: the simplex
         :param attr: the attributes'''
         self._attributes[s] = attr
-        
-    def __delitem__( self, s ):
-        '''Delete the simplex and all simplices of which it is a part.
-        Equivalent to :meth:`deleteSimplex`.
-        
-        :param s: the simplex'''
-        self.deleteSimplex(s)
-        
-    def allSimplices( self, p, reverse = False ):
-        '''Return all the simplices that match the given predicate, which should
-        be a function from complex and simplex to boolean. The simplices are
-        sorted according to their orders.
-        
-        :param p: a predicate
-        :param reverse: (optional) reverse the order 
-        :returns: the set of simplices satisfying the predicate'''
-        return self._orderSortedSimplices([ s for s in self._simplices if p(self, s) ], reverse)
+
+
+    # ---------- Structure of complex, per-simplex level ----------
     
     def faces( self, s ):
         '''Return the faces of a simplex.
@@ -555,42 +612,9 @@ class SimplicialComplex(object):
             ss.remove(s)
         return self._orderSortedSimplices(ss, reverse)
 
-    def restrictBasisTo( self, bs ):
-        '''Restrict the complex to include only those simplices whose 
-        bases are wholly contained in the given set of 0-simplices.
-        
-        :param bs: the basis
-        :returns: the complex'''
-        bs = set(bs)
-        
-        # make sure we have a set of 0-simplices
-        for s in bs:
-            if self.order(s) > 0:
-                raise Exception('Higher-order simplex {s} in basis set'.format(s = s))
-        
-        # find all simplices that need to be excluded
-        remove = set([])
-        for s in self._simplices:
-            if self.order(s) == 0:
-                # it's a vertex, is it in the set?
-                if s not in bs:
-                    # no, mark it for dropping
-                    remove.add(s)
-            else:
-                # it's a higher-order simplex, is its basis wholly in the set?
-                sbs = self.basisOf(s)
-                if not sbs <= bs:
-                    # basis is not wholly contained, mark it for removal
-                    remove.add(s)
-        
-        # close the set of simplices to be removed
-        for r in remove:
-            rs = remove.union(self.partOf(r))
-            
-        # remove the marked simplices
-        for s in self._orderSortedSimplices(remove, reverse = True):
-            self._deleteSimplex(s)
 
+    # ---------- Structure of the complex, multiple simplex level ----------
+    
     def disjoint( self, ss ):
         '''Test whether a set of simplices are disjoint, defined as if
         they share no common simplices in their closures. (It doesn't
@@ -616,6 +640,9 @@ class SimplicialComplex(object):
         # if we get here, all the simplices were disjoint
         return True
 
+
+    # ---------- Euler characteristic and integration ----------
+    
     def  eulerCharacteristic( self ):
         '''Return the Euler characteristic of this complex, which is a
         measure of its topological structure.
@@ -652,6 +679,166 @@ class SimplicialComplex(object):
         # return the accumulated integral
         return a
 
+
+    # ---------- Homology ----------
     
-                
-                
+    def boundaryMatrix( self, k ):
+        '''Return the :term:`boundary operator` of the k-simplices in the 
+        complex as a `numpy` matrix. The columns correspond to
+        simplices of order k while rows correspond to simplices
+        of order (k - 1). The matrix has a 1 when a (k-1) simplex 
+        is a face of the corresponding k-simplex, and 0 otherwise.
+
+        :param k: the order of simplices
+        :returns: the boundary matrix'''
+
+        # create matrix, zeroing all the entries
+        n = self.numberOfSimplicesOfOrder()
+        boundary = numpy.zeros([ n[k - 1], n[k] ])
+
+        # form a canonical ordering for the simplics of order k and k - 1
+        ks = self._orderSortedSimplices(self.simplicesOfOrder(k))
+        kmos = self._orderSortedSimplices(self.simplicesOfOrder(k - 1))
+        
+        # add 1 in every row which is a face of the column' simplex
+        c = 0
+        for s in ks:
+            # extract the faces of the simplex
+            for f in self.faces(s):
+                # mark the corresponding position with a 1
+                r = kmos.index(f)
+                boundary[r, c] = 1
+            c = c + 1
+
+        return boundary
+
+    def _reduce( self, Ain, Bin ):
+        '''Reduce two boundary matrices simultaneously, by applying
+        complementary row/column operations to each.
+
+        For details of this algorithm see `here <https://jeremykun.com/2013/04/10/computing-homology/>`_.
+        The difference is that we work over a binary field (without
+        orientation), meaning that we need to perform arithmetic modulo 2. 
+
+        :param Ain: the first boundary operator matrix
+        :param Bin: the second boundary operator matrix
+        :returns: the pair of reduced matrices'''
+        (A, B) = Ain.copy(), Bin.copy()
+        
+        (ra, ca) = A.shape
+        (rb, cb) = B.shape
+        i = j = 0
+        while True:
+            if (i >= ra) or (j >= ca):
+                break
+
+            if A[i, j] == 0:
+                nzc = j
+                while (nzc < ca) and (A[i, nzc] == 0):
+                    nzc = nzc + 1
+                if nzc == ca:
+                    i = i + 1
+                    continue
+                A[:, [j, nzc]] = A[:, [nzc, j]]
+                B[[j, nzc], :] = B[[nzc, j], :]
+
+            pivot = A[i, j]
+            A[:, j] = (A[:, j] * (numpy.ones(ra) * (1.0 / pivot))) % 2
+            B[j, :] = (B[j, :] * (numpy.ones(cb) * (1.0 / pivot))) % 2
+
+            for k in range(ca):
+                if k == j:
+                    continue
+                if A[i, k] != 0:
+                    scale = -A[i, k]
+                    A[:, k] = (A[:, k] + (A[:, j] * scale)) % 2
+                    B[j, :] = (B[j, :] + (B[k, :] * -scale)) % 2
+
+            i = i + 1
+            j = j + 1
+
+        Br = self._finishRowReducing(B)
+        return A % 2, Br % 2
+
+    def _finishRowReducing( self, Bin ):
+        '''Finish putting the second matrix into row-reduced form.
+        See `here <https://jeremykun.com/2014/01/23/fixing-bugs-in-computing-homology/>`_
+        for details.
+
+        :param Bin: the second boundary operator matrix
+        :returns: the fully row-reduced matrix'''
+        B = Bin.copy()
+        
+        (rb, cb) = B.shape
+        i = j = 0
+        while True:
+            if (i >= rb) or (j >= cb):
+                break
+
+            if B[i, j] == 0:
+                nzr = j
+                while (nzr < rb) and (B[nzr, j] == 0):
+                    nzr = nzr + 1
+                if nzr == rb:
+                    j = j + 1
+                    continue
+                B[[i, nzr], :] = B[[nzr, i], :]
+
+            pivot = B[i, j]
+            B[j, :] = (B[j, :] * (numpy.ones(cb) * (1.0 / pivot))) % 2
+
+            for k in range(rb):
+                if k == i:
+                    continue
+                if B[k, j] != 0:
+                    scale = -B[k, j]
+                    B[k, :] = (B[k, :] + (B[i, :] * -scale)) % 2
+
+            i = i + 1
+            j = j + 1
+
+        return B
+    
+    def bettiNumbers( self, ks = None ):
+        '''Return dict of Betti numbers for the complex, starting with
+        B_0 up to B_k where k is the largest simplex order in the complex.
+        The optional list of orders restricts the calculation to only
+        those orders.
+
+        :param ks: (optional) list of orders (defaults to all) 
+        :returns: a dict of Betti numbers'''
+        maxk = self.maxOrder()
+        
+        # fill in the default
+        if ks is None:
+            ks = list(range(maxk))
+
+        # compute the Betti numbers
+        boundary = dict()
+        betti = dict()
+        for k in ks:
+            # compute the boundary operators
+            if k not in boundary.keys():
+                boundary[k] = self.boundaryMatrix(k)
+            if k + 1 not in boundary.keys():
+                boundary[k + 1] = self.boundaryMatrix(k + 1)
+
+            # row- and column-reduce the matrices
+            A, B = self._reduce(boundary[k], boundary[k + 1])
+            
+            # count the number of pivot rows and columns
+            (ra, ca) = A.shape
+            (rb, cb) = B.shape            
+            zc = numpy.zeros(ra)
+            pivotC = [ numpy.all(A[:, j] == zc) for j in range(ca) ].count(False)
+            zr = numpy.zeros(cb)
+            pivotR = [ numpy.all(B[i, :] == zr) for i in range(rb) ].count(False)
+
+            # compute the orders of the groups
+            kDim = ca
+            kernelDim = kDim - pivotC
+            imageDim = pivotR
+            betti[k] = kernelDim - imageDim 
+
+        return betti
+    

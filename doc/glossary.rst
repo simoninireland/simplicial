@@ -10,6 +10,11 @@ Glossary
    basis
       The 0-simplices that lie at the "base" of a :term:`simplex`. A
       simplex of :term:`order` n has n 0-simplices in its basis.
+
+   boundary operator
+      A linear operator taking k-simplices to the their (k-1)-simplex
+      faces. The boundary operator extends to sets (chains) of k-simplices,
+      where it returns all the (k-1)-simplices in the total boundary.
       
    complex
       A collection of simplices. In `simplicial`, complexes are
@@ -17,7 +22,7 @@ Glossary
       every :term:`simplex` contained in the complex.
 
    Euler characteristic
-      A topological property of a complex computed from the
+      A :term:`topological invariant` of a complex computed from the
       alternating sum of the numbers of simplices of different orders:
 
       .. math::
@@ -33,6 +38,11 @@ Glossary
       less than the simplex of which it is a face: 2-simplices
       (triangle) have faces that are 1-simplices (edges).
 
+   homology
+      A :term:`topological invariant` of a complex that has a more
+      subtle ability to measure holes of of different dimensions in a
+      structure.
+      
    order
       The "dimensionality" of a :term:`simplex`, A simplex of order 1
       (a 1-simplex) is a one-dimensional structure (an edge); a
@@ -48,3 +58,8 @@ Glossary
       "The stratosphere of human thought! ! In the twenty-fourth
       century it might possibly be of use to someone..." (Alexander
       Solzhenitsyn, The First Circle).
+
+   topological invariant
+      A property that isn't changed by smooth changes in a complex, or
+      by the details of how a shape is approximated by a complex.
+      

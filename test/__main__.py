@@ -20,16 +20,19 @@
 import unittest
 
 from .simplicialcomplex import SimplicialComplexTests
+from .homology import HomologyTests
 from .randomplanes import RandomPlanesTests
 from .triangularlattice import TriangularLatticeTests
 from .json_simplicial import JSONTests
 
 simplicialcomplexSuite = unittest.TestLoader().loadTestsFromTestCase(SimplicialComplexTests)
+homologySuite = unittest.TestLoader().loadTestsFromTestCase(HomologyTests)
 randomplanesSuite = unittest.TestLoader().loadTestsFromTestCase(RandomPlanesTests)
 triangularlatticeSuite = unittest.TestLoader().loadTestsFromTestCase(TriangularLatticeTests)
 jsonSuite = unittest.TestLoader().loadTestsFromTestCase(JSONTests)
 
 suite = unittest.TestSuite([ simplicialcomplexSuite,
+                             homologySuite,
                              randomplanesSuite,
                              triangularlatticeSuite,
                              jsonSuite

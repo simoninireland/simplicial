@@ -117,3 +117,25 @@ the Euler characteristic of a space.
 
 (For more details about Euler integration see :ref:`Baryshnikov and
 Ghrist <BG09a>` or :ref:`Curry <CGR14>`.)
+
+
+Homology
+--------
+
+One can regard :term:`homology` simply as a more sophisticated version
+of the :term:`Euler characteristic`: a way of counting the holes in a
+structure at various dimensions. Unlike the Euler characteristic,
+homology is able to differentiate between (for example) a
+two-dimensional hole and a three-dimensional cavity, and then to
+higher dimensions.
+
+In `simplicial` we implement the simplest possible version of
+simplicial homology in which simplices are treated as un-oriented, which
+leads to chain coefficients over a field of [0, 1]. This massively
+simplifies the calculations but means that matrix operations need to
+be normalised modulo 2.
+
+.. automethod:: SimplicialComplex.boundaryMatrix
+		
+.. automethod:: SimplicialComplex.bettiNumbers
+		
