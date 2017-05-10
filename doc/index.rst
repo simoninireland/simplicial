@@ -15,7 +15,10 @@ simplicial: Simplicial topology in Python
 
    simplicialcomplex
    triangularlattice
-   drawing
+   
+:ref:`drawing`
+     
+:ref:`file`
    
 
 Indices and tables

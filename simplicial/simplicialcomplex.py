@@ -125,10 +125,10 @@ class SimplicialComplex(object):
         for f in ofs:
             self._faces[f].append(id)
 
-        # return the simplices' name
+        # return the simplex' name
         return id
 
-    def addSimplexWithBasis( self, bs, id = None ):
+    def addSimplexWithBasis( self, bs, id = None, attr = None ):
         '''Add a simplex by providing its basis, which uniquely defines it.
         This method adds all the simplices necessary to define the new
         simplex, using :meth:`simplexByBasis` to find and re-use any that are
@@ -136,7 +136,7 @@ class SimplicialComplex(object):
 
         To add a simplex defined by its faces, use :meth:`addSimplex`.
 
-        If the simplex with the given basis  already exists in the complex,
+        If the simplex with the given basis already exists in the complex,
         this method does nothing.
 
         Defining a k-simplex requires a (k + 1) basis. All elements of
@@ -144,6 +144,7 @@ class SimplicialComplex(object):
 
         :param bs: the basis
         :param id: (optional) the name of the new simplex
+        :param attr: (optional) dict of attributes
         :returns: the name of the new simplex'''
         so = len(bs) - 1   # order of the final simplex
         fs = []            # faces in the final simplex
@@ -164,27 +165,6 @@ class SimplicialComplex(object):
             if so == 1:
                 fs.append(s)
 
-        # if for some reason we're adding just a single simplex,
-        # we're now finished
-        if so == 0:
-            return s
-
-        # iterate up through all the simplex orders, creating
-        # any missing ones and capturing the faces for the final simplex
-        for k in xrange(1, so):
-            # find all the bases for the simplices of this order
-            bss = set(itertools.combinations(bs, k + 1))
-            for pbs in bss:
-                # do we have the simplex with this basis?
-                s = self.simplexWithBasis(pbs)
-                if s is None:
-                    # no, create it
-                    s = self.addSimplex(fs = pbs)
-
-                # if we're at the final order, capture the simplex as a face
-                if k == so - 1:
-                    fs.append(s)
-
         # check if we have a simplex with this basis
         s = self.simplexWithBasis(bs)
         if s is not None:
@@ -201,9 +181,31 @@ class SimplicialComplex(object):
         if id is None:
             id = self._newUniqueIndex(so)
 
+        # if for some reason we're adding just an 0-simplex,
+        # we're now finished
+        if so == 0:
+            return s
+
+        # iterate up through all the simplex orders, creating
+        # any missing ones and capturing the faces for the final simplex
+        for k in xrange(1, so):
+            # find all the bases for the simplices of this order
+            bss = set(itertools.combinations(bs, k + 1))
+            for pbs in bss:
+                # do we have the simplex with this basis?
+                s = self.simplexWithBasis(pbs)
+                if s is None:
+                    # no, create it
+                    s = self.addSimplexWithBasis(pbs)
+
+                # if we're at the final order, capture the simplex as a face
+                if k == so - 1:
+                    fs.append(s)
+
         # create the final simplex and return it
         s = self.addSimplex(id = id,
-                            fs = fs) 
+                            fs = fs,
+                            attr = attr) 
         return s
 
     def addSimplexOfOrder( self, o, id = None ):
@@ -355,9 +357,12 @@ class SimplicialComplex(object):
         to say, the largest order for which a call to :meth:`simplicesOfOrder`
         will return a non-empty list.
         
-        :returns: the largest order that contains at least one simplex'''
-        os = [ self.order(s) for s in self._simplices ]
-        return max(os)
+        :returns: the largest order that contains at least one simplex, or None'''
+        if len(self._simplices) == 0:
+            return None
+        else:
+            os = [ self.order(s) for s in self._simplices ]
+            return max(os)
     
     def numberOfSimplicesOfOrder( self ):
         '''Return a dict mapping an order to the number of simplices
@@ -495,18 +500,20 @@ class SimplicialComplex(object):
         is part: a face of, or a face of a face of, and so forth. This is
         the dual of :meth:`closureOf`. If exclude_self is False (the default),
         the set include the simplex itself.
+
+        In some of the topology literature this operation is called the star.
         
         :param s: the simplex
         :param reverse: (optional) reverse the sort order
         :param exclude_self: (optional) exclude the simplex itself (default to False)
-        :returns: a simplices the simplex is part of'''
+        :returns: the list of simplices the simplex is part of'''
         if exclude_self:
             parts = set()
         else:
             parts = set([ s ])
         fs = self._faces[s]
         for f in fs:
-            parts = parts.union(self.partOf(f))
+            parts |= set(self.partOf(f))
         return self._orderSortedSimplices(parts, reverse)
         
     def basisOf( self,  s ):
@@ -609,33 +616,6 @@ class SimplicialComplex(object):
         # if we get here, all the simplices were disjoint
         return True
 
-    def unifyBasis( self, ps ):
-        '''Unify pairs of 0-simplices. The pairs of simplices are unified, and
-        any simplices having any of the simp[lices in their basis are modified
-        accordingly.
-
-        For example, suppose we have three pairs of simplices to unify: (a, x),
-        (b, y), and (c, z). Suppose further that the complex contains a three
-        1-simplices [a, b], [a, d] (for some other simplex d), and [x, y]. Performing the
-        unification will relabel a->x, b->y, and c->z; change the two 1-simplices
-        to have bases [x, y] and [x, d]; and then, since there are now two simplices
-        with basis [x, y], unify them to to maintain the complex.
-
-        Essentially this operation "folds" the simplicial complex by identifying
-        some of its points. See :class:`ToroidalLattice` for an example.
-
-        :param ps: a collection of pairs of simplices to unify'''
-
-        # make sure all the simplices are 0-simplices
-        for (i, j) in ps:
-            if self.order(i) > 0:
-                raise Exception('Higher-order simplex {s} in basis set'.format(s = i))
-            if self.order(j) > 0:
-                raise Exception('Higher-order simplex {s} in basis set'.format(s = j))
-
-        # TBD
-                
-    
     def  eulerCharacteristic( self ):
         '''Return the Euler characteristic of this complex, which is a
         measure of its topological structure.
@@ -671,3 +651,7 @@ class SimplicialComplex(object):
 
         # return the accumulated integral
         return a
+
+    
+                
+                

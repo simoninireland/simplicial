@@ -18,7 +18,7 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 # The version we're building
-VERSION = 0.2.1
+VERSION = 0.3.1
 
 
 # ----- Sources -----
@@ -29,14 +29,18 @@ SOURCES_CODE = \
 	simplicial/__init__.py \
 	simplicial/simplicialcomplex.py \
 	simplicial/triangularlattice.py \
+	simplicial/drawing/__init__.py \
 	simplicial/drawing/drawing.py \
-	simplicial/drawing/layout.py
+	simplicial/drawing/layout.py \
+	simplicial/file/__init__.py \
+	simplicial/file/json_simplicial.py
 SOURCES_TESTS = \
 	test/__init__.py \
 	test/__main__.py \
 	test/simplicialcomplex.py \
 	test/triangularlattice.py \
-	test/randomplanes.py
+	test/randomplanes.py \
+	test/json_simplicial.py
 TESTSUITE = test
 
 SOURCES_DOC_CONF = doc/conf.py
@@ -48,6 +52,7 @@ SOURCES_DOCUMENTATION = \
 	doc/simplicialcomplex.rst \
 	doc/triangularlattice.rst \
 	doc/drawing.rst \
+	doc/file.rst \
 	doc/installation.rst \
 	doc/glossary.rst \
 	doc/bibliography.rst

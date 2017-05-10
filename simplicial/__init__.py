@@ -45,7 +45,12 @@ from .simplicialcomplex import SimplicialComplex
 from .triangularlattice import TriangularLattice
 from .toroidallattice import ToroidalLattice
 
+# file I/O
+import simplicial.file
+from simplicial.file import *
+
 # drawing support
 #import simplicial.drawing
 #from simplicial.drawing import *
+
 

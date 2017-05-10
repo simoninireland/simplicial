@@ -1,3 +1,5 @@
+.. _drawing:
+
 Drawing simplicial complexes
 ============================
 
@@ -26,8 +28,7 @@ thereby endowing the topological structure complex with a
 geometry. 
 
 .. autofunction:: triangular_lattice_positions
-
-		  
+	  
 		   
 Drawing a complex
 -----------------

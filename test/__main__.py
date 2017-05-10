@@ -22,14 +22,17 @@ import unittest
 from .simplicialcomplex import SimplicialComplexTests
 from .randomplanes import RandomPlanesTests
 from .triangularlattice import TriangularLatticeTests
+from .json_simplicial import JSONTests
 
 simplicialcomplexSuite = unittest.TestLoader().loadTestsFromTestCase(SimplicialComplexTests)
 randomplanesSuite = unittest.TestLoader().loadTestsFromTestCase(RandomPlanesTests)
 triangularlatticeSuite = unittest.TestLoader().loadTestsFromTestCase(TriangularLatticeTests)
+jsonSuite = unittest.TestLoader().loadTestsFromTestCase(JSONTests)
 
 suite = unittest.TestSuite([ simplicialcomplexSuite,
                              randomplanesSuite,
                              triangularlatticeSuite,
+                             jsonSuite
                            ])
 
 if __name__ == '__main__':

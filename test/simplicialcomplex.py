@@ -23,6 +23,43 @@ from simplicial import *
 
 class SimplicialComplexTests(unittest.TestCase):
 
+    def _checkIntegrity( self, c ):
+        '''Check the integrity of the complex, making sure that all faces of
+        all higher simplices are contained in the complex.'''
+        kmax = c.maxOrder()
+
+        # run through simplices from highest order downwards, checking faces
+        for k in xrange(kmax + 1, 0, -1):
+            ss = c.simplicesOfOrder(k)
+            for s in ss:
+                # check that the simplex has all its faces
+                fs = c.faces(s)
+                if len(fs) != k + 1:
+                    # not enough faces
+                    raise Exception('Simplex {s} needs {nf} faces, got {lf}'.format(s = s,
+                                                                                    nf = k + 1,
+                                                                                    lf = len(fs)))
+                for f in fs:
+                    # check all the faces exist in the complex
+                    if f not in c.simplices():
+                        # a face that's not a simplex
+                        raise Exception('Simplex {s} has a face {f} that isn\'t in the complex'.format(s = s,
+                                                                                                        f = f))
+
+        # run up simplices from lowest order up, checking parts membership
+        for k in xrange(kmax + 1):
+            ss = c.simplicesOfOrder(k)
+            for s in ss:
+                # extract all the simplices we're part of
+                ps = c.partOf(s, exclude_self = True)
+                for p in ps:
+                    # make sure we're a a face of every simplx we're part of
+                    if s not in c.faces(p):
+                        # we're part of something we're not a face of
+                        raise Exception('Simplex {s} is part of {p} but not a face of it'.format(s = s,
+                                                                                                 p = p))
+                
+
     def test0simplex( self ):
         '''Test the creation of a single 0-simplex complex.'''
         c = SimplicialComplex()
@@ -310,7 +347,21 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertItemsEqual(c.simplicesOfOrder(0), [ 1, 2, 3 ])
         self.assertItemsEqual(c.simplicesOfOrder(1), [ 12, 13, 23 ])
         self.assertItemsEqual(c.simplicesOfOrder(2), [ 'tri' ])
+
+    def testAddWithBasis4( self ):
+        '''Check adding a 3-simplex to an empty complex'''
+        c = SimplicialComplex()
+        c.addSimplexWithBasis([ 1, 2, 3, 4 ])
         
+        nos = c.numberOfSimplicesOfOrder()
+        self.assertEqual(nos[0], 4)
+        self.assertEqual(nos[1], 6)
+        self.assertEqual(nos[2], 4)
+        self.assertEqual(nos[3], 1)
+
+        tri = c.simplicesOfOrder(3).pop()
+        self.assertItemsEqual(c.basisOf(tri), [ 1, 2, 3, 4 ])
+                         
     def testAddWithBasis2ExistNamesDontMatch( self ):
         '''Check adding a named 2-simplex by its basis when it already exists with a different name.'''
         c = SimplicialComplex()
@@ -735,6 +786,7 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
         c.deleteSimplex(12)
         self.assertItemsEqual(c.partOf(1), [ 1, 13 ])
+        self._checkIntegrity(c)
 
     def testEuler1hole( self ):
         '''Test that the Euler characteristic for a simplex with an unfilled triangle.'''
