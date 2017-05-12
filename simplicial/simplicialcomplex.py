@@ -613,34 +613,6 @@ class SimplicialComplex(object):
         return self._orderSortedSimplices(ss, reverse)
 
 
-    # ---------- Structure of the complex, multiple simplex level ----------
-    
-    def disjoint( self, ss ):
-        '''Test whether a set of simplices are disjoint, defined as if
-        they share no common simplices in their closures. (It doesn't
-        mean that they aren't part of a common super-simplex, however.)
-
-        :param ss: the simplices
-        :returns: boolean'''
-        cl = None
-        for s in ss:
-            if cl is None:
-                # first simplex, grab its closure
-                cl = set(self.closureOf(s))
-            else:
-                # next simplex, check for intersection of closure
-                clprime = set(self.closureOf(s))
-                if cl.isdisjoint(clprime):
-                    # closures are disjoint, unify them
-                    cl = cl.update(clprime)
-                else:
-                    # closures intersect, we fail
-                    return False
-
-        # if we get here, all the simplices were disjoint
-        return True
-
-
     # ---------- Euler characteristic and integration ----------
     
     def  eulerCharacteristic( self ):
@@ -681,7 +653,33 @@ class SimplicialComplex(object):
 
 
     # ---------- Homology ----------
-    
+
+    def boundary( self, ss ):
+        '''Return the boundary of the given p-chain. This will be a (p - 1)-chain
+        of simplices from the complex.
+
+        :param ss: a chain (list) of simplices
+        :returns: the boundary of the chain'''
+        bs = set()
+        p = None
+        for s in ss:
+            if p is None:
+                # first simplex, work out the order of p-chain we're looking at
+                p = self.order(s)
+            else:
+                # later simplex, make sure it's the right order
+                if self.order(s) != p:
+                    raise Exception('{p}-chain contains simplex of order {q}'.format(p = p,
+                                                                                     q = self.order(s)))
+
+            # extract the boundary of this simplex
+            fs = self.faces(s)
+
+            # any simplices in both sets aren't in the boundary; any not
+            # in the boundary should be added
+            bs ^= fs
+        return bs
+        
     def boundaryMatrix( self, k ):
         '''Return the :term:`boundary operator` of the k-simplices in the 
         complex as a `numpy` matrix. The columns correspond to
@@ -711,6 +709,33 @@ class SimplicialComplex(object):
             c = c + 1
 
         return boundary
+
+    def disjoint( self, ss ):
+        '''Test whether the elements of a set of simplices are disjoint,
+        defined as if they share no common simplices in their closures.
+        (This doesn't mean that they aren't part of a common super-simplex,
+        however.) The simplices need not be of the same order, i.e., need
+        not form a p-chain.
+
+        :param ss: the p-chain
+        :returns: boolean'''
+        cl = None
+        for s in ss:
+            if cl is None:
+                # first simplex, grab its closure
+                cl = set(self.closureOf(s))
+            else:
+                # next simplex, check for intersection of closure
+                clprime = set(self.closureOf(s))
+                if cl.isdisjoint(clprime):
+                    # closures are disjoint, unify them
+                    cl = cl.update(clprime)
+                else:
+                    # closures intersect, we fail
+                    return False
+
+        # if we get here, all the simplices were disjoint
+        return True
 
     def _reduce( self, Ain, Bin ):
         '''Reduce two boundary matrices simultaneously, by applying

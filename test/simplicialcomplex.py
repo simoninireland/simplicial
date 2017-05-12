@@ -643,32 +643,6 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertItemsEqual(c.partOf(23, exclude_self = True), [ 123 ])
         self.assertItemsEqual(c.partOf(123, exclude_self = True), [])
 
-    def testDisjoint( self ):
-        '''Test we can detect disjoint simplices.'''
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
-        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
-        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
-        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
-        c.addSimplex(id = 4)
-        c.addSimplex(id = 5)
-        c.addSimplex(id = 6)
-        c.addSimplex(id = 45, fs = [ 4, 5 ]) 
-        c.addSimplex(id = 46, fs = [ 4, 6 ]) 
-        c.addSimplex(id = 56, fs = [ 5, 6 ]) 
-        c.addSimplex(id = 456, fs = [ 45, 46, 56 ])
-        self.assertTrue(c.disjoint([1, 2]))
-        self.assertTrue(c.disjoint([1, 23]))
-        self.assertTrue(c.disjoint([12, 45]))
-        self.assertTrue(c.disjoint([4, 123]))
-        self.assertFalse(c.disjoint([1, 1]))
-        self.assertFalse(c.disjoint([1, 123]))
-        self.assertFalse(c.disjoint([1, 13]))
-        self.assertTrue(c.disjoint([456, 123]))
-        
     def testBasis( self ):
         '''Test that we correctly form the basis of various simplices'''
         c = SimplicialComplex()

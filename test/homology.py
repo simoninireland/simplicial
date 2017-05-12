@@ -24,7 +24,76 @@ from simplicial import *
 
 class HomologyTests(unittest.TestCase):
 
-    def testBoundary( self ):
+    def testBoundary0( self ):
+        '''Test the boundary operator for a 0-simplex.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        bs = c.boundary([ 1 ])
+        self.assertItemsEqual(bs, set())
+
+    def testBoundary1( self ):
+        '''Test the boundary operator for a 1-simplex.'''
+        c = SimplicialComplex()
+        c.addSimplexWithBasis(bs = [ 1, 2 ], id = 12)
+        bs = c.boundary([ 12 ])
+        self.assertItemsEqual(bs, set([ 1, 2 ]))
+
+    def testBoundary2( self ):
+        '''Test the boundary operator for a 2-simplex.'''
+        c = SimplicialComplex()
+        c.addSimplexWithBasis(bs = [ 1, 2, 3 ], id = 123)
+        bs = c.boundary([ 123 ])
+        self.assertItemsEqual(bs, c.simplicesOfOrder(1))
+
+    def testBoundary1linked( self ):
+        '''Test the boundary operator for two linked 1-simplices.'''
+        c = SimplicialComplex()
+        c.addSimplexWithBasis(bs = [ 1, 2 ], id = 12)
+        c.addSimplexWithBasis(bs = [ 2, 3 ], id = 23)
+        bs = c.boundary([ 12, 23 ])
+        self.assertItemsEqual(bs, set([ 1, 3 ]))
+
+    def testBoundary2linked( self ):
+        '''Test the boundary operator for two linked 2-simplices.'''
+        c = SimplicialComplex()
+        c.addSimplexWithBasis(bs = [ 1, 2 ], id = 12)
+        c.addSimplexWithBasis(bs = [ 2, 3 ], id = 23)
+        c.addSimplexWithBasis(bs = [ 1, 3 ], id = 13)
+        c.addSimplexWithBasis(bs = [ 1, 4 ], id = 14)
+        c.addSimplexWithBasis(bs = [ 4, 2 ], id = 24)
+        c.addSimplex(fs = [ 12, 23, 13 ], id = 123)
+        c.addSimplex(fs = [ 12, 14, 24 ], id = 124)
+        bs = c.boundary([ 123, 124 ])
+        self.assertItemsEqual(bs, set([ 23, 13, 24, 14 ]))
+
+    def testBoundary2unlinked( self ):
+        '''Test the boundary operator for two disconnected 2-simplices.'''
+        c = SimplicialComplex()
+        c.addSimplexWithBasis(bs = [ 1, 2 ], id = 12)
+        c.addSimplexWithBasis(bs = [ 2, 3 ], id = 23)
+        c.addSimplexWithBasis(bs = [ 1, 3 ], id = 13)
+        c.addSimplexWithBasis(bs = [ 4, 5 ], id = 45)
+        c.addSimplexWithBasis(bs = [ 5, 6 ], id = 56)
+        c.addSimplexWithBasis(bs = [ 4, 6 ], id = 46)
+        c.addSimplex(fs = [ 12, 23, 13 ], id = 123)
+        c.addSimplex(fs = [ 45, 56, 46 ], id = 124)
+        bs = c.boundary([ 123, 124 ])
+        self.assertItemsEqual(bs, c.simplicesOfOrder(1))
+
+    def testBoundary2boundary( self ):
+        '''Test the boundary of a boundary is empty.'''
+        c = SimplicialComplex()
+        c.addSimplexWithBasis(bs = [ 1, 2 ], id = 12)
+        c.addSimplexWithBasis(bs = [ 2, 3 ], id = 23)
+        c.addSimplexWithBasis(bs = [ 1, 3 ], id = 13)
+        c.addSimplexWithBasis(bs = [ 1, 4 ], id = 14)
+        c.addSimplexWithBasis(bs = [ 4, 2 ], id = 24)
+        c.addSimplex(fs = [ 12, 23, 13 ], id = 123)
+        c.addSimplex(fs = [ 12, 14, 24 ], id = 124)
+        bs = c.boundary(c.boundary([ 123, 124 ]))
+        self.assertItemsEqual(bs, set())
+
+    def testBoundaryMatrix( self ):
         '''Test algebraic properties of boundary operator.'''
         c = SimplicialComplex()
         c.addSimplexWithBasis([ 1, 2, 3 ])
@@ -33,6 +102,32 @@ class HomologyTests(unittest.TestCase):
         b = numpy.dot(b1, b2) % 2         # boundary composition over underlying binary field
         self.assertTrue((b == 0).all())
 
+    def testDisjoint( self ):
+        '''Test we can detect disjoint simplices.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 5)
+        c.addSimplex(id = 6)
+        c.addSimplex(id = 45, fs = [ 4, 5 ]) 
+        c.addSimplex(id = 46, fs = [ 4, 6 ]) 
+        c.addSimplex(id = 56, fs = [ 5, 6 ]) 
+        c.addSimplex(id = 456, fs = [ 45, 46, 56 ])
+        self.assertTrue(c.disjoint([1, 2]))
+        self.assertTrue(c.disjoint([1, 23]))
+        self.assertTrue(c.disjoint([12, 45]))
+        self.assertTrue(c.disjoint([4, 123]))
+        self.assertFalse(c.disjoint([1, 1]))
+        self.assertFalse(c.disjoint([1, 123]))
+        self.assertFalse(c.disjoint([1, 13]))
+        self.assertTrue(c.disjoint([456, 123]))
+        
     def testReduce( self ):
         '''Test we reduce matrices correctly.'''
         c = SimplicialComplex()
@@ -116,7 +211,6 @@ class HomologyTests(unittest.TestCase):
     def testBettiDoubleHoledPlane( self ):
         '''Test Betti numbers for a plane with two 2-simplices removed.'''
         c = TriangularLattice(10, 10)
-        print c.simplicesOfOrder(2)
         c.deleteSimplex("2d284")         # simplices we know are central-ish 
         c.deleteSimplex("2d257")
         betti = c.bettiNumbers(ks = [1])

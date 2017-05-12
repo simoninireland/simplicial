@@ -48,16 +48,14 @@ to delete all the simplices of which the to-be-deleted simplex is a part
 .. automethod:: SimplicialComplex.deleteSimplex
 
 
-Querying simplices
-------------------
+Querying the structure of the complex
+-------------------------------------
 
 .. automethod:: SimplicialComplex.order
 
 .. automethod:: SimplicialComplex.maxOrder
 
 .. automethod:: SimplicialComplex.numberOfSimplicesOfOrder
-
-.. automethod:: SimplicialComplex.disjoint
 
 
 Retrieving simplices
@@ -135,7 +133,11 @@ leads to chain coefficients over a field of [0, 1]. This massively
 simplifies the calculations but means that matrix operations need to
 be normalised modulo 2.
 
+.. automethod:: SimplicialComplex.boundary
+
 .. automethod:: SimplicialComplex.boundaryMatrix
-		
+
+.. automethod:: SimplicialComplex.disjoint
+
 .. automethod:: SimplicialComplex.bettiNumbers
 		
