@@ -17,6 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+# The name of our package on PyPi
+PACKAGENAME = simplicial
+
 # The version we're building
 VERSION = 0.4.1
 
@@ -34,6 +37,8 @@ SOURCES_CODE = \
 	simplicial/drawing/layout.py \
 	simplicial/file/__init__.py \
 	simplicial/file/json_simplicial.py
+
+# Test suite
 SOURCES_TESTS = \
 	test/__init__.py \
 	test/__main__.py \
@@ -43,10 +48,11 @@ SOURCES_TESTS = \
 	test/json_simplicial.py
 TESTSUITE = test
 
+# Sources for Sphinx documentation
 SOURCES_DOC_CONF = doc/conf.py
 SOURCES_DOC_BUILD_DIR = doc/_build
 SOURCES_DOC_BUILD_HTML_DIR = $(SOURCES_DOC_BUILD_DIR)/html
-SOURCES_DOC_ZIP = simplicial-doc-$(VERSION).zip
+SOURCES_DOC_ZIP = $(PACKAGENAME)-doc-$(VERSION).zip
 SOURCES_DOCUMENTATION = \
 	doc/index.rst \
 	doc/simplicialcomplex.rst \
@@ -58,6 +64,7 @@ SOURCES_DOCUMENTATION = \
 	doc/acknowledgements.rst \
 	doc/bibliography.rst
 
+# Extras for the build and packaging system
 SOURCES_EXTRA = \
 	README.rst \
 	LICENSE \
@@ -65,6 +72,22 @@ SOURCES_EXTRA = \
 SOURCES_GENERATED = \
 	MANIFEST \
 	setup.py
+
+# Virtual environment requirements and non-requirements
+PY_REQUIREMENTS = \
+	numpy \
+	matplotlib
+PY_DEV_REQUIREMENTS = \
+	$(PY_REQUIREMENTS) \
+	ipython \
+	sphinx \
+	twine
+PY_NON_REQUIREMENTS = \
+	appnope \
+	subprocess32 \
+	functools32
+VENV = venv
+REQUIREMENTS = requirements.txt
 
 
 # ----- Tools -----
@@ -74,6 +97,8 @@ PYTHON = python
 IPYTHON = ipython
 JUPYTER = jupyter
 PIP = pip
+TWINE = twine
+GPG = gpg
 VIRTUALENV = virtualenv
 ACTIVATE = . bin/activate
 TR = tr
@@ -84,10 +109,15 @@ CP = cp
 CHDIR = cd
 ZIP = zip -r
 
+# Root directory
+ROOT = $(shell pwd)
+
 # Constructed commands
 RUN_TESTS = $(IPYTHON) -m $(TESTSUITE)
 RUN_SETUP = $(PYTHON) setup.py
 RUN_SPHINX_HTML = make html
+RUN_TWINE = $(TWINE) upload dist/$(PACKAGENAME)-$(VERSION).tar.gz dist/$(PACKAGENAME)-$(VERSION).tar.gz.asc
+NON_REQUIREMENTS = $(SED) $(patsubst %, -e '/^%*/d', $(PY_NON_REQUIREMENTS))
 
 
 # ----- Top-level targets -----
@@ -98,27 +128,49 @@ help:
 
 # RUn the test suite
 .PHONY: test
-test:
+test: env
 	$(IPYTHON) -m $(TESTSUITE)
 
 # Build the API documentation using Sphinx
 .PHONY: doc
-doc: $(SOURCES_DOCUMENTATION) $(SOURCES_DOC_CONF)
-	$(CHDIR) doc && PYTHONPATH=.. $(RUN_SPHINX_HTML)
+doc: env $(SOURCES_DOCUMENTATION) $(SOURCES_DOC_CONF)
+	$(CHDIR) $(VENV) && $(ACTIVATE) && $(CHDIR) $(ROOT)/doc && PYTHONPATH=$(ROOT) $(RUN_SPHINX_HTML)
 	$(CHDIR) $(SOURCES_DOC_BUILD_HTML_DIR) && $(ZIP) $(SOURCES_DOC_ZIP) *
 	$(CP) $(SOURCES_DOC_BUILD_HTML_DIR)/$(SOURCES_DOC_ZIP) .
+
+# Build a development venv
+.PHONY: env newenv
+env: $(VENV)
+
+$(VENV):
+	$(VIRTUALENV) $(VENV)
+	$(CP) $(REQUIREMENTS) $(VENV)/requirements.txt
+	$(CHDIR) $(VENV) && $(ACTIVATE) && $(PIP) install -r requirements.txt && $(PIP) freeze >requirements.txt
+
+# Build a development venv from the latest versions of the required packages,
+# creating a new requirements.txt ready for committing to the repo. Make sure
+# things actually work in this venv before committing!
+newenv:
+	echo $(PY_DEV_REQUIREMENTS) | $(TR) ' ' '\n' >$(REQUIREMENTS)
+	make env
+	$(NON_REQUIREMENTS) $(VENV)/requirements.txt >$(REQUIREMENTS)
 
 # Build a source distribution
 dist: $(SOURCES_GENERATED)
 	$(RUN_SETUP) sdist
 
-# Upload a source distribution to PyPi (has to be done in one command)
+# Upload a source distribution to PyPi
 upload: $(SOURCES_GENERATED)
-	$(RUN_SETUP) sdist upload -r pypi
+	$(GPG) --detach-sign -a dist/$(PACKAGENAME)-$(VERSION).tar.gz
+	($(CHDIR) $(VENV) && $(ACTIVATE) && $(CHDIR) $(ROOT) && $(RUN_TWINE))
 
 # Clean up the distribution build 
 clean:
 	$(RM) $(SOURCES_GENERATED) simplicial.egg-info dist $(SOURCES_DOC_BUILD_DIR) $(SOURCES_DOC_ZIP)
+
+# Clean up the development venv as well
+reallyclean: clean
+	$(RM) $(VENV)
 
 
 # ----- Generated files -----
@@ -129,7 +181,7 @@ MANIFEST: Makefile
 
 # The setup.py script
 setup.py: $(SOURCES_SETUP_IN) Makefile
-	$(CAT) $(SOURCES_SETUP_IN) | $(SED) -e 's/VERSION/$(VERSION)/g' >$@
+	$(CAT) $(SOURCES_SETUP_IN) | $(SED) -e 's/VERSION/$(VERSION)/g' -e 's/REQUIREMENTS/$(PY_REQUIREMENTS:%="%",)/g' >$@
 
 
 # ----- Usage -----
@@ -137,9 +189,11 @@ setup.py: $(SOURCES_SETUP_IN) Makefile
 define HELP_MESSAGE
 Available targets:
    make test         run the test suite
+   make env          create a development virtual environment
    make dist         create a source distribution
    make upload       upload distribution to PyPi
    make clean        clean-up the build
+   make reallyclean  clean up build and development venv
 
 endef
 export HELP_MESSAGE

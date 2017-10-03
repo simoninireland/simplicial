@@ -40,6 +40,6 @@ setup(name = 'simplicial',
                       'Topic :: Scientific/Engineering :: Physics' ],
       packages = [ 'simplicial' ],
       zip_safe = True,
-      install_requires = [ "numpy", ])
+      install_requires = [ REQUIREMENTS ])
 
 
