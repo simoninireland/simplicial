@@ -31,11 +31,11 @@ randomplanesSuite = unittest.TestLoader().loadTestsFromTestCase(RandomPlanesTest
 triangularlatticeSuite = unittest.TestLoader().loadTestsFromTestCase(TriangularLatticeTests)
 jsonSuite = unittest.TestLoader().loadTestsFromTestCase(JSONTests)
 
-suite = unittest.TestSuite([ simplicialcomplexSuite,
+suite = unittest.TestSuite([ #simplicialcomplexSuite,
                              homologySuite,
-                             randomplanesSuite,
-                             triangularlatticeSuite,
-                             jsonSuite
+                             #randomplanesSuite,
+                             #triangularlatticeSuite,
+                             #jsonSuite
                            ])
 
 if __name__ == '__main__':

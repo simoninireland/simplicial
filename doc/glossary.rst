@@ -15,7 +15,12 @@ Glossary
       A linear operator taking k-simplices to the their (k-1)-simplex
       faces. The boundary operator extends to sets (chains) of k-simplices,
       where it returns all the (k-1)-simplices in the total boundary.
-      
+
+   closure
+      The closure of a simplex is the set consisting of the simplex
+      and all its component faces, their faces, and so on to its
+      :term:`basis`.
+	    
    complex
       A collection of simplices. In `simplicial`, complexes are
       closed, in the sense that they contain every :term:`face` of
@@ -39,8 +44,8 @@ Glossary
       (triangle) have faces that are 1-simplices (edges).
 
    homology
-      A :term:`topological invariant` of a complex that has a more
-      subtle ability to measure holes of of different dimensions in a
+      A :term:`topological invariant` of a complex that has a
+      subtle ability to measure holes of different dimensions in a
       structure.
       
    order
@@ -54,8 +59,13 @@ Glossary
       :term:`order` that defines the number of 0-simplices in its
       :term:`basis`. 
 
+   star
+      The set of simplices of which a given :term:`simplex` is a part.
+      The star is not necessarily a closed simplicial complex, but the
+      star of the :term:`closure` of a simplex is.
+      
    topology
-      "The stratosphere of human thought! ! In the twenty-fourth
+      "The stratosphere of human thought! In the twenty-fourth
       century it might possibly be of use to someone..." (Alexander
       Solzhenitsyn, The First Circle).
 

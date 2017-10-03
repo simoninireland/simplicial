@@ -93,13 +93,21 @@ class HomologyTests(unittest.TestCase):
         bs = c.boundary(c.boundary([ 123, 124 ]))
         self.assertItemsEqual(bs, set())
 
-    def testBoundaryMatrix( self ):
+    def testBoundaryMatrix0( self ):
+        '''Test that the boundary at order 0 is just a zero matrix with a single row.'''
+        c = SimplicialComplex()
+        c.addSimplexWithBasis([ 1, 2, 3 ])
+        b0 = c.boundaryMatrix(0)
+        self.assertEqual(b0.shape, (1, 3))
+        self.assertTrue((b0 == 0).all())
+        
+    def testBoundaryMatrixProperties( self ):
         '''Test algebraic properties of boundary operator.'''
         c = SimplicialComplex()
         c.addSimplexWithBasis([ 1, 2, 3 ])
         b2 = c.boundaryMatrix(2)
         b1 = c.boundaryMatrix(1)
-        b = numpy.dot(b1, b2) % 2         # boundary composition over underlying binary field
+        b = numpy.dot(b1, b2) % 2         # boundary matrix composition over underlying binary field
         self.assertTrue((b == 0).all())
 
     def testDisjoint( self ):
@@ -129,37 +137,36 @@ class HomologyTests(unittest.TestCase):
         self.assertTrue(c.disjoint([456, 123]))
         
     def testReduce( self ):
-        '''Test we reduce matrices correctly.'''
+        '''Test we reduce matrices correctly to Smith Normal Form.'''
         c = SimplicialComplex()
         A = numpy.array([[-1, -1, -1, -1,  0,  0,  0,  0],
                          [ 1,  0,  0,  0, -1, -1,  0,  0],
                          [ 0,  1,  0,  0,  1,  0, -1, -1],
                          [ 0,  0,  1,  0,  0,  1,  1,  0],
                          [ 0,  0,  0,  1,  0,  0,  0,  1]])
-        B = numpy.array([[ 1,  1,  0,  0],
-                         [-1,  0,  1,  0],
-                         [ 0, -1, -1,  0],
-                         [ 0,  0,  0,  0],
-                         [ 1,  0,  0,  1],
-                         [ 0,  1,  0, -1],
-                         [ 0,  0,  1,  1],
-                         [ 0,  0,  0,  0]])
-        Ar, Br = c._reduce(abs(A), abs(B))
+        Ar = c.smithNormalForm(abs(A))
 
         (ra, ca) = Ar.shape
-        (rb, cb) = Br.shape            
-        zc = numpy.zeros(ra)
-        pivotC = [ numpy.all(Ar[:, j] == zc) for j in range(ca) ].count(False)
-        zr = numpy.zeros(cb)
-        pivotR = [ numpy.all(Br[i, :] == zr) for i in range(rb) ].count(False)
-
-        kDim = ca
-        kernelDim = kDim - pivotC
-        imageDim = pivotR
-        self.assertEqual(kDim, 8)
-        self.assertEqual(kernelDim, 4)
-        self.assertEqual(imageDim, 3)
-        
+        rank = min([ ra, ca ])
+        onDiagonal = True
+        for i in range(rank):
+            for j in range(rank):
+                if i == j:
+                    if onDiagonal:
+                        self.assertTrue(Ar[i, j] in [ 0, 1 ])
+                        if Ar[i, j] == 0:
+                            onDiagonal = False
+                    else:
+                        self.assertEqual(Ar[i, j], 0)
+                else:
+                    self.assertEqual(Ar[i, j], 0)
+        for i in range(ra):
+            for j in range(rank, ca):
+                self.assertEqual(Ar[i, j], 0)
+        for j in range(ca):
+            for i in range(rank, ra):
+                self.assertEqual(Ar[i, j], 0)
+                
     def testBettiSmall( self ):
         '''Test computation of Betti numbers on a small complex.'''
         c = SimplicialComplex()
@@ -192,8 +199,10 @@ class HomologyTests(unittest.TestCase):
         c.addSimplexWithBasis([1, 2, 3])
         c.addSimplexWithBasis([0, 4])
         c.addSimplexWithBasis([4, 2])
-        betti = c.bettiNumbers(ks = [1])
+        betti = c.bettiNumbers(ks = [1, 2])
+        self.assertItemsEqual(betti.keys(), [ 1, 2 ])
         self.assertEqual(betti[1], 1)
+        self.assertEqual(betti[2], 1)
 
     def testBettiPlane( self ):
         '''Test Betti numbers for a plane.'''
@@ -215,4 +224,34 @@ class HomologyTests(unittest.TestCase):
         c.deleteSimplex("2d257")
         betti = c.bettiNumbers(ks = [1])
         self.assertEqual(betti[1], 2)
+        
+    def testBettiZeroConnected( self ):
+        '''Test the zero'th Betti number of a connected complex'''
+        c = TriangularLattice(10, 10)
+        betti = c.bettiNumbers(ks = [0])
+        self.assertEqual(betti[0], 1)
+        
+    def testBettiZeroDisconnected( self ):
+        '''Test the zero'th Betti number of a complex of two "islands"'''
+        c = TriangularLattice(10, 10)
+        c.addSimplexOfOrder(2)
+        betti = c.bettiNumbers(ks = [0])
+        self.assertEqual(betti[0], 2)
+
+    def testBettiAll( self ):
+        '''Test computing the Betti numbers for all simplex orders.'''
+        c = TriangularLattice(10, 10)
+        betti = c.bettiNumbers()
+        self.assertItemsEqual(betti.keys(), [ 0, 1, 2 ])
+        self.assertEqual(betti[0], 1)
+        self.assertEqual(betti[1], 0)
+        self.assertEqual(betti[2], 0)
+        
+    def testBettiHigh( self ):
+        '''Test that we get a Betti number of 0 for any order higher than the maximum.'''
+        c = TriangularLattice(10, 10)
+        betti = c.bettiNumbers(ks = [ 3, 7 ])
+        self.assertItemsEqual(betti.keys(), [ 3, 7 ])
+        self.assertEqual(betti[3], 0)
+        self.assertEqual(betti[7], 0)
         
