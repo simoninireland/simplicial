@@ -73,13 +73,14 @@ SOURCES_GENERATED = \
 	MANIFEST \
 	setup.py
 
-# Virtual environment requirements and non-requirements
+# Requirements for running the library, for the devemlopment venv needed to
+# build it, and and OS-specific non-requirements that need to be removed
+# for portability
 PY_REQUIREMENTS = \
 	numpy \
 	matplotlib
 PY_DEV_REQUIREMENTS = \
 	$(PY_REQUIREMENTS) \
-	ipython \
 	sphinx \
 	twine
 PY_NON_REQUIREMENTS = \
@@ -94,7 +95,6 @@ REQUIREMENTS = requirements.txt
 
 # Base commands
 PYTHON = python
-IPYTHON = ipython
 JUPYTER = jupyter
 PIP = pip
 TWINE = twine
@@ -113,7 +113,7 @@ ZIP = zip -r
 ROOT = $(shell pwd)
 
 # Constructed commands
-RUN_TESTS = $(IPYTHON) -m $(TESTSUITE)
+RUN_TESTS = $(PYTHON) -m $(TESTSUITE)
 RUN_SETUP = $(PYTHON) setup.py
 RUN_SPHINX_HTML = make html
 RUN_TWINE = $(TWINE) upload dist/$(PACKAGENAME)-$(VERSION).tar.gz dist/$(PACKAGENAME)-$(VERSION).tar.gz.asc
@@ -129,7 +129,7 @@ help:
 # RUn the test suite
 .PHONY: test
 test: env
-	$(IPYTHON) -m $(TESTSUITE)
+	$(PYTHON) -m $(TESTSUITE)
 
 # Build the API documentation using Sphinx
 .PHONY: doc
@@ -138,8 +138,8 @@ doc: env $(SOURCES_DOCUMENTATION) $(SOURCES_DOC_CONF)
 	$(CHDIR) $(SOURCES_DOC_BUILD_HTML_DIR) && $(ZIP) $(SOURCES_DOC_ZIP) *
 	$(CP) $(SOURCES_DOC_BUILD_HTML_DIR)/$(SOURCES_DOC_ZIP) .
 
-# Build a development venv
-.PHONY: env newenv
+# Build a development venv from the known-good requirements in the repo
+.PHONY: env
 env: $(VENV)
 
 $(VENV):
@@ -150,6 +150,7 @@ $(VENV):
 # Build a development venv from the latest versions of the required packages,
 # creating a new requirements.txt ready for committing to the repo. Make sure
 # things actually work in this venv before committing!
+.PHONY: newenv
 newenv:
 	echo $(PY_DEV_REQUIREMENTS) | $(TR) ' ' '\n' >$(REQUIREMENTS)
 	make env
@@ -189,7 +190,8 @@ setup.py: $(SOURCES_SETUP_IN) Makefile
 define HELP_MESSAGE
 Available targets:
    make test         run the test suite
-   make env          create a development virtual environment
+   make env          create a known-good development virtual environment
+   make newenv       update the devcelopment venv's requirements
    make dist         create a source distribution
    make upload       upload distribution to PyPi
    make clean        clean-up the build

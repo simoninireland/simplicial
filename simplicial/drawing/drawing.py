@@ -33,7 +33,7 @@ def draw_complex( c, pos, ax = None, color = None, color_simplex = None, node_si
     :param pos: positions of the 0-simplices
     :param ax: the axes to draw in (defaults to main axes)
     :param color: an array of colours for the different simplex orders (defaults to a "reasonable" scheme)
-    :param color_simplex: a function from simplex and order to a colour (defaults to order color)
+    :param color_simplex: a function from complex, simplex and order to a colour (defaults to order color)
     :param node_size: the size of the node (0-simplex) markers'''
     
     # fill in the argument defaults where not specified
@@ -51,7 +51,7 @@ def draw_complex( c, pos, ax = None, color = None, color_simplex = None, node_si
                 color.append([ 'blue' ] * ((no + 1) - len(color)))
     if color_simplex is None:
         # no per-node coloursm default to the color array
-        color_simplex = lambda s, o: color[o]
+        color_simplex = lambda _, _, o: color[o]
         
     # set up the axes
     ax.set_xlim([-0.2, 1.2])      # axes bounded around 1
@@ -64,7 +64,7 @@ def draw_complex( c, pos, ax = None, color = None, color_simplex = None, node_si
     for s, (x, y) in pos.iteritems():
         circ = plt.Circle([ x, y ],
                           radius = node_size,
-                          edgecolor = 'black', facecolor = color_simplex(s, 0),
+                          edgecolor = 'black', facecolor = color_simplex(c, s, 0),
                           zorder = 3)
         ax.add_patch(circ)
         
@@ -74,7 +74,7 @@ def draw_complex( c, pos, ax = None, color = None, color_simplex = None, node_si
         (x0, y0) = pos[fs[0]]
         (x1, y1) = pos[fs[1]]
         line = plt.Line2D([ x0, x1 ], [y0, y1 ],
-                          color = 'black', # color = color_simplex(s, 1),
+                          color = 'black', # color = color_simplex(c, s, 1),
                           zorder = 2)
         ax.add_line(line)
     
@@ -85,6 +85,6 @@ def draw_complex( c, pos, ax = None, color = None, color_simplex = None, node_si
         (x1, y1) = pos[fs[1]]
         (x2, y2) = pos[fs[2]]
         tri = plt.Polygon([ [ x0, y0 ], [ x1, y1 ], [ x2, y2 ] ],
-                          edgecolor = 'black', facecolor = color_simplex(s, 2),
+                          edgecolor = 'black', facecolor = color_simplex(c, s, 2),
                           zorder = 1)
         ax.add_patch(tri)

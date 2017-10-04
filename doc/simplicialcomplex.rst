@@ -123,21 +123,23 @@ Homology
 One can regard :term:`homology` simply as a more sophisticated version
 of the :term:`Euler characteristic`: a way of counting the holes in a
 structure at various dimensions. Unlike the Euler characteristic,
-homology is able to differentiate between (for example) a
-two-dimensional hole and a three-dimensional cavity, and then to
-higher dimensions.
+homology is able to differentiate between a triangulated portion of
+the plane and two triangulated "islands" one of which contains a hole.
+The Euler characteristic of both these structures is 1, but they have
+different homology groups and therefore different Betti numbers. 
 
 In `simplicial` we implement the simplest possible version of
 simplicial homology in which simplices are treated as un-oriented, which
 leads to chain coefficients over a field of [0, 1]. This massively
-simplifies the calculations but means that matrix operations need to
-be normalised modulo 2.
+simplifies both the calculations and the explanations.
 
 .. automethod:: SimplicialComplex.boundary
 
 .. automethod:: SimplicialComplex.boundaryMatrix
 
 .. automethod:: SimplicialComplex.disjoint
+
+.. automethod:: SimplicialComplex.smithNormalForm
 
 .. automethod:: SimplicialComplex.bettiNumbers
 		

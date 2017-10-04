@@ -23,7 +23,7 @@ import itertools
 
 
 class SimplicialComplex(object):
-    '''A finite simplicial complex.
+    '''A finite abstract simplicial complex.
     
     A simplicial :term:`complex` is a generalisation of a network in which
     vertices (0-simplices) and edges (1-simplices) can be composed
@@ -632,8 +632,13 @@ class SimplicialComplex(object):
     
         :param c: the complex
         :param observation_key: the attribute to integrate over (defaults to 'height')'''
+
+        # compute maximum "height"
+        maxHeight = max([ self[s][observation_key] for s in self.simplices() ])
+
+        # perform the integration over the level sets
         a = 0
-        for s in xrange(self.maxOrder() + 1):
+        for s in xrange(maxHeight + 1):
             # form the level set
             # sd TODO: the level set is uniformly growing as s decreases, so we can optimise?
             cprime = copy.deepcopy(self)
@@ -684,20 +689,34 @@ class SimplicialComplex(object):
         '''Return the :term:`boundary operator` of the k-simplices in the 
         complex as a `numpy` matrix. The columns correspond to
         simplices of order k while rows correspond to simplices
-        of order (k - 1). The matrix has a 1 when a (k-1) simplex 
+        of order (k - 1). The matrix has a 1 when a (k - 1) simplex 
         is a face of the corresponding k-simplex, and 0 otherwise.
+
+        The boundary of the 0-simplices is a matrix with one row,
+        all zeros. The boundary of an order greater than the maximum
+        order of the complex is a 0x0 matrix.
 
         :param k: the order of simplices
         :returns: the boundary matrix'''
 
-        # create matrix, zeroing all the entries
+        # extract simplices at this order
         n = self.numberOfSimplicesOfOrder()
-        boundary = numpy.zeros([ n[k - 1], n[k] ])
 
+        # if we're after order 0, return  a row of zeros
+        if k == 0:
+            return numpy.zeros([ 1, n[k] ])
+
+        # if we're after an order greater than our maximum order, return a zero matrix
+        if k > self.maxOrder():
+            return numpy.zeros([ 0, 0 ])
+        
         # form a canonical ordering for the simplics of order k and k - 1
         ks = self._orderSortedSimplices(self.simplicesOfOrder(k))
         kmos = self._orderSortedSimplices(self.simplicesOfOrder(k - 1))
-        
+
+        # create a zero boundary matrix
+        boundary = numpy.zeros([ n[k - 1], n[k] ])
+
         # add 1 in every row which is a face of the column' simplex
         c = 0
         for s in ks:
@@ -737,133 +756,92 @@ class SimplicialComplex(object):
         # if we get here, all the simplices were disjoint
         return True
 
-    def _reduce( self, Ain, Bin ):
-        '''Reduce two boundary matrices simultaneously, by applying
-        complementary row/column operations to each.
+    def smithNormalForm( self, B ):
+        '''Reduce a boundary matrix to Smith Normal Form, which has a leading diagonal
+        of 1s for some number of rows, and is everywhere else zero.
 
-        For details of this algorithm see `here <https://jeremykun.com/2013/04/10/computing-homology/>`_.
-        The difference is that we work over a binary field (without
-        orientation), meaning that we need to perform arithmetic modulo 2. 
-
-        :param Ain: the first boundary operator matrix
-        :param Bin: the second boundary operator matrix
-        :returns: the pair of reduced matrices'''
-        (A, B) = Ain.copy(), Bin.copy()
-        
-        (ra, ca) = A.shape
-        (rb, cb) = B.shape
-        i = j = 0
-        while True:
-            if (i >= ra) or (j >= ca):
-                break
-
-            if A[i, j] == 0:
-                nzc = j
-                while (nzc < ca) and (A[i, nzc] == 0):
-                    nzc = nzc + 1
-                if nzc == ca:
-                    i = i + 1
-                    continue
-                A[:, [j, nzc]] = A[:, [nzc, j]]
-                B[[j, nzc], :] = B[[nzc, j], :]
-
-            pivot = A[i, j]
-            A[:, j] = (A[:, j] * (numpy.ones(ra) * (1.0 / pivot))) % 2
-            B[j, :] = (B[j, :] * (numpy.ones(cb) * (1.0 / pivot))) % 2
-
-            for k in range(ca):
-                if k == j:
-                    continue
-                if A[i, k] != 0:
-                    scale = -A[i, k]
-                    A[:, k] = (A[:, k] + (A[:, j] * scale)) % 2
-                    B[j, :] = (B[j, :] + (B[k, :] * -scale)) % 2
-
-            i = i + 1
-            j = j + 1
-
-        Br = self._finishRowReducing(B)
-        return A % 2, Br % 2
-
-    def _finishRowReducing( self, Bin ):
-        '''Finish putting the second matrix into row-reduced form.
-        See `here <https://jeremykun.com/2014/01/23/fixing-bugs-in-computing-homology/>`_
-        for details.
-
-        :param Bin: the second boundary operator matrix
-        :returns: the fully row-reduced matrix'''
-        B = Bin.copy()
-        
-        (rb, cb) = B.shape
-        i = j = 0
-        while True:
-            if (i >= rb) or (j >= cb):
-                break
-
-            if B[i, j] == 0:
-                nzr = j
-                while (nzr < rb) and (B[nzr, j] == 0):
-                    nzr = nzr + 1
-                if nzr == rb:
-                    j = j + 1
-                    continue
-                B[[i, nzr], :] = B[[nzr, i], :]
-
-            pivot = B[i, j]
-            B[j, :] = (B[j, :] * (numpy.ones(cb) * (1.0 / pivot))) % 2
-
-            for k in range(rb):
-                if k == i:
-                    continue
-                if B[k, j] != 0:
-                    scale = -B[k, j]
-                    B[k, :] = (B[k, :] + (B[i, :] * -scale)) % 2
-
-            i = i + 1
-            j = j + 1
-
-        return B
+        :param b: the boundary matrix to reduce
+        :returns: the Smith Normal Form of the boundary matrix'''
+        return self._reduce(B, 0)
     
-    def bettiNumbers( self, ks = None ):
-        '''Return dict of Betti numbers for the complex, starting with
-        B_0 up to B_k where k is the largest simplex order in the complex.
-        The optional list of orders restricts the calculation to only
-        those orders.
+    def _reduce( self, Bin, x = 0 ):
+        '''Reduce a boundary matrix to Smith Normal Form.
+        The algorithm is taken from `here <https://www.cs.duke.edu/courses/fall06/cps296.1/Lectures/sec-IV-3.pdf>`_. NOte that this is simpler than other algorithms in the literature because
+        we're working over a binary field.
 
-        :param ks: (optional) list of orders (defaults to all) 
+        :param b: the boundary matrix to reduce
+        :param x: the row/column being reduced, initially 0
+        :returns: the Smith Normal Form of the boundary matrix'''
+
+        # check we're still in scope
+        (rb, cb) = Bin.shape
+        if x >= min([ rb, cb ]):
+            # no, return the reduced matrix
+            return Bin
+
+        #  check if we have another row to reduce
+        for k in range(x, rb):
+            for l in range(x, cb):
+                if Bin[k, l] == 1:
+                    # yes, make a copy of the matrix
+                    B = Bin.copy()
+                                    
+                    # exchange rows x and k
+                    B[[x, k], :] = B[[k, x], :]
+
+                    # exchange columns x and l
+                    B[:, [x, l]] = B[:, [l, x]]
+
+                    # zero the x column in subsequent rows
+                    for i in range(x + 1, rb):
+                        if B[i, x] == 1:
+                            B[i, :] = (B[i, :] + B[x, :]) % 2
+
+                    # ...and the x row in subsequent columns
+                    for j in range(x + 1, cb):
+                        if B[x, j] == 1:
+                            B[:, j] = (B[:, j] + B[:, x]) % 2
+
+                    # move to the next row
+                    return self._reduce(B, x + 1)
+
+        # if we get here, we're fully reduced
+        return Bin
+
+    def bettiNumbers( self, ks = None ):
+        '''Return a dict of Betti numbers for the different dimensions
+        of the complex.
+
+        :param ks: (optional) dimensions to compute (defaults to all
         :returns: a dict of Betti numbers'''
-        maxk = self.maxOrder()
         
         # fill in the default
         if ks is None:
-            ks = list(range(maxk))
+            ks = range(self.maxOrder() + 1)
 
         # compute the Betti numbers
         boundary = dict()
         betti = dict()
         for k in ks:
-            # compute the boundary operators
+            # compute the reduced boundary operator matrices if we
+            # haven't already done so
             if k not in boundary.keys():
-                boundary[k] = self.boundaryMatrix(k)
+                boundary[k] = self.smithNormalForm(self.boundaryMatrix(k))
+            A = boundary[k]
             if k + 1 not in boundary.keys():
-                boundary[k + 1] = self.boundaryMatrix(k + 1)
+                boundary[k + 1] = self.smithNormalForm(self.boundaryMatrix(k + 1))
+            B = boundary[k + 1]
 
-            # row- and column-reduce the matrices
-            A, B = self._reduce(boundary[k], boundary[k + 1])
-            
-            # count the number of pivot rows and columns
+            # dimensions of boundary matrices
             (ra, ca) = A.shape
-            (rb, cb) = B.shape            
-            zc = numpy.zeros(ra)
-            pivotC = [ numpy.all(A[:, j] == zc) for j in range(ca) ].count(False)
-            zr = numpy.zeros(cb)
-            pivotR = [ numpy.all(B[i, :] == zr) for i in range(rb) ].count(False)
+            (rb, cb) = B.shape
 
-            # compute the orders of the groups
-            kDim = ca
-            kernelDim = kDim - pivotC
-            imageDim = pivotR
-            betti[k] = kernelDim - imageDim 
+            # compute the ranks of the Z_k and B_k groups
+            zc = numpy.zeros(ra)
+            kernelDim = [ numpy.all(A[:, j] == zc) for j in range(ca) ].count(True) # zero columns 
+            zr = numpy.zeros(cb)
+            imageDim = [ numpy.all(B[i, :] == zr) for i in range(rb) ].count(False) # non-zero rows
+            betti[k] = kernelDim - imageDim
 
         return betti
-    
+

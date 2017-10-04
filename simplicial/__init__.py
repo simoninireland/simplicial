@@ -43,7 +43,7 @@ from .simplicialcomplex import SimplicialComplex
 
 # some sample figures
 from .triangularlattice import TriangularLattice
-from .toroidallattice import ToroidalLattice
+#from .toroidallattice import ToroidalLattice
 
 # file I/O
 import simplicial.file
