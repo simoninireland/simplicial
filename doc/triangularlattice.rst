@@ -5,12 +5,23 @@
    
 .. autoclass:: TriangularLattice
 
-
-		
-Dimensions
-----------
-
 .. automethod:: TriangularLattice.rows
 
 .. automethod:: TriangularLattice.columns
+
+
+Embedding the lattice
+---------------------
+
+.. autoclass:: TriangularLatticeEmbedding
+
+.. automethod:: TriangularLatticeEmbedding.height
+
+.. automethod:: TriangularLatticeEmbedding.width
+
+The actual embedding divides the plane containing to lattice into
+roiws and colums, indenting the position of each odd row to form even
+triangles.
+		
+.. automethod:: TriangularLatticeEmbedding.computePositionOf
 

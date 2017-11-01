@@ -116,7 +116,7 @@ class SimplicialComplex(object):
         for f in ofs:
             if f not in self._simplices.keys():
                 raise Exception('Unknown simplex {id}'.format(id = f))
-            of = self.order(f)
+            of = self.orderOf(f)
             if of != os - 1:
                 raise Exception('Face {id} is of order {of}, not {os}'.format(id = f,
                                                                               of = of,
@@ -159,7 +159,7 @@ class SimplicialComplex(object):
         for b in bs:
             if b in self._simplices.keys():
                 # simplex exists, check it's an 0-simplex
-                if self.order(b) > 0:
+                if self.orderOf(b) > 0:
                     raise Exception('Higher-order simplex {s} in basis set'.format(s = b))
                 else:
                     s = b
@@ -374,13 +374,13 @@ class SimplicialComplex(object):
         
         # make sure we have a set of 0-simplices
         for s in bs:
-            if self.order(s) > 0:
+            if self.orderOf(s) > 0:
                 raise Exception('Higher-order simplex {s} in basis set'.format(s = s))
         
         # find all simplices that need to be excluded
         remove = set([])
         for s in self._simplices:
-            if self.order(s) == 0:
+            if self.orderOf(s) == 0:
                 # it's a vertex, is it in the set?
                 if s not in bs:
                     # no, mark it for dropping
@@ -403,7 +403,7 @@ class SimplicialComplex(object):
         
     # ---------- Accessing simplices ----------
     
-    def order( self, s ):
+    def orderOf( self, s ):
         '''Return the order of a simplex.
         
         :param s: the simplex
@@ -419,7 +419,7 @@ class SimplicialComplex(object):
         if len(self._simplices) == 0:
             return None
         else:
-            os = [ self.order(s) for s in self._simplices ]
+            os = [ self.orderOf(s) for s in self._simplices ]
             return max(os)
     
     def numberOfSimplicesOfOrder( self ):
@@ -429,7 +429,7 @@ class SimplicialComplex(object):
         :returns: a dict mapping order to number of simplices'''
         orders = dict()
         for s in self._simplices:
-            o = self.order(s)
+            o = self.orderOf(s)
             if o not in orders:
                 orders[o] = 1
             else:
@@ -442,7 +442,7 @@ class SimplicialComplex(object):
         :param s: the first simplex
         :param t: the second simplex
         :returns: -1, 0, 1 for less than, equal, greater than'''
-        return cmp(self.order(s), self.order(t))
+        return cmp(self.orderOf(s), self.orderOf(t))
 
     def _orderSortedSimplices( self, ss, reverse = False ):
         '''Return the list of simplices sorted into increasing order
@@ -485,14 +485,14 @@ class SimplicialComplex(object):
 
         # sanity check
         for s in bs:
-            if self.order(s) > 0:
+            if self.orderOf(s) > 0:
                 raise Exception('Higher-order simplex {s} in basis set'.format(s = s))
 
         # check for a simplex with the given basis
         so = len(bs) - 1
         ss = None
         for s in bs:
-            ps = set([ p for p in self.partOf(s) if self.order(p) == so ])
+            ps = set([ p for p in self.partOf(s) if self.orderOf(p) == so ])
             if ss is None:
                 ss = ps
             else:
@@ -582,7 +582,7 @@ class SimplicialComplex(object):
         :returns: the set of simplices that form the basis of s'''
 
         # sd: not the most elegant way to do this....
-        return set([ f for f in self.closureOf(s) if self.order(f) == 0 ])  
+        return set([ f for f in self.closureOf(s) if self.orderOf(f) == 0 ])  
     
     def closureOf( self, s, reverse = False, exclude_self = False ):
         '''Return the closure of a simplex. The closure is defined
@@ -642,7 +642,7 @@ class SimplicialComplex(object):
             # form the level set
             # sd TODO: the level set is uniformly growing as s decreases, so we can optimise?
             cprime = copy.deepcopy(self)
-            bs = cprime.allSimplices(lambda c, sp: self.order(sp) == 0 and
+            bs = cprime.allSimplices(lambda c, sp: self.orderOf(sp) == 0 and
                                                    self[sp][observation_key] > s)
             cprime.restrictBasisTo(bs)
             
@@ -670,12 +670,12 @@ class SimplicialComplex(object):
         for s in ss:
             if p is None:
                 # first simplex, work out the order of p-chain we're looking at
-                p = self.order(s)
+                p = self.orderOf(s)
             else:
                 # later simplex, make sure it's the right order
-                if self.order(s) != p:
+                if self.orderOf(s) != p:
                     raise Exception('{p}-chain contains simplex of order {q}'.format(p = p,
-                                                                                     q = self.order(s)))
+                                                                                     q = self.orderOf(s)))
 
             # extract the boundary of this simplex
             fs = self.faces(s)
@@ -812,7 +812,7 @@ class SimplicialComplex(object):
         '''Return a dict of Betti numbers for the different dimensions
         of the complex.
 
-        :param ks: (optional) dimensions to compute (defaults to all
+        :param ks: (optional) dimensions to compute (defaults to all)
         :returns: a dict of Betti numbers'''
         
         # fill in the default

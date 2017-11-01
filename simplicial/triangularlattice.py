@@ -1,4 +1,4 @@
-# Triangular lattices, the basic coverings of a place
+# Triangular lattices, the basic coverings of a space
 #
 # Copyright (C) 2017 Simon Dobson
 # 
@@ -27,7 +27,6 @@ class TriangularLattice(SimplicialComplex):
     :param c: the number of columns
 
     '''
- 
     
     def __init__( self, r, c ):
         super(TriangularLattice, self).__init__()
@@ -94,7 +93,7 @@ class TriangularLattice(SimplicialComplex):
                     self.addSimplexWithBasis([ self._indexOfVertex(i, j),
                                                self._indexOfVertex(i + 2, j),
                                                self._indexOfVertex(i + 1, sej) ] )
-                
+            
     def _indexOfVertex( self, i, j ):
         '''Return the identifier of the given (row, column) vertex (0-simplex).
         Row and column indexing start from zero.
@@ -115,4 +114,56 @@ class TriangularLattice(SimplicialComplex):
         
         :returns: the number of columns'''''
         return self._columns
-    
+
+
+class TriangularLatticeEmbedding(Embedding):
+    '''A regular embedding of a triangular lattice into a plane. The default is
+    to embed into a unit plane, but this can be scaled as required. The lattice
+    can be distorted by providing explicit positions for 0-simplices as required.
+
+    :param h: height of the plane (defaults to 1.0)
+    :param w: width of the plane (defaults to 1.0)
+
+    '''
+
+    def __init__( self, h = 1.0, w = 1.0 ):
+        super(TriangularLatticeEmbedding, self).__init__(2)
+        self._height = h
+        self._width = w
+        
+    def height( self ):
+        '''Return the height of the lattice.
+
+        :returns: the height of the lattice'''
+        return self._height
+
+    def width( self ):
+        '''Return the width of the lattice.
+
+        :returns: the width of the lattice'''
+        return self._width
+
+    def computePositionOf( self, s, c ):
+        '''Compute the position of the given simplex.
+
+        :param s: the simplex
+        :param c: the complex
+        :returns: the position of the simplex'''
+
+        # convert index to (row, column) co-ordinates
+        nr = c.rows()
+        nc = c.columns()
+        i = int(s / c.columns())
+        j = s % c.columns()
+
+        # compute position and return it
+        rh = (self.height() + 0.0) / nr           # row height
+        cw = (self.width() + 0.0) / (2 * nc)      # column width
+        y = self.height() - rh * i
+        if i % 2 == 0:
+            x = cw * (j * 2)
+        else:
+            # shift along for odd-numbered rows
+            x = cw * ((j * 2) + 1)
+        return [ x, y ]
+        

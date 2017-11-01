@@ -56,6 +56,7 @@ SOURCES_DOC_ZIP = $(PACKAGENAME)-doc-$(VERSION).zip
 SOURCES_DOCUMENTATION = \
 	doc/index.rst \
 	doc/simplicialcomplex.rst \
+	doc/embedding.rst \
 	doc/triangularlattice.rst \
 	doc/drawing.rst \
 	doc/file.rst \
@@ -73,7 +74,7 @@ SOURCES_GENERATED = \
 	MANIFEST \
 	setup.py
 
-# Requirements for running the library, for the devemlopment venv needed to
+# Requirements for running the library, for the development venv needed to
 # build it, and and OS-specific non-requirements that need to be removed
 # for portability
 PY_REQUIREMENTS = \
@@ -129,7 +130,7 @@ help:
 # RUn the test suite
 .PHONY: test
 test: env
-	$(PYTHON) -m $(TESTSUITE)
+	$(CHDIR) $(VENV) && $(ACTIVATE) && $(CHDIR) $(ROOT) && $(RUN_TESTS)
 
 # Build the API documentation using Sphinx
 .PHONY: doc
@@ -191,7 +192,7 @@ define HELP_MESSAGE
 Available targets:
    make test         run the test suite
    make env          create a known-good development virtual environment
-   make newenv       update the devcelopment venv's requirements
+   make newenv       update the development venv's requirements
    make dist         create a source distribution
    make upload       upload distribution to PyPi
    make clean        clean-up the build

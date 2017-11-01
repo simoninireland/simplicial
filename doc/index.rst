@@ -14,6 +14,7 @@ simplicial: Simplicial topology in Python
    :maxdepth: 2
 
    simplicialcomplex
+   embedding
    triangularlattice
    
 :ref:`drawing`

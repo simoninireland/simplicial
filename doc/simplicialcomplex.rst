@@ -51,7 +51,7 @@ to delete all the simplices of which the to-be-deleted simplex is a part
 Querying the structure of the complex
 -------------------------------------
 
-.. automethod:: SimplicialComplex.order
+.. automethod:: SimplicialComplex.orderOf
 
 .. automethod:: SimplicialComplex.maxOrder
 

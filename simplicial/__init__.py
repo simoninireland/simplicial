@@ -31,18 +31,20 @@ explored and anlysed using techniques from algebraic :term:`topology`.
 represents complexes and provide some topological operations. It also
 provides some "standard" complexes, typically representatives of a
 particularly structured class of spaces, that can be used as building
-blocks for larger complexes.
-
-`simplicial` also provides functions to visualise complexes, although
-these need a lot more work for them to be really useful.
+blocks for larger complexes. It also provides a function to "embed"
+a complex into a space, which can be used for spatial computing and
+for visualisation (although this still needs a lot more work).
 
 '''
 
 # representation and computation
 from .simplicialcomplex import SimplicialComplex
 
+# spatial embeddings and computations
+from .embedding import Embedding
+
 # some sample figures
-from .triangularlattice import TriangularLattice
+from .triangularlattice import TriangularLattice, TriangularLatticeEmbedding
 #from .toroidallattice import ToroidalLattice
 
 # file I/O

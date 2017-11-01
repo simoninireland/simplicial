@@ -16,6 +16,12 @@ with applications to signals and sensing
 <https://arxiv.org/abs/1202.0275>`_. Technical report
 arXiv:1202.0275. 2012.
 
+.. _Ede06:
+
+Herbert Edelsbrunner. `CPS296.1: Computational topology
+<https://www.cs.duke.edu/courses/fall06/cps296.1/>`_. Lecture
+notes. Duke University. 2006.
+
 .. _Ede14:
 
 Herbert Edelsbrunner. `A short course in computational geometry and

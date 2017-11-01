@@ -19,6 +19,7 @@
 
 import unittest
 from simplicial import *
+import numpy.random
 
 class TriangularLatticeTests(unittest.TestCase):
 
@@ -65,3 +66,51 @@ class TriangularLatticeTests(unittest.TestCase):
         self._complex = TriangularLattice(20, 20)
         self.assertEqual(self._complex.eulerCharacteristic(), 1)
 
+    def testRegularEmbedding( self ):
+        '''Test that the embedding is regular.'''
+        self._complex = TriangularLattice(10, 10)
+        e = TriangularLatticeEmbedding(11, 11)
+        pos = e.positionsOf(self._complex)
+        eps = 0.0001
+
+        # all columns equidistant
+        for i in range(10):
+            for j in range(9):
+                s1 = self._complex._indexOfVertex(i, j)
+                s2 = self._complex._indexOfVertex(i, j + 1)
+                self.assertTrue(pos[s2][0] - pos[s1][0] < (11.0 / 10) + eps)
+
+        # all rows equidistant
+        for i in range(9):
+            for j in range(10):
+                s1 = self._complex._indexOfVertex(i, j)
+                s2 = self._complex._indexOfVertex(i + 1, j)
+                self.assertTrue(pos[s2][1] - pos[s1][1] < (11.0 / 10) + eps)
+
+        # odd rows are offset
+        for i in range(9):
+            for j in range(9):
+                s1 = self._complex._indexOfVertex(i, j)
+                s2 = self._complex._indexOfVertex(i + 1, j)
+                if i % 2 == 0:
+                    self.assertTrue(pos[s2][0] > pos[s1][0])
+                else:
+                    self.assertTrue(pos[s2][0] < pos[s1][0])
+
+    def testPerturbedEmbedding( self ):
+        '''Test that we can perturb the embedding with explicit new positions.'''
+        self._complex = TriangularLattice(10, 10)
+        e = TriangularLatticeEmbedding(11, 11)
+        ss = list(self._complex.simplicesOfOrder(0))
+        pos = e.positionsOf(self._complex)
+
+        # choose a random simplex
+        i = int(numpy.random.random() * len(ss))
+        s = ss[i]
+
+        # re-position simplex
+        e.positionSimplex(s, [ 12, 13 ])
+
+        # make sure position is preserved
+        pos1 = e.positionsOf(self._complex)
+        self.assertItemsEqual(pos1[s], [ 12, 13 ])
