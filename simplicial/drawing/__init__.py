@@ -18,4 +18,3 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 from .drawing import draw_complex
-from .layout import triangular_lattice_positions
