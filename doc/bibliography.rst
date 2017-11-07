@@ -16,6 +16,12 @@ with applications to signals and sensing
 <https://arxiv.org/abs/1202.0275>`_. Technical report
 arXiv:1202.0275. 2012.
 
+.. _deL13:
+
+Mark de Longueville. `A course in topological combinatorics
+<http://dx.doi.org/10.1007/978-1-4419-7910-0>`_. Springer. ISBN
+978-1-4419-7909-4. 2013.
+
 .. _Ede06:
 
 Herbert Edelsbrunner. `CPS296.1: Computational topology
@@ -39,6 +45,11 @@ Robert Ghrist. Elementary applied topology. ISBN
 Allen Hatcher. `Algebraic topology
 <https://www.math.cornell.edu/~hatcher/AT/ATpage.html>`_. Cambridge
 University Press. ISBN 0-521-79540-0. 2002. (Free to download.)
+
+.. _KMM04:
+
+Tomasz Kaczynski, Konstantin Mishaikow, and Marian Mrozek. Computational homology.
+Applied Mathematical Sciences 157. Springer-Verlag. 2004.
 
 .. _Kun13:
 
