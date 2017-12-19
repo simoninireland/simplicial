@@ -316,7 +316,7 @@ class SimplicialComplex(object):
         newAttributes = dict()
         for s in self._simplices.keys():
             t = f(s)
-            if s != t and t in self._simplices.keys():
+            if s != t and self.containsSimplex(t):
                 raise Exception('Relabeling attempting to re-write {s} to existing name {t}'.format(s = s, t = t))
             newSimplices[t] = map(f, self._simplices[s])
             newFaces[t] = map(f, self._faces[s])
@@ -357,6 +357,15 @@ class SimplicialComplex(object):
             # delete in decreasing order, down to the basis
             self._deleteSimplex(t)
 
+    def deleteSimplices( self, ss ):
+        '''Delete all simplices in the given list.
+
+        :param ss: the simplices'''
+        for s in ss:
+            # protect against unfortunate cascades of deletions
+            if self.containsSimplex(s):
+                self.deleteSimplex(s)
+                
     def __delitem__( self, s ):
         '''Delete the simplex and all simplices of which it is a part.
         Equivalent to :meth:`deleteSimplex`.
@@ -505,6 +514,13 @@ class SimplicialComplex(object):
         # sd: should we check that the set size is 1, just for safety?
         return ss.pop()
 
+    def containsSimplex( self, s ):
+       '''Test whether the complex contains the given simplex.
+
+       :param s: the simplex
+       :returns: True if the simplex is in the complex'''
+       return (s in self._simplices.keys())
+   
     def allSimplices( self, p, reverse = False ):
         '''Return all the simplices that match the given predicate, which should
         be a function from complex and simplex to boolean. The simplices are
