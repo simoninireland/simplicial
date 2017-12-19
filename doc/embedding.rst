@@ -17,6 +17,8 @@ spaces.)
 
 .. automethod:: Embedding.origin
 
+.. automethod:: Embedding.complex
+
 
 Positioning simplices
 ---------------------
@@ -35,7 +37,8 @@ together: one can provide a sub-class to capture the regularities, and
 then perturb the complex by moving individual points if
 required. (Client code should only use :meth:`Embedding.positionOf` to
 access simplex positions, and not access to computation method
-directly. This ensures that explicit positions are returned correctly.)
+directly. This ensures that explicit positions are returned correctly
+and cached.)
 
 .. automethod:: Embedding.positionSimplex
 		
@@ -45,3 +48,21 @@ directly. This ensures that explicit positions are returned correctly.)
 		
 .. automethod:: Embedding.positionsOf
 		
+.. automethod:: Embedding.clearPositions
+
+
+Dict-like interface
+-------------------
+
+:class:`Embedding` also exports a dict-like interface.
+
+.. automethod:: Embedding.__len__
+
+.. automethod:: Embedding.__getitem__
+
+.. automethod:: Embedding.__setitem__
+
+.. automethod:: Embedding.__contains__
+
+
+
