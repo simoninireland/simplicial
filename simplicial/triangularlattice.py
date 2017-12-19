@@ -121,13 +121,14 @@ class TriangularLatticeEmbedding(Embedding):
     to embed into a unit plane, but this can be scaled as required. The lattice
     can be distorted by providing explicit positions for 0-simplices as required.
 
+    :param c: the complex
     :param h: height of the plane (defaults to 1.0)
     :param w: width of the plane (defaults to 1.0)
 
     '''
 
-    def __init__( self, h = 1.0, w = 1.0 ):
-        super(TriangularLatticeEmbedding, self).__init__(2)
+    def __init__( self, c, h = 1.0, w = 1.0 ):
+        super(TriangularLatticeEmbedding, self).__init__(c, 2)
         self._height = h
         self._width = w
         
@@ -143,14 +144,14 @@ class TriangularLatticeEmbedding(Embedding):
         :returns: the width of the lattice'''
         return self._width
 
-    def computePositionOf( self, s, c ):
+    def computePositionOf( self, s ):
         '''Compute the position of the given simplex.
 
         :param s: the simplex
-        :param c: the complex
         :returns: the position of the simplex'''
 
         # convert index to (row, column) co-ordinates
+        c = self.complex()
         nr = c.rows()
         nc = c.columns()
         i = int(s / c.columns())

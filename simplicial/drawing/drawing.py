@@ -24,13 +24,13 @@ import collections
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-def draw_complex( c, pos, ax = None, color = None, color_simplex = None, node_size = 0.02 ):
+def draw_complex( c, em, ax = None, color = None, color_simplex = None, node_size = 0.02 ):
     '''Draw a simplicial complex.
     
     At present we only deal with simplices of order 2 and less.
     
     :param c: the complex
-    :param pos: positions of the 0-simplices
+    :param em: embedding providing the positions of the 0-simplices
     :param ax: the axes to draw in (defaults to main axes)
     :param color: an array of colours for the different simplex orders (defaults to a "reasonable" scheme)
     :param color_simplex: a function from complex, simplex and order to a colour (defaults to order color)
@@ -50,8 +50,8 @@ def draw_complex( c, pos, ax = None, color = None, color_simplex = None, node_si
             if len(color) < no:
                 color.append([ 'blue' ] * ((no + 1) - len(color)))
     if color_simplex is None:
-        # no per-node coloursm default to the color array
-        color_simplex = lambda _, _, o: color[o]
+        # no per-node colours, default to the color array
+        color_simplex = lambda a, b, o: color[o]
         
     # set up the axes
     ax.set_xlim([-0.2, 1.2])      # axes bounded around 1
@@ -61,7 +61,9 @@ def draw_complex( c, pos, ax = None, color = None, color_simplex = None, node_si
     ax.get_yaxis().set_ticks([])
             
     # draw the node markers
-    for s, (x, y) in pos.iteritems():
+    for s in c.simplicesOfOrder(0):
+        (x, y) = em[s]
+        print x, y
         circ = plt.Circle([ x, y ],
                           radius = node_size,
                           edgecolor = 'black', facecolor = color_simplex(c, s, 0),
@@ -71,8 +73,8 @@ def draw_complex( c, pos, ax = None, color = None, color_simplex = None, node_si
     # draw the edges
     for s in c.simplicesOfOrder(1):
         fs = list(c.basisOf(s))
-        (x0, y0) = pos[fs[0]]
-        (x1, y1) = pos[fs[1]]
+        (x0, y0) = em[fs[0]]
+        (x1, y1) = em[fs[1]]
         line = plt.Line2D([ x0, x1 ], [y0, y1 ],
                           color = 'black', # color = color_simplex(c, s, 1),
                           zorder = 2)
@@ -81,9 +83,9 @@ def draw_complex( c, pos, ax = None, color = None, color_simplex = None, node_si
     # fill in the triangles
     for s in c.simplicesOfOrder(2):
         fs = list(c.basisOf(s))
-        (x0, y0) = pos[fs[0]]
-        (x1, y1) = pos[fs[1]]
-        (x2, y2) = pos[fs[2]]
+        (x0, y0) = em[fs[0]]
+        (x1, y1) = em[fs[1]]
+        (x2, y2) = em[fs[2]]
         tri = plt.Polygon([ [ x0, y0 ], [ x1, y1 ], [ x2, y2 ] ],
                           edgecolor = 'black', facecolor = color_simplex(c, s, 2),
                           zorder = 1)

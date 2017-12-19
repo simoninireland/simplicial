@@ -69,8 +69,8 @@ class TriangularLatticeTests(unittest.TestCase):
     def testRegularEmbedding( self ):
         '''Test that the embedding is regular.'''
         self._complex = TriangularLattice(10, 10)
-        e = TriangularLatticeEmbedding(11, 11)
-        pos = e.positionsOf(self._complex)
+        e = TriangularLatticeEmbedding(self._complex, 11, 11)
+        pos = e.positionsOf()
         eps = 0.0001
 
         # all columns equidistant
@@ -100,9 +100,9 @@ class TriangularLatticeTests(unittest.TestCase):
     def testPerturbedEmbedding( self ):
         '''Test that we can perturb the embedding with explicit new positions.'''
         self._complex = TriangularLattice(10, 10)
-        e = TriangularLatticeEmbedding(11, 11)
+        e = TriangularLatticeEmbedding(self._complex, 11, 11)
         ss = list(self._complex.simplicesOfOrder(0))
-        pos = e.positionsOf(self._complex)
+        pos = e.positionsOf()
 
         # choose a random simplex
         i = int(numpy.random.random() * len(ss))
@@ -112,5 +112,5 @@ class TriangularLatticeTests(unittest.TestCase):
         e.positionSimplex(s, [ 12, 13 ])
 
         # make sure position is preserved
-        pos1 = e.positionsOf(self._complex)
+        pos1 = e.positionsOf()
         self.assertItemsEqual(pos1[s], [ 12, 13 ])

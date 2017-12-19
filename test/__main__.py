@@ -23,19 +23,27 @@ from .simplicialcomplex import SimplicialComplexTests
 from .homology import HomologyTests
 from .randomplanes import RandomPlanesTests
 from .triangularlattice import TriangularLatticeTests
+#from .drawing import DrawingTests
 from .json_simplicial import JSONTests
+from .mtree import MTreeTests
+from .mtree_whitebox import MTreeWhiteboxTests
 
 simplicialcomplexSuite = unittest.TestLoader().loadTestsFromTestCase(SimplicialComplexTests)
 homologySuite = unittest.TestLoader().loadTestsFromTestCase(HomologyTests)
 randomplanesSuite = unittest.TestLoader().loadTestsFromTestCase(RandomPlanesTests)
 triangularlatticeSuite = unittest.TestLoader().loadTestsFromTestCase(TriangularLatticeTests)
+#drawingSuite = unittest.TestLoader().loadTestsFromTestCase(DrawingTests)
 jsonSuite = unittest.TestLoader().loadTestsFromTestCase(JSONTests)
+#mtreeSuite = unittest.TestLoader().loadTestsFromTestCase(MTreeWhiteboxTests)
+#mtreeSuite.addTests(unittest.TestLoader().loadTestsFromTestCase(MTreeTests))
 
 suite = unittest.TestSuite([ simplicialcomplexSuite,
                              homologySuite,
                              randomplanesSuite,
                              triangularlatticeSuite,
-                             jsonSuite
+                             #drawingSuite,
+                             jsonSuite,
+                             #mtreeSuite,
                            ])
 
 if __name__ == '__main__':

@@ -41,15 +41,17 @@ class Embedding(object):
     small distortions to be applied easily to otherwise regular embeddings.
 
     Note that in most cases an embedding is based on simplex names, and so care needs to
-    be taken when relabeling simplices in a complex.
+    be taken when relabeling simplices in the underlying complex.
 
+    :param c: the complex
     :param dim: the dimension of the embedding space (defaults to 2)
 
     '''
 
-    def __init__( self, dim = 2 ):
-        self._dim = dim
-        self._position = dict()
+    def __init__( self, c, dim = 2 ):
+        self._complex = c          # underlying complicial complex
+        self._dim = dim            # dimension of embedding space
+        self._position = dict()    # cache of positions
 
     def dimension( self ):
         '''Return the dimension of the embedding space.
@@ -63,6 +65,12 @@ class Embedding(object):
         :returns: the origin as a list of zero co-ordinates'''
         return [ 0.0 ] * self.dimension()
 
+    def complex( self ):
+        '''Return the underlying simplicial complex.
+
+        :returns: the complex'''
+        return self._complex
+    
 
     # ----- Positioning simplices -----
 
@@ -78,50 +86,86 @@ class Embedding(object):
                                                                                                                     ed = self.dimension()))
         self._position[s] = pos
 
-    def positionOf( self, s, c ):
-        '''Return the position of a simplex when a complex is mapped through this
+    def positionOf( self, s ):
+        '''Return the position of a simplex in the complex when mapped through this
         embedding. Locations are only available for 0-simplices.
 
         :param s: the simplex
-        :param c: the complex
         :returns: the position of the simplex'''
 
         # check that we're being asked for an 0-simplex
-        if c.orderOf(s) > 0:
+        if self.complex().orderOf(s) > 0:
             raise ValueError("Can only embed 0-simplices")
 
-        if s in self._position.keys():
-            # simplex has an explicit position, return it
-            return self._position[s]
-        else:
-            # no explicit position, so compute it
-            return self.computePositionOf(s, c)
+        if s not in self._position.keys():
+            # no explicit position, so compute it and cache the result            
+            self._position[s] = self.computePositionOf(s)
+        return self._position[s]
 
-    def computePositionOf( self, s, c ):
+    def computePositionOf( self, s ):
         '''Compute the position of the given 0-simplex under this embedding.
-        This method defaults to returning the origin for all 0-simplices.
+        The position returned should have the same dimensions as the
+        embedding space. This method should be overridden by sub-classes:
+        the default returns the origin for all 0-simplices.
 
         :param s: the simplex
-        :param c: the complex
         :returns: the position of the simplex'''
         return self.origin()
     
-    def positionsOf( self, c, ss = None ):
-        '''Return a dict of positions for a given set oif 0-simplices
+    def positionsOf( self, ss = None ):
+        '''Return a dict of positions for a given set of 0-simplices
         in the complex. The default is to return the positions of all
         0-simplices.
 
-        :param c: the complex
         :param ss: the simplices (defaults to all 0-simplices)
         :returns: a dict of positions'''
 
         # fill in default
         if ss is None:
-            ss = c.simplicesOfOrder(0)
+            ss = self.complex().simplicesOfOrder(0)
 
         # retrieve positions and return
         pos = dict()
         for s in ss:
-            pos[s] = self.positionOf(s, c)
+            pos[s] = self.positionOf(s)
         return pos
+
+    def clearPositions( self ):
+        '''Clear the cache of simplex positions, forcing them all to be re-computed
+        and/or re-specified. Use this if the underlying complex is changed.'''
+        self._position = dict()
+        
+
+    # ----- dict-like interface -----
+
+    def __len__( self ):
+        '''The length of the embedding is the number of 0-simplices in the underlying
+        simplicial complex, i.e., the number of simplices we can return positions for.
+
+        :returns: the size of the embedding'''
+        return self.complex().simplicesOfOrder(0)
     
+    def __setitem__( self, s, pos ):
+        '''Dict-like interface to define an explicit position for a simplex.
+        Equivalent to :meth:`positionSimplex`.
+
+        :param s: the simplex
+        :param pos: the position'''
+        self.positionSimplex(s, pos)
+        
+    def __getitem__( self, s ):
+        '''Dict-like interface to return the position of a simplex in the
+        complex when mapped through this embedding. Equivalent to :meth:`positionOf`.
+
+        :param s: the simplex
+        :returns: the position of the simplex'''
+        return self.positionOf(s)
+
+    def __contains__( self, s ):
+        '''Test if the embedding will embed the given simplex. Checks against the
+        underlying simplicial complex.
+
+        :param s: the simplex
+        :returns: True if the embedding comtains the simplex'''
+        return s in self.complex().simplicesOfOrder(0)
+            
