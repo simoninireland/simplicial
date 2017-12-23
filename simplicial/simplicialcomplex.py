@@ -928,9 +928,7 @@ class SimplicialComplex(object):
 
         # extract and sum columns
         cs = boundary[:, fs]
-        print cs
         s = numpy.sum(cs, axis = 1)
-        print s
         
         # check we only have 2 or 0 in all positions
         ts = numpy.logical_or(s == 2, s == 0)
@@ -956,7 +954,6 @@ class SimplicialComplex(object):
         while added > 0:
             k = k + 1
             added = 0
-            print "k={k}".format(k = k)
 
             # compute the boundary operator
             boundary = self.boundaryMatrix(k - 1)
@@ -965,13 +962,11 @@ class SimplicialComplex(object):
             # a boundary
             ks = numpy.array(self._orderSortedSimplices(self.simplicesOfOrder(k - 1)))
             for fs in [ list(fs) for fs in itertools.combinations(range(len(ks)), k + 1) ]:
-                print fs, ks[fs]
                 if self._isClosed(boundary, fs):
                     # simplices form a boundary, add to the
                     # flag complex (if it doesn't already exist)
                     cfs = ks[fs]
                     if flag.simplexWithFaces(cfs) is None:
-                        print 'add', cfs
                         flag.addSimplex(fs = cfs)
                         added = added + 1
 
