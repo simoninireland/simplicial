@@ -159,7 +159,7 @@ newenv:
 
 # Build a source distribution
 dist: $(SOURCES_GENERATED)
-	$(RUN_SETUP) sdist
+	($(CHDIR) $(VENV) && $(ACTIVATE) && $(CHDIR) $(ROOT) && $(RUN_SETUP) sdist)
 
 # Upload a source distribution to PyPi
 upload: $(SOURCES_GENERATED)
