@@ -70,7 +70,6 @@ class VietorisRipsTests(unittest.TestCase):
         em[3] = [4, 0]
 
         vr = em.vietorisRipsComplex(3)
-        print vr.simplices()
         
         self.assertEqual(len(vr.simplices()), 4)
         self.assertEqual(len(vr.simplicesOfOrder(0)), 3)
@@ -78,7 +77,7 @@ class VietorisRipsTests(unittest.TestCase):
         self.assertItemsEqual(vr.faces(list(vr.simplicesOfOrder(1))[0]), [ 1, 2 ])
 
     def testTwoEdges( self ):
-        '''Test we capture the right structure when we should get two simplces but not the triangle.'''
+        '''Test we capture the right structure when we should get two simplices but not the triangle.'''
         c = SimplicialComplex()
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
@@ -90,7 +89,6 @@ class VietorisRipsTests(unittest.TestCase):
         em[3] = [4, 0]
 
         vr = em.vietorisRipsComplex(4)
-        print vr.simplices()
         
         self.assertEqual(len(vr.simplices()), 5)
         self.assertEqual(len(vr.simplicesOfOrder(0)), 3)
