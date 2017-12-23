@@ -916,7 +916,7 @@ class SimplicialComplex(object):
 
     def _isClosed( self, boundary, fs ):
         '''Determine whether the given set of (k + 1) faces forms the
-        boundary of a k-simplex accordinfg to the boundary operator.
+        boundary of a k-simplex according to the boundary operator.
         The faces are given by indices into the boundary matrix. They
         are closed if, when we sum the columns corresponding to them,
         the result consists of values that are either 2 or 0, i.e., if
@@ -927,12 +927,10 @@ class SimplicialComplex(object):
         :returns: True if the faces form a closed k-simplex'''
 
         # extract and sum columns
-        cs = boundary[:, fs]
-        s = numpy.sum(cs, axis = 1)
+        s = numpy.sum(boundary[:, fs], axis = 1)
         
         # check we only have 2 or 0 in all positions
-        ts = numpy.logical_or(s == 2, s == 0)
-        return numpy.all(ts)
+        return numpy.all(numpy.logical_or(s == 2, s == 0))
         
     def flagComplex( self ):
         '''Generate the :term:`flag complex` of this complex. The flag complex
@@ -940,7 +938,7 @@ class SimplicialComplex(object):
         faces are present. For example, three 1-simplices forming an
         (empty) triangle will be "closed" by creating a 2-simplex
         with them as its faces. This may in turn allow a further
-        3-simplex to be formed if the new 2-simplex closes a tetrahadron,
+        3-simplex to be formed if the new 2-simplex closes a tetrahedron,
         and so forth.
 
         :returns: the flag complex'''

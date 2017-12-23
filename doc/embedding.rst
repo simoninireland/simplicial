@@ -19,7 +19,11 @@ spaces.)
 
 .. automethod:: Embedding.complex
 
+The locations give rise to a notion of distance between positions.
+		
+.. automethod:: Embedding.distance
 
+		
 Positioning simplices
 ---------------------
 
@@ -63,6 +67,21 @@ Dict-like interface
 .. automethod:: Embedding.__setitem__
 
 .. automethod:: Embedding.__contains__
+
+
+Spatial constructions
+---------------------
+
+Embeddings apply a geometry to a topological structure. It can be
+useful to go the other way: to take some geometric or spatial
+information and create a topological structure from it, where the
+topological structure encodes useful information. Typically this
+depends on a notion of distance between the located 0-simplices.
+The distance metric can then provide a way of constructing
+higher-dimensional simplices. 
+
+.. automethod:: Embedding.virtorisRipsComplex
+		
 
 
 

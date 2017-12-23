@@ -17,9 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-import numpy
-import copy
+import math
 import itertools
+
+from simplicial import *
 
 
 class Embedding(object):
@@ -36,9 +37,12 @@ class Embedding(object):
     An embedding can be specified in two distinct ways. Positions can be supplied
     explicitly for simplices by name. Alternatively, sub-clases can provide positioning
     functions that map simplices to positions using arbitrary code. The former is useful
-    for comploexes with irregular embeddings, while the latter is better-suited to
+    for complexes with irregular embeddings, while the latter is better-suited to
     regular embeddings. Explicit positions override computed positions, which allows
     small distortions to be applied easily to otherwise regular embeddings.
+
+    It is also possible to override the distane metrioc to construct different ways
+    of metricating a space. 
 
     Note that in most cases an embedding is based on simplex names, and so care needs to
     be taken when relabeling simplices in the underlying complex.
@@ -71,6 +75,18 @@ class Embedding(object):
         :returns: the complex'''
         return self._complex
     
+    def distance(self, p, q ):
+        '''Compute the distance between two points. This implementation
+        returns the normal Euclidean distance metric.
+
+        :param p: one point
+        :param q: the other point
+        :returns: the distance between them'''
+        sumsq = 0.0
+        for d in range(self.dimension()):
+            sumsq = sumsq + math.pow(q[d] - p[d], 2)
+        return math.sqrt(sumsq)
+
 
     # ----- Positioning simplices -----
 
@@ -168,4 +184,42 @@ class Embedding(object):
         :param s: the simplex
         :returns: True if the embedding comtains the simplex'''
         return s in self.complex().simplicesOfOrder(0)
-            
+
+
+    # ----- Spatial constructions -----
+    # sd: will be re-written to use M-trees
+    
+    def vietorisRipsComplex( self, eps ):
+        '''Construct the :term:`Vietoris-Rips complex` at scale eps corresponding to the
+        given embedding. The resulting complex has the same 0-simplices as the
+        embedding, with a simplex constructed beyween every collection of simplices
+        that are mutually a distance eps or less apart.
+
+        :param eps: the scale parameter
+        :returns: the Vietoris-Rips complex at the given scale'''
+
+        # create a new complex with the same 0-simplices as ourselves
+        c = self.complex()
+        vr = SimplicialComplex()
+        ss = list(c.simplicesOfOrder(0))
+        for s in ss:
+            vr.addSimplex(id = s)
+
+        # work out all pairs of 0-simplices within eps, adding a
+        # 1-simplex between them
+        n = len(ss)
+        for i in range(n - 1):
+            p = ss[i]
+            for j in range(i + 1, n):
+                q = ss[j]
+                if self.distance(self.positionOf(p), self.positionOf(q)) <= eps:
+                    # pair of 0-simplices within eps, add 1-simplex
+                    vr.addSimplexWithBasis([p, q])
+
+        # add higher simplices for collections of 0-simplices
+        # mutally within eps, which is simply the flag complex
+        # derived from the pairwise distances
+        vr2 = vr.flagComplex()
+        
+        # return the populated complex
+        return vr2

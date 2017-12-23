@@ -9,7 +9,7 @@ Glossary
 
    basis
       The 0-simplices that lie at the "base" of a :term:`simplex`. A
-      simplex of :term:`order` n has n 0-simplices in its basis.
+      simplex of :term:`order` k has (k + 1) 0-simplices in its basis.
 
    boundary operator
       A linear operator taking k-simplices to the their (k-1)-simplex
@@ -26,6 +26,16 @@ Glossary
       closed, in the sense that they contain every :term:`face` of
       every :term:`simplex` contained in the complex.
 
+   embedding
+      A geometry imposed on a topological space. Typically an
+      embedding locates each 0-simplex at some point in a Euclidean
+      space, and maps 1- and 2-simplices to lines, surfaces, and so on
+      for higher dimensions. In simplicial topology it is often
+      assumed that only the 0-simplices are located, with the
+      locations of higher simplices being constructed linearly from
+      their bases -- so a 1-simplex is a straight line between its
+      endpoints, and so forth.
+      
    Euler characteristic
       A :term:`topological invariant` of a complex computed from the
       alternating sum of the numbers of simplices of different orders:
@@ -62,7 +72,7 @@ Glossary
       A :term:`topological invariant` of a complex that has a
       subtle ability to measure holes of different dimensions in a
       structure.
-      
+
    order
       The "dimensionality" of a :term:`simplex`, A simplex of order 1
       (a 1-simplex) is a one-dimensional structure (an edge); a
@@ -88,3 +98,14 @@ Glossary
       A property that isn't changed by smooth changes in a complex, or
       by the details of how a shape is approximated by a complex.
       
+   Vietoris-Rips complex
+      A complex derived from an underlying distance metric. If
+      0-simplices are given locations, then for a given scale eps the
+      Vietoris-Rips complex has a k-simplex for every collection of k
+      0-simplices lying mutually within a distance eps of each
+      other.
+
+      Another of saying this is that the Vietoria-Rips complex is the
+      :term:`flag complex` resulting from a complex consisting of
+      1-simplices between pairs of 0-simplices lying within a distance
+      eps of each other.
