@@ -43,6 +43,21 @@ Glossary
       less than the simplex of which it is a face: 2-simplices
       (triangle) have faces that are 1-simplices (edges).
 
+   flag complex
+      A flag complex is a complex with all "implied" simplics
+      present. That is to say, if all the (k + 1) faces of a k-simplex
+      are present in the complex, then so is the  k-simplex itself.
+      Another way to think of this is that all possible
+      triangles of three edges are filled, as are all possible
+      tetrahedra of four triangles, and so forth for higher orders.
+
+      If we construct a graph of 0- and 1-simplices such that there is
+      an edge between two vertices whenever they are within a distance
+      d of each other, then in the derived flag complex each k-simplex
+      represents (k + 1) vertices mutually within d of each
+      other. High-dimensional simplices thus capture the "density" of
+      vertices.
+   
    homology
       A :term:`topological invariant` of a complex that has a
       subtle ability to measure holes of different dimensions in a

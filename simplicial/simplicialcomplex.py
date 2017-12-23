@@ -76,11 +76,15 @@ class SimplicialComplex(object):
 
     # ---------- Adding simplices ----------
     
-    def addSimplex( self, fs = [], id = None, attr = None ):
+    def addSimplex( self, fs = [], id = None, attr = None, ignoreDuplicate = False ):
         '''Add a simplex to the complex whose faces are the elements of fs.
         If no faces are given then the simplex is a 0-simplex (point).
         If no id is provided one is created. If present, attr should be a
         dict of attributes for the simplex.
+
+        If ignoreDuplicate is False, n exception will be thrown if a simplex
+        with the given faces already exists in the complex. If ignoreDuplicate is
+        true, the new simplex will be ignored.
 
         To add a simplex from its basis (rather than its faces) use
         :meth:`addSimplexByBasis`.
@@ -88,6 +92,7 @@ class SimplicialComplex(object):
         :param fs: (optional) a list of faces of the simplex
         :param id: (optional) name for the simplex 
         :param attr: (optional) dict of attributes
+        :param ignoreDuplicate: if True, silently drop addition of duplicate simplex
         :returns: the name of the new simplex'''
         
         # fill in defaults
@@ -121,7 +126,18 @@ class SimplicialComplex(object):
                 raise Exception('Face {id} is of order {of}, not {os}'.format(id = f,
                                                                               of = of,
                                                                               os = os - 1))
-                
+
+        # sanity check that we don't already have a simplex with these faces
+        if os > 0:
+            s = self.simplexWithFaces(ofs)
+            if s is not None:
+                if ignoreDuplicate:
+                    # simplex exists but ignoring duplicates, so exit
+                    return
+                else:
+                    raise Exception('Already have a simplex {s} with faces {ofs}'.format(s = s,
+                                                                                         ofs = ofs))
+        
         # add simplex and its attributes
         self._simplices[id] = ofs 
         self._attributes[id] = attr
@@ -134,7 +150,7 @@ class SimplicialComplex(object):
         # return the simplex' name
         return id
 
-    def addSimplexWithBasis( self, bs, id = None, attr = None ):
+    def addSimplexWithBasis( self, bs, id = None, attr = None, ignoreDuplicate = False ):
         '''Add a simplex by providing its basis, which uniquely defines it.
         This method adds all the simplices necessary to define the new
         simplex, using :meth:`simplexByBasis` to find and re-use any that are
@@ -142,8 +158,9 @@ class SimplicialComplex(object):
 
         To add a simplex defined by its faces, use :meth:`addSimplex`.
 
-        If the simplex with the given basis already exists in the complex,
-        this method does nothing.
+        If ignoreDuplicate is False, n exception will be thrown if a simplex
+        with the given basis already exists in the complex. If ignoreDuplicate is
+        true, the new simplex will be ignored.
 
         Defining a k-simplex requires a (k + 1) basis. All elements of
         the basis must be 0-simplices.
@@ -151,6 +168,7 @@ class SimplicialComplex(object):
         :param bs: the basis
         :param id: (optional) the name of the new simplex
         :param attr: (optional) dict of attributes
+        :param ignoreDuplicate: if True, silently drop addition of duplicate simplex
         :returns: the name of the new simplex'''
         so = len(bs) - 1   # order of the final simplex
         fs = []            # faces in the final simplex
@@ -167,6 +185,10 @@ class SimplicialComplex(object):
                 # simplex doesn't exist, create it
                 s = self.addSimplex(id = b)
 
+                # if we're creating an 0-simplex, we're now done
+                if so == 0:
+                    return s
+
             # capture the simplex as a face if we're building a 1-simplex
             if so == 1:
                 fs.append(s)
@@ -174,23 +196,16 @@ class SimplicialComplex(object):
         # check if we have a simplex with this basis
         s = self.simplexWithBasis(bs)
         if s is not None:
-            # we have, did we also get a name?
-            if id is not None:
-                # we did, so they have to match
-                if s != id:
-                    raise Exception('Simplex {s} with given basis already exists'.format(s = s))
+            if ignoreDuplicate:
+                # duplicate simplex and we're ignoring, so return
+                return s
+            else:
+                raise Exception('Simplex {s} with basis {bs} already exists'.format(s = s,
+                                                                                    bs = bs))
 
-            # return this simplex
-            return s
-                    
         # create a name for the new simplex if needed
         if id is None:
             id = self._newUniqueIndex(so)
-
-        # if for some reason we're adding just an 0-simplex,
-        # we're now finished
-        if so == 0:
-            return s
 
         # iterate up through all the simplex orders, creating
         # any missing ones and capturing the faces for the final simplex
@@ -224,10 +239,7 @@ class SimplicialComplex(object):
         :returns: the name of the new simplex'''
         if o == 0:
             # it's an 0-simplex, just try to create a new one
-            if id is None:
-                return self.addSimplex()
-            else:
-                return self.addSimplexWithBasis([ id ])
+            return self.addSimplex(id = id)
         else:
             # create a basis of new names
             bs = []
@@ -514,13 +526,51 @@ class SimplicialComplex(object):
         # sd: should we check that the set size is 1, just for safety?
         return ss.pop()
 
+    def simplexWithFaces( self, fs ):
+        '''Return the simplex that has the given simplices as faces.
+
+        :param fs: the faces
+        :returns: the simplex or None'''
+
+        # get the order of simplex we're searching for
+        k = len(fs) - 1
+        
+        # check that the faces have a common order and are the right number
+        if k <= 0:
+            # not enough faces
+            raise Exception('Need at least 1 face')
+        else:
+            # check all faces are of order (k - 1)
+            for f in fs:
+                if self.orderOf(f) != k - 1:
+                    raise Exception('Simplex of order{k} has faces of order {kmo}, not {fo}'.format(k = k,
+                                                                                                    kmo = k - 1,
+                                                                                                    fo = self.orderOf(f)))
+
+        # search for simplex
+        ffs = set(fs)
+        for s in self.simplicesOfOrder(k):
+            sfs = self.faces(s)
+            if sfs == ffs:
+                return s
+
+        # if we get here, we didn't find a simplex with the right faces
+        return None
+
     def containsSimplex( self, s ):
        '''Test whether the complex contains the given simplex.
 
        :param s: the simplex
        :returns: True if the simplex is in the complex'''
        return (s in self._simplices.keys())
-   
+
+    def containsSimplexWithBasis( self, bs ):
+        '''Test whether the complex contains a simplex with the given basis.
+
+        :params bs: the basis
+        :returns: True is the complex contains a simplex with this basis'''
+        return (self.simplexWithBasis(bs) is not None)
+    
     def allSimplices( self, p, reverse = False ):
         '''Return all the simplices that match the given predicate, which should
         be a function from complex and simplex to boolean. The simplices are
@@ -861,3 +911,68 @@ class SimplicialComplex(object):
 
         return betti
 
+
+    # ---------- Derived copmplexes ----------
+
+    def _isClosed( self, boundary, fs ):
+        '''Determine whether the given set of (k + 1) faces forms the
+        boundary of a k-simplex accordinfg to the boundary operator.
+        The faces are given by indices into the boundary matrix. They
+        are closed if, when we sum the columns corresponding to them,
+        the result consists of values that are either 2 or 0, i.e., if
+        every face connects either 0 or 2 simplices.
+
+        :param boundary: the boundary matrix
+        :param fs: list of face indices
+        :returns: True if the faces form a closed k-simplex'''
+
+        # extract and sum columns
+        cs = boundary[:, fs]
+        print cs
+        s = numpy.sum(cs, axis = 1)
+        print s
+        
+        # check we only have 2 or 0 in all positions
+        ts = numpy.logical_or(s == 2, s == 0)
+        return numpy.all(ts)
+        
+    def flagComplex( self ):
+        '''Generate the :term:`flag complex` of this complex. The flag complex
+        is formed by creating all the "implied" simplices for which all
+        faces are present. For example, three 1-simplices forming an
+        (empty) triangle will be "closed" by creating a 2-simplex
+        with them as its faces. This may in turn allow a further
+        3-simplex to be formed if the new 2-simplex closes a tetrahadron,
+        and so forth.
+
+        :returns: the flag complex'''
+
+        # start with a copy of ourselves
+        flag = copy.copy(self)
+
+        # work up the simplex orders
+        k = 1           # we use 1-simplices as adjacencies
+        added = 1
+        while added > 0:
+            k = k + 1
+            added = 0
+            print "k={k}".format(k = k)
+
+            # compute the boundary operator
+            boundary = self.boundaryMatrix(k - 1)
+
+            # test all (k + 1) (k - 1)-simplices to see if they form
+            # a boundary
+            ks = numpy.array(self._orderSortedSimplices(self.simplicesOfOrder(k - 1)))
+            for fs in [ list(fs) for fs in itertools.combinations(range(len(ks)), k + 1) ]:
+                print fs, ks[fs]
+                if self._isClosed(boundary, fs):
+                    # simplices form a boundary, add to the
+                    # flag complex (if it doesn't already exist)
+                    cfs = ks[fs]
+                    if flag.simplexWithFaces(cfs) is None:
+                        print 'add', cfs
+                        flag.addSimplex(fs = cfs)
+                        added = added + 1
+
+        return flag

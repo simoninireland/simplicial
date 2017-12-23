@@ -18,7 +18,7 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 '''`simplicial` is a Python package for manipulating simplicial
-topological complexes.
+complexes.
 
 Simplicial complexes are generalisations of the triangulation of a
 plane. A :term:`complex` is built from simplices (singular:
@@ -27,7 +27,7 @@ discrete approximations of continuous spaces or manifolds, or as
 abstract descriptions of information relationships that can then be
 explored and anlysed using techniques from algebraic :term:`topology`.
 
-`simplicial` provides a class of :class:`SimplicialComplex` to
+`simplicial` provides a class :class:`SimplicialComplex` to
 represents complexes and provide some topological operations. It also
 provides some "standard" complexes, typically representatives of a
 particularly structured class of spaces, that can be used as building

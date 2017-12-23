@@ -75,6 +75,10 @@ simplex order (low-order simplices first by default).
 
 .. automethod:: SimplicialComplex.simplexWithBasis
 
+.. automethod:: SimplicialComplex.containsSimplex
+
+.. automethod:: SimplicialComplex.containsSimplexWithBasis
+
 .. automethod:: SimplicialComplex.faces
 
 .. automethod:: SimplicialComplex.faceOf
@@ -143,3 +147,13 @@ simplifies both the calculations and the explanations.
 
 .. automethod:: SimplicialComplex.bettiNumbers
 		
+
+Deriving new complexes
+----------------------
+
+New complexes can be derived from old ones by various processes. These
+operations are also used to create abstract complexes from "concrete"
+complexes that have an associated geometric embedding via the
+:class:`Embedding` class.
+
+.. automethod:: SimplicialComplex.flagComplex

@@ -130,6 +130,23 @@ class SimplicialComplexTests(unittest.TestCase):
         with self.assertRaises(Exception):
             c.addSimplex(id = 2, fs = [ 1 ])
 
+    def testDuplicateBasis( self ):
+        '''Test we can't add two simplices with the same basis.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        with self.assertRaises(Exception):
+            c.addSimplex(id = 21, fs = [ 1, 2 ])
+
+    def testDuplicateBasisIgnoring( self ):
+        '''Test we can ignore adding two simplices with the same basis.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 21, fs = [ 1, 2 ], ignoreDuplicate = True)
+
     def testName( self ):
         '''Test we get the name of a simplex back.'''
         c = SimplicialComplex()
@@ -292,7 +309,6 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
         c.addSimplexWithBasis([ 1, 2 ])
-        self.assertEqual(len(c.simplicesOfOrder(1)), 1)
 
     def testAddWithBasis1NoneExist( self ):
         '''Check adding a 1-simplex by its basis, where none of the basis simplices exist.'''
@@ -315,7 +331,16 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
         c.addSimplex([ 1, 2 ])
-        c.addSimplexWithBasis([ 1, 2 ])
+        with self.assertRaises(Exception):
+            c.addSimplexWithBasis([ 1, 2 ])
+
+    def testAddWithBasis1DuplicateIgnoring( self ):
+        '''Check adding a 1-simplex by its basis where a simplex like this already exists, and we ignore duplicates.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex([ 1, 2 ])
+        c.addSimplexWithBasis([ 1, 2 ], ignoreDuplicate = True)
         self.assertEqual(len(c.simplicesOfOrder(0)), 2)
         self.assertEqual(len(c.simplicesOfOrder(1)), 1)
 
@@ -333,21 +358,6 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertItemsEqual(c.simplicesOfOrder(1), [ 12, 13, 23 ])
         self.assertEqual(len(c.simplicesOfOrder(2)), 1)
         
-    def testAddWithBasis2ExistNamesMatch( self ):
-        '''Check adding a named 2-simplex by its basis when it already exists with that name.'''
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
-        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
-        c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplex(id = 'tri', fs = [ 12, 23, 13 ])
-        c.addSimplexWithBasis([ 1, 2, 3], id = 'tri')
-        self.assertItemsEqual(c.simplicesOfOrder(0), [ 1, 2, 3 ])
-        self.assertItemsEqual(c.simplicesOfOrder(1), [ 12, 13, 23 ])
-        self.assertItemsEqual(c.simplicesOfOrder(2), [ 'tri' ])
-
     def testAddWithBasis4( self ):
         '''Check adding a 3-simplex to an empty complex'''
         c = SimplicialComplex()
@@ -394,7 +404,7 @@ class SimplicialComplexTests(unittest.TestCase):
         ''' Test we can create a named new simplex of order 0 when there's
         already a different-order simplex with that name.'''
         c = SimplicialComplex()
-        c.addSimplexOfOrder(2, id = 'point')
+        c.addSimplexOfOrder(0, id = 'point')
         with self.assertRaises(Exception):
             c.addSimplexOfOrder(0, id = 'point')
 
@@ -415,6 +425,32 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertEqual(len(c.simplices()), 3)
         self.assertItemsEqual(c.simplicesOfOrder(1), [ s ])
 
+    def testSimplexWithFacesSuccess( self ):
+        '''Test we can retrieve a simplex from its faces.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        self.assertEqual(c.simplexWithFaces([ 1, 2 ]), 12)
+        self.assertEqual(c.simplexWithFaces([ 12, 31, 23 ]), 123)
+
+    def testSimplexWithFacesNoSimplex( self ):
+        '''Test we don't retrieve a simplex that isn't there.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        self.assertEqual(c.simplexWithFaces([ 3, 4 ]), None)
+        
     def testRelabelFunction( self ):
         '''Test relabelling with a function.'''
         c = SimplicialComplex()
