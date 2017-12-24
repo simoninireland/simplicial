@@ -32,7 +32,7 @@ copy, just clone the repo:
 Documentation
 -------------
 
-The `API documentation <https://pythonhosted.org/simplicial/>`_ is hosted on PythonHosted.
+The `API documentation <https://simplicial.readthedocs.io/en/latest/>`_ is hosted on ReadTheDocs.
 
 
 Author and license
