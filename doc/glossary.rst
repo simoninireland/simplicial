@@ -54,7 +54,7 @@ Glossary
       (triangle) have faces that are 1-simplices (edges).
 
    flag complex
-      A flag complex is a complex with all "implied" simplics
+      A flag complex is a complex with all "implied" simplices
       present. That is to say, if all the (k + 1) faces of a k-simplex
       are present in the complex, then so is the  k-simplex itself.
       Another way to think of this is that all possible
@@ -105,7 +105,7 @@ Glossary
       0-simplices lying mutually within a distance eps of each
       other.
 
-      Another of saying this is that the Vietoria-Rips complex is the
+      Another of saying this is that the Vietoris-Rips complex is the
       :term:`flag complex` resulting from a complex consisting of
       1-simplices between pairs of 0-simplices lying within a distance
       eps of each other.
