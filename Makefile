@@ -21,20 +21,21 @@
 PACKAGENAME = simplicial
 
 # The version we're building
-VERSION = 0.4.1
+VERSION = 0.4.3
 
 
 # ----- Sources -----
 
 # Source code
 SOURCES_SETUP_IN = setup.py.in
+SOURCES_SDIST = dist/$(PACKAGENAME)-$(VERSION).tar.gz
 SOURCES_CODE = \
 	simplicial/__init__.py \
 	simplicial/simplicialcomplex.py \
 	simplicial/triangularlattice.py \
+	simplicial/embedding.py \
 	simplicial/drawing/__init__.py \
 	simplicial/drawing/drawing.py \
-	simplicial/drawing/layout.py \
 	simplicial/file/__init__.py \
 	simplicial/file/json_simplicial.py
 
@@ -43,6 +44,8 @@ SOURCES_TESTS = \
 	test/__init__.py \
 	test/__main__.py \
 	test/simplicialcomplex.py \
+	test/homology.py \
+	test/vr.py \
 	test/triangularlattice.py \
 	test/randomplanes.py \
 	test/json_simplicial.py
@@ -82,7 +85,7 @@ PY_REQUIREMENTS = \
 	matplotlib
 PY_DEV_REQUIREMENTS = \
 	$(PY_REQUIREMENTS) \
-	sphinx \
+	sphinx-autobuild \
 	twine
 PY_NON_REQUIREMENTS = \
 	appnope \
@@ -158,11 +161,10 @@ newenv:
 	$(NON_REQUIREMENTS) $(VENV)/requirements.txt >$(REQUIREMENTS)
 
 # Build a source distribution
-dist: $(SOURCES_GENERATED)
-	($(CHDIR) $(VENV) && $(ACTIVATE) && $(CHDIR) $(ROOT) && $(RUN_SETUP) sdist)
+sdist: $(SOURCES_SDIST)
 
 # Upload a source distribution to PyPi
-upload: $(SOURCES_GENERATED)
+upload: $(SOURCES_SDIST)
 	$(GPG) --detach-sign -a dist/$(PACKAGENAME)-$(VERSION).tar.gz
 	($(CHDIR) $(VENV) && $(ACTIVATE) && $(CHDIR) $(ROOT) && $(RUN_TWINE))
 
@@ -185,6 +187,10 @@ MANIFEST: Makefile
 setup.py: $(SOURCES_SETUP_IN) Makefile
 	$(CAT) $(SOURCES_SETUP_IN) | $(SED) -e 's/VERSION/$(VERSION)/g' -e 's/REQUIREMENTS/$(PY_REQUIREMENTS:%="%",)/g' >$@
 
+# The source distribution tarball
+$(SOURCES_SDIST): $(SOURCES_GENERATED) $(SOURCES_CODE) Makefile
+	($(CHDIR) $(VENV) && $(ACTIVATE) && $(CHDIR) $(ROOT) && $(RUN_SETUP) sdist)
+
 
 # ----- Usage -----
 
@@ -193,7 +199,7 @@ Available targets:
    make test         run the test suite
    make env          create a known-good development virtual environment
    make newenv       update the development venv's requirements
-   make dist         create a source distribution
+   make sdist        create a source distribution
    make upload       upload distribution to PyPi
    make clean        clean-up the build
    make reallyclean  clean up build and development venv

@@ -1,9 +1,20 @@
-Version 0.4.1
+Version 0.4.3 (24Dec2017)
+
+   - Maintenance release to move API documentation to
+     readthedocs.org
+
+Version 0.4.2 (24Dec2017)
+
+   - Maintenance release to fix a problem with the manifest
+   
+Version 0.4.1 (23Dec2017)
 
    - Added computations for boundary operators and Betti numbers
    - Added references and acknowledgements to Rob Ghrist,
      Jeremy Kun, and Herbert Edelsbrunner
    - Added embeddings
+   - Added flag complex generation
+   - Added Vietoris-Rips complex generation from embeddings
 
 Version 0.3.1 (8May2017)
 

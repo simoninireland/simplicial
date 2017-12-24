@@ -80,7 +80,7 @@ depends on a notion of distance between the located 0-simplices.
 The distance metric can then provide a way of constructing
 higher-dimensional simplices. 
 
-.. automethod:: Embedding.virtorisRipsComplex
+.. automethod:: Embedding.vietorisRipsComplex
 		
 
 
