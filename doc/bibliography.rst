@@ -60,3 +60,4 @@ Jeremy Kun. `Computing homology
 
 Jeremy Kun. `Fixing bugs in "Computing homology"
 <https://jeremykun.com/2014/01/23/fixing-bugs-in-computing-homology/>`_. 2014.
+

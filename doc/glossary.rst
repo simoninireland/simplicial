@@ -11,6 +11,9 @@ Glossary
       The 0-simplices that lie at the "base" of a :term:`simplex`. A
       simplex of :term:`order` k has (k + 1) 0-simplices in its basis.
 
+   boundary
+      The set of faces of a :term:`simplex`.
+      
    boundary operator
       A linear operator taking k-simplices to the their (k-1)-simplex
       faces. The boundary operator extends to sets (chains) of k-simplices,

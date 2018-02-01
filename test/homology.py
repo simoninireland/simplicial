@@ -24,6 +24,29 @@ from simplicial import *
 
 class HomologyTests(unittest.TestCase):
 
+    def testChain( self ):
+        '''Test we can recognise p-chains correctly.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        self.assertTrue(c.isChain([]))
+        self.assertTrue(c.isChain([ 1 ]))
+        self.assertTrue(c.isChain([ 1, 2, 3 ]))
+        self.assertTrue(c.isChain([ 1, 3, 2 ]))
+        self.assertTrue(c.isChain([ 12, 13, 23 ]))
+        self.assertFalse(c.isChain([ 1, 3, 12 ]))
+        self.assertFalse(c.isChain([ 1, 3, 4 ]))
+        self.assertTrue(c.isChain([ 1, 2, 3 ], p = 0))
+        self.assertFalse(c.isChain([ 1, 2, 3 ], p = 2))
+        self.assertFalse(c.isChain([ 12, 1, 3 ], p = 1))
+        with self.assertRaises(Exception):
+            c.isChain([ 1, 3, 12 ], fatal = True)
+                        
     def testBoundary0( self ):
         '''Test the boundary operator for a 0-simplex.'''
         c = SimplicialComplex()

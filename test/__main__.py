@@ -22,6 +22,7 @@ import unittest
 from .simplicialcomplex import SimplicialComplexTests
 from .homology import HomologyTests
 from .flag import FlagTests
+from .join import JoinTests
 from .randomplanes import RandomPlanesTests
 from .triangularlattice import TriangularLatticeTests
 #from .drawing import DrawingTests
@@ -33,6 +34,7 @@ from .vr import VietorisRipsTests
 simplicialcomplexSuite = unittest.TestLoader().loadTestsFromTestCase(SimplicialComplexTests)
 homologySuite = unittest.TestLoader().loadTestsFromTestCase(HomologyTests)
 flagSuite = unittest.TestLoader().loadTestsFromTestCase(FlagTests)
+joinSuite = unittest.TestLoader().loadTestsFromTestCase(JoinTests)
 randomplanesSuite = unittest.TestLoader().loadTestsFromTestCase(RandomPlanesTests)
 triangularlatticeSuite = unittest.TestLoader().loadTestsFromTestCase(TriangularLatticeTests)
 #drawingSuite = unittest.TestLoader().loadTestsFromTestCase(DrawingTests)
@@ -44,12 +46,13 @@ vrSuite = unittest.TestLoader().loadTestsFromTestCase(VietorisRipsTests)
 suite = unittest.TestSuite([ simplicialcomplexSuite,
                              homologySuite,
                              flagSuite,
+                             #joinSuite,
                              randomplanesSuite,
                              triangularlatticeSuite,
                              #drawingSuite,
                              jsonSuite,
                              #mtreeSuite,
-                             vrSuite,
+                             #vrSuite,
                            ])
 
 if __name__ == '__main__':

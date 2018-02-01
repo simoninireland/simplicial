@@ -31,16 +31,19 @@ class FlagTests(unittest.TestCase):
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
         c.addSimplex(id = 3)
-        c.addSimplex(id = '12', fs = [1, 2])
-        c.addSimplex(id = '23', fs = [2, 3])
-        c.addSimplex(id = '31', fs = [3, 1])
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [1, 2])
+        c.addSimplex(id = 23, fs = [2, 3])
+        c.addSimplex(id = 13, fs = [3, 1])
         flag = c.flagComplex()
         self.assertEqual(flag.maxOrder(), 2)
         ss = flag.numberOfSimplicesOfOrder()
-        self.assertEqual(ss[0], 3)
+        self.assertEqual(ss[0], 4)
         self.assertEqual(ss[1], 3)
         self.assertEqual(ss[2], 1)
-        self.assertItemsEqual(flag.basisOf((list(flag.simplicesOfOrder(2)))[0]), [ 1, 2, 3 ])
+        tri = (list(flag.simplicesOfOrder(2)))[0]
+        self.assertItemsEqual(flag.faces(tri), [ 12, 23, 13 ])
+        self.assertItemsEqual(flag.basisOf(tri), [ 1, 2, 3 ])
 
     def testOneTriangleAlready( self ):
         '''Test that we don't add a duplicate triangle.'''
@@ -69,6 +72,7 @@ class FlagTests(unittest.TestCase):
         for bs in itertools.combinations([ 1, 2, 3, 4 ], 2):
             c.addSimplexWithBasis(bs = bs)
         flag = c.flagComplex()
+        print flag.simplices()
         self.assertEqual(flag.maxOrder(), 3)
         ss = flag.numberOfSimplicesOfOrder()
         self.assertEqual(ss[0], 4)

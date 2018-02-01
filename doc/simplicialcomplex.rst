@@ -26,6 +26,8 @@ simply provide the basis and let `simplicial` work out all the
 other simplices that need to be added. This can be a major simplification
 for higher-order simplices.
 
+.. automethod:: SimplicialComplex.ensureBasis
+
 .. automethod:: SimplicialComplex.addSimplexWithBasis
 		
 Finally, it is also possible to copy simplices from one complex to
@@ -56,6 +58,8 @@ Querying the structure of the complex
 .. automethod:: SimplicialComplex.maxOrder
 
 .. automethod:: SimplicialComplex.numberOfSimplicesOfOrder
+
+.. automethod:: SimplicialComplex.isBasis
 
 
 Retrieving simplices
@@ -136,6 +140,8 @@ In `simplicial` we implement the simplest possible version of
 simplicial homology in which simplices are treated as un-oriented, which
 leads to chain coefficients over a field of [0, 1]. This massively
 simplifies both the calculations and the explanations.
+
+.. automethod:: SimplicialComplex.isChain
 
 .. automethod:: SimplicialComplex.boundary
 

@@ -21,7 +21,7 @@
 PACKAGENAME = simplicial
 
 # The version we're building
-VERSION = 0.4.3
+VERSION = 0.5.1
 
 
 # ----- Sources -----
@@ -139,8 +139,6 @@ test: env
 .PHONY: doc
 doc: env $(SOURCES_DOCUMENTATION) $(SOURCES_DOC_CONF)
 	$(CHDIR) $(VENV) && $(ACTIVATE) && $(CHDIR) $(ROOT)/doc && PYTHONPATH=$(ROOT) $(RUN_SPHINX_HTML)
-	$(CHDIR) $(SOURCES_DOC_BUILD_HTML_DIR) && $(ZIP) $(SOURCES_DOC_ZIP) *
-	$(CP) $(SOURCES_DOC_BUILD_HTML_DIR)/$(SOURCES_DOC_ZIP) .
 
 # Build a development venv from the known-good requirements in the repo
 .PHONY: env
