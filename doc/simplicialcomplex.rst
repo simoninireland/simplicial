@@ -49,6 +49,10 @@ to delete all the simplices of which the to-be-deleted simplex is a part
 
 .. automethod:: SimplicialComplex.deleteSimplex
 
+.. automethod:: SimplicialComplex.deleteSimplices
+
+.. automethod:: SimplicialComplex.deleteSimplexWithBasis
+
 
 Querying the structure of the complex
 -------------------------------------
@@ -162,4 +166,13 @@ operations are also used to create abstract complexes from "concrete"
 complexes that have an associated geometric embedding via the
 :class:`Embedding` class.
 
+The :term:`flag complex` is a complex that includes all higher
+simplices whose faces are present. Essentially it "fills in the
+holes": three sides of a triangle will result in the triangle
+2-simplex being created, and so on. It is possible to create the flag
+complex from scratch, or incrementally by filling-in any holes left
+after creating new simplices.
+
 .. automethod:: SimplicialComplex.flagComplex
+
+.. automethod:: SimplicialComplex.growFlagComplex

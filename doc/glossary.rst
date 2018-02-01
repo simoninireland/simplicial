@@ -103,12 +103,12 @@ Glossary
       
    Vietoris-Rips complex
       A complex derived from an underlying distance metric. If
-      0-simplices are given locations, then for a given scale eps the
-      Vietoris-Rips complex has a k-simplex for every collection of k
-      0-simplices lying mutually within a distance eps of each
-      other.
+      0-simplices are given locations, then for a given distance eps
+      the Vietoris-Rips complex at scale eps has a k-simplex for every
+      collection of (k + 1) 0-simplices lying mutually within a distance eps
+      of each other.
 
       Another of saying this is that the Vietoris-Rips complex is the
       :term:`flag complex` resulting from a complex consisting of
-      1-simplices between pairs of 0-simplices lying within a distance
+      1-simplices between all pairs of 0-simplices lying within a distance
       eps of each other.

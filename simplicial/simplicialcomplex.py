@@ -474,6 +474,12 @@ class SimplicialComplex(object):
             # delete in decreasing order, down to the basis
             self._deleteSimplex(t)
 
+    def deleteSimplexWithBasis( self, bs ):
+        '''Delete the simplex with the given basis.
+
+        :param bs: the basis'''
+        self.deleteSimplex(self.simplexWithBasis(bs))
+        
     def deleteSimplices( self, ss ):
         '''Delete all simplices in the given list.
 
@@ -1179,6 +1185,46 @@ class SimplicialComplex(object):
         
         # check we only have 2 or 0 in all positions
         return numpy.all(numpy.logical_or(s == 2, s == 0))
+
+    def _completePotentialSimplices( self, nss ):
+        '''Grow a flag complex via the addition of the given simplices. The
+        intuition is that adding a small number of new simplices leads to a
+        growth in the flag complex as new potential simplices are completed,
+        while cutting down the number of combinations of simplices that need checking. 
+
+        :param nss: a dict of order to sets of simplex indices of the added simplices'''
+        
+        # work up the simplex orders
+        k = 1
+        maxk = max(nss.keys())
+        while k <= (maxk + 1):
+            k = k + 1
+            if ((k - 1) not in nss.keys()) or (len(nss[k - 1]) == 0):
+                # no new simplices to form faces of any new simplices at this order
+                continue
+            if k not in nss.keys():
+                 # create a new set into which to add created simplex indices
+                nss[k] = set()
+                   
+            # grab the boundary matrix of the faces
+            boundary = self.boundaryMatrix(k - 1)
+            
+            # test all coilections of (k + 1) (k - 1)-simplices that include
+            # at least one of the new simplicies to see whether they close
+            # a new simplex at the higher order
+            ks = len(self._indices[k - 1])
+            for fs in [ set(fs) for fs in itertools.combinations(range(ks), k + 1) ]:
+                if not nss[k - 1].isdisjoint(fs):
+                    if self._isClosed(boundary, list(fs)):
+                        # simplices form a boundary, add to the
+                        # flag complex (if it doesn't already exist)
+                        # sd: this could be a lot more optimised
+                        cfs = [ self._indices[k - 1][i] for i in fs ]
+                        if self.simplexWithFaces(cfs) is None:
+                            s = self.addSimplex(fs = cfs)
+                            (_, i) = self._simplices[s]
+                            nss[k].add(i)
+                            maxk = k
         
     def flagComplex( self ):
         '''Generate the :term:`flag complex` of this complex. The flag complex
@@ -1194,27 +1240,33 @@ class SimplicialComplex(object):
         # start with a copy of ourselves
         flag = copy.copy(self)
 
-        # work up the simplex orders
-        k = 1           # we use 1-simplices as adjacencies
-        added = 1
-        while added > 0:
-            k = k + 1
-            added = 0
-
-            # compute the boundary operator
-            boundary = flag.boundaryMatrix(k - 1)
-
-            # test all (k + 1) (k - 1)-simplices to see if they form
-            # a boundary
-            ks = len(self._indices[k - 1])
-            for fs in [ list(fs) for fs in itertools.combinations(range(ks), k + 1) ]:
-                if flag._isClosed(boundary, fs):
-                    # simplices form a boundary, add to the
-                    # flag complex (if it doesn't already exist)
-                    # sd: this could be a lot more optimised
-                    cfs = [ flag._indices[k - 1][i] for i in fs ]
-                    if flag.simplexWithFaces(cfs) is None:
-                        flag.addSimplex(fs = cfs)
-                        added = added + 1
+        # we work from the bottom with all 1-simplices
+        nss = dict()
+        nss[1] = set(range(len(flag.simplicesOfOrder(1))))
+        flag._completePotentialSimplices(nss)
 
         return flag
+
+    def growFlagComplex( self, newSimplices ):
+        '''Grow the :term:`flag complex` incrementally  by filling-in any
+        higher-order simplices formed by the addition of a set of new
+        simplices to the complex.
+
+        The set of new simplices can contain simplices of any order,
+        although 0-simplices will have no effect. For a lot of applications
+        (for example for building a :term:`Vietoris-Rips complex`) the new
+        simplices willm all be 1-simplices (edges).
+
+        :param newSimplices: a collection of new simplices'''
+
+        # convert a list of simplices to a dict of sets of indices, keyed by order
+        nss = dict()
+        for s in newSimplices:
+            (k, i) = self._simplices[s]
+            if k not in nss.keys():
+                nss[k] = set([ i ])
+            else:
+                nss[k].add(i)
+
+        # extend the complex
+        self._completePotentialSimplices(nss)

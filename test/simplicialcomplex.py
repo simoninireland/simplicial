@@ -850,6 +850,21 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertItemsEqual(c.simplicesOfOrder(1), [ 13, 23 ])
         self.assertItemsEqual(c.simplicesOfOrder(0), [ 1, 2, 3])
 
+    def testDeleteByBasis( self ):
+        '''Test we can delete a simplex by its basis.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        c.deleteSimplexWithBasis([ 1, 2 ])
+        self.assertItemsEqual(c.simplicesOfOrder(2), [])
+        self.assertItemsEqual(c.simplicesOfOrder(1), [ 13, 23 ])
+        self.assertItemsEqual(c.simplicesOfOrder(0), [ 1, 2, 3])
+        
     def testOrdering( self ):
         '''Test that we can order simplices in order of order.'''
         c = SimplicialComplex()
