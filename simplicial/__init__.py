@@ -25,10 +25,10 @@ plane. A :term:`complex` is built from simplices (singular:
 :term:`simplex`), and can be used for a number of purposes: as
 discrete approximations of continuous spaces or manifolds, or as
 abstract descriptions of information relationships that can then be
-explored and anlysed using techniques from algebraic :term:`topology`.
+explored and analysed using techniques from algebraic :term:`topology`.
 
 `simplicial` provides a class :class:`SimplicialComplex` to
-represents complexes and provide some topological operations. It also
+represent complexes and provide some topological operations. It also
 provides some "standard" complexes, typically representatives of a
 particularly structured class of spaces, that can be used as building
 blocks for larger complexes. It also provides a function to "embed"
