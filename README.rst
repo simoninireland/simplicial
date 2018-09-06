@@ -25,6 +25,7 @@ copy, just clone the repo:
    
     git clone git@github.com:simoninireland/simplicial.git
     cd simplicial
+    make setup.py
     python setup.py install
 
 
