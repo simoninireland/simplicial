@@ -7,7 +7,7 @@ Saving and loading simplicial complexes
 
 There are lots of standard formats for networks, but none (as far as I
 know) for simplicial complexes. In the absence of a standard,
-`simplicial` uses the most portable storage format, which would be
+``simplicial`` uses the most portable storage format, which would be
 JSON. We may add new formats if required, since JSON isn't very
 efficient especially for large complexes.
 

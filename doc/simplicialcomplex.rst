@@ -59,6 +59,8 @@ Querying the structure of the complex
 
 .. automethod:: SimplicialComplex.orderOf
 
+.. automethod:: SimplicialComplex.indexOf
+
 .. automethod:: SimplicialComplex.maxOrder
 
 .. automethod:: SimplicialComplex.numberOfSimplicesOfOrder

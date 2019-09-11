@@ -1,6 +1,6 @@
 # Tests of construction of flag complexes in simplicial complex class
 #
-# Copyright (C) 2017 Simon Dobson
+# Copyright (C) 2017--2019 Simon Dobson
 # 
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -18,8 +18,7 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import unittest
-import numpy
-import copy
+import six
 import itertools
 from simplicial import *
 
@@ -36,15 +35,15 @@ class FlagTests(unittest.TestCase):
         c.addSimplex(id = 23, fs = [2, 3])
         c.addSimplex(id = 13, fs = [3, 1])
         flag = c.flagComplex()
-        print flag.simplices()
+        print(flag.simplices())
         self.assertEqual(flag.maxOrder(), 2)
         ss = flag.numberOfSimplicesOfOrder()
         self.assertEqual(ss[0], 4)
         self.assertEqual(ss[1], 3)
         self.assertEqual(ss[2], 1)
         tri = (list(flag.simplicesOfOrder(2)))[0]
-        self.assertItemsEqual(flag.faces(tri), [ 12, 23, 13 ])
-        self.assertItemsEqual(flag.basisOf(tri), [ 1, 2, 3 ])
+        six.assertCountEqual(self, list(flag.faces(tri)), [ 12, 23, 13 ])
+        six.assertCountEqual(self, list(flag.basisOf(tri)), [ 1, 2, 3 ])
 
     def testOneTriangleAlready( self ):
         '''Test that we don't add a duplicate triangle.'''
@@ -104,14 +103,14 @@ class FlagTests(unittest.TestCase):
         tbs = set()
         for s in flag.simplicesOfOrder(3):
             tbs |= flag.basisOf(s)
-        self.assertItemsEqual(tbs, [ 1, 2, 3, 4, 5, 6, 7 ])
+        six.assertCountEqual(self, tbs, [ 1, 2, 3, 4, 5, 6, 7 ])
         ibs = set()
         for s in flag.simplicesOfOrder(3):
             if len(ibs) == 0:
                 ibs = flag.basisOf(s)
             else:
                 ibs &= flag.basisOf(s)
-        self.assertItemsEqual(ibs, [ 1 ])
+        six.assertCountEqual(list(ibs), [ 1 ])
 
     def testGrowComplex( self ):
         '''Test that we grow the complex correctly by adding a single new 1-simplex.'''        

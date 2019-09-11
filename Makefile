@@ -42,13 +42,14 @@ SOURCES_CODE = \
 # Test suite
 SOURCES_TESTS = \
 	test/__init__.py \
-	test/__main__.py \
-	test/simplicialcomplex.py \
-	test/homology.py \
-	test/vr.py \
-	test/triangularlattice.py \
-	test/randomplanes.py \
-	test/json_simplicial.py
+	test/test_simplicialcomplex.py \
+	test/test_homology.py \
+	test/test_flag.py \
+	test/test_join.py \
+	test/test_vr.py \
+	test/test_triangularlattice.py \
+	test/test_randomplanes.py \
+	test/test_json_simplicial.py
 TESTSUITE = test
 
 # Sources for Sphinx documentation
@@ -58,6 +59,8 @@ SOURCES_DOC_BUILD_HTML_DIR = $(SOURCES_DOC_BUILD_DIR)/html
 SOURCES_DOC_ZIP = $(PACKAGENAME)-doc-$(VERSION).zip
 SOURCES_DOCUMENTATION = \
 	doc/index.rst \
+	doc/reference.rst \
+	doc/start.rst \
 	doc/simplicialcomplex.rst \
 	doc/embedding.rst \
 	doc/triangularlattice.rst \
@@ -84,27 +87,33 @@ PY_REQUIREMENTS = \
 	numpy \
 	matplotlib
 PY_DEV_REQUIREMENTS = \
-	$(PY_REQUIREMENTS) \
-	sphinx-autobuild \
+	tox \
+	nose \
+	coverage \
+	sphinx \
 	twine
 PY_NON_REQUIREMENTS = \
 	appnope \
 	subprocess32 \
-	functools32
-VENV = venv
+	functools32 \
+	futures
+VENV = venv3
 REQUIREMENTS = requirements.txt
+DEV_REQUIREMENTS = dev-requirements.txt
 
 
 # ----- Tools -----
 
 # Base commands
-PYTHON = python
+PYTHON = python3
 JUPYTER = jupyter
 PIP = pip
+TOX = tox
+COVERAGE = coverage
 TWINE = twine
 GPG = gpg
-VIRTUALENV = virtualenv
-ACTIVATE = . bin/activate
+VIRTUALENV = $(PYTHON) -m venv
+ACTIVATE = . $(VENV)/bin/activate
 TR = tr
 CAT = cat
 SED = sed
@@ -117,9 +126,10 @@ ZIP = zip -r
 ROOT = $(shell pwd)
 
 # Constructed commands
-RUN_TESTS = $(PYTHON) -m $(TESTSUITE)
+RUN_TESTS = $(TOX)
+RUN_COVERAGE = $(COVERAGE) erase && $(COVERAGE) run -a setup.py test && $(COVERAGE) report -m --include '$(PACKAGENAME)*'
 RUN_SETUP = $(PYTHON) setup.py
-RUN_SPHINX_HTML = make html
+RUN_SPHINX_HTML = PYTHONPATH=$(ROOT) make html
 RUN_TWINE = $(TWINE) upload dist/$(PACKAGENAME)-$(VERSION).tar.gz dist/$(PACKAGENAME)-$(VERSION).tar.gz.asc
 NON_REQUIREMENTS = $(SED) $(patsubst %, -e '/^%*/d', $(PY_NON_REQUIREMENTS))
 
@@ -130,15 +140,18 @@ NON_REQUIREMENTS = $(SED) $(patsubst %, -e '/^%*/d', $(PY_NON_REQUIREMENTS))
 help:
 	@make usage
 
-# RUn the test suite
-.PHONY: test
-test: env
-	$(CHDIR) $(VENV) && $(ACTIVATE) && $(CHDIR) $(ROOT) && $(RUN_TESTS)
+# Run tests for all versions of Python we're interested in
+test: env setup.py
+	$(ACTIVATE) && $(RUN_TESTS)
+
+# Run coverage checks over the test suite
+coverage: env
+	$(ACTIVATE) && $(RUN_COVERAGE)
 
 # Build the API documentation using Sphinx
 .PHONY: doc
-doc: env $(SOURCES_DOCUMENTATION) $(SOURCES_DOC_CONF)
-	$(CHDIR) $(VENV) && $(ACTIVATE) && $(CHDIR) $(ROOT)/doc && PYTHONPATH=$(ROOT) $(RUN_SPHINX_HTML)
+doc: $(SOURCES_DOCUMENTATION) $(SOURCES_DOC_CONF)
+	$(ACTIVATE) && $(CHDIR) doc && $(RUN_SPHINX_HTML)
 
 # Build a development venv from the known-good requirements in the repo
 .PHONY: env
@@ -146,17 +159,22 @@ env: $(VENV)
 
 $(VENV):
 	$(VIRTUALENV) $(VENV)
-	$(CP) $(REQUIREMENTS) $(VENV)/requirements.txt
-	$(CHDIR) $(VENV) && $(ACTIVATE) && $(PIP) install -r requirements.txt && $(PIP) freeze >requirements.txt
+	$(CP) $(DEV_REQUIREMENTS) $(VENV)/requirements.txt
+	$(ACTIVATE) && $(CHDIR) $(VENV) && $(PIP) install -r requirements.txt
 
 # Build a development venv from the latest versions of the required packages,
 # creating a new requirements.txt ready for committing to the repo. Make sure
 # things actually work in this venv before committing!
 .PHONY: newenv
 newenv:
-	echo $(PY_DEV_REQUIREMENTS) | $(TR) ' ' '\n' >$(REQUIREMENTS)
-	make env
+	$(RM) $(VENV)
+	$(VIRTUALENV) $(VENV)
+	echo $(PY_REQUIREMENTS) | $(TR) ' ' '\n' >$(VENV)/$(REQUIREMENTS)
+	$(ACTIVATE) && $(CHDIR) $(VENV) && $(PIP) install -r requirements.txt && $(PIP) freeze >requirements.txt
 	$(NON_REQUIREMENTS) $(VENV)/requirements.txt >$(REQUIREMENTS)
+	echo $(PY_DEV_REQUIREMENTS) | $(TR) ' ' '\n' >$(VENV)/$(REQUIREMENTS)
+	$(ACTIVATE) && $(CHDIR) $(VENV) && $(PIP) install -r requirements.txt && $(PIP) freeze >requirements.txt
+	$(NON_REQUIREMENTS) $(VENV)/requirements.txt >$(DEV_REQUIREMENTS)
 
 # Build a source distribution
 sdist: $(SOURCES_SDIST)
@@ -164,13 +182,13 @@ sdist: $(SOURCES_SDIST)
 # Upload a source distribution to PyPi
 upload: $(SOURCES_SDIST)
 	$(GPG) --detach-sign -a dist/$(PACKAGENAME)-$(VERSION).tar.gz
-	($(CHDIR) $(VENV) && $(ACTIVATE) && $(CHDIR) $(ROOT) && $(RUN_TWINE))
+	$(ACTIVATE) && $(RUN_TWINE)
 
-# Clean up the distribution build 
+# Clean up the distribution build
 clean:
-	$(RM) $(SOURCES_GENERATED) simplicial.egg-info dist $(SOURCES_DOC_BUILD_DIR) $(SOURCES_DOC_ZIP)
+	$(RM) $(SOURCES_GENERATED) epyc.egg-info dist $(SOURCES_DOC_BUILD_DIR) $(SOURCES_DOC_ZIP)
 
-# Clean up the development venv as well
+# Clean up everything, including the computational environment (which is expensive to rebuild)
 reallyclean: clean
 	$(RM) $(VENV)
 
@@ -187,7 +205,7 @@ setup.py: $(SOURCES_SETUP_IN) Makefile
 
 # The source distribution tarball
 $(SOURCES_SDIST): $(SOURCES_GENERATED) $(SOURCES_CODE) Makefile
-	($(CHDIR) $(VENV) && $(ACTIVATE) && $(CHDIR) $(ROOT) && $(RUN_SETUP) sdist)
+	$(ACTIVATE) && $(RUN_SETUP) sdist
 
 
 # ----- Usage -----

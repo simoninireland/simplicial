@@ -1,6 +1,6 @@
 # Drawing routines for simplicial complexes
 #
-# Copyright (C) 2017 Simon Dobson
+# Copyright (C) 2017--2019 Simon Dobson
 # 
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -25,7 +25,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 def draw_complex( c, em, ax = None, color = None, color_simplex = None, node_size = 0.02 ):
-    '''Draw a simplicial complex.
+    """Draw a simplicial complex embedded in space.
     
     At present we only deal with simplices of order 2 and less.
     
@@ -34,7 +34,7 @@ def draw_complex( c, em, ax = None, color = None, color_simplex = None, node_siz
     :param ax: the axes to draw in (defaults to main axes)
     :param color: an array of colours for the different simplex orders (defaults to a "reasonable" scheme)
     :param color_simplex: a function from complex, simplex and order to a colour (defaults to order color)
-    :param node_size: the size of the node (0-simplex) markers'''
+    :param node_size: the size of the node (0-simplex) markers"""
     
     # fill in the argument defaults where not specified
     if ax is None:
@@ -63,7 +63,6 @@ def draw_complex( c, em, ax = None, color = None, color_simplex = None, node_siz
     # draw the node markers
     for s in c.simplicesOfOrder(0):
         (x, y) = em[s]
-        print x, y
         circ = plt.Circle([ x, y ],
                           radius = node_size,
                           edgecolor = 'black', facecolor = color_simplex(c, s, 0),

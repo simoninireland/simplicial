@@ -3,14 +3,9 @@ To do
 
 Simplicial complexes:
 
-- Make allSimplices more optimised, selecting for the order of
-  simplices up-front etc
-
 - Allow deletion of a set of simplices in one operation
 
 - File formats for complexes
-
-- Re-structure internally to use only boundary operator matrices
 
 
 Euler integration:

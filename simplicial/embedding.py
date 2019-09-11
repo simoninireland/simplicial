@@ -24,7 +24,7 @@ from simplicial import *
 
 
 class Embedding(object):
-    '''The abstract embedding of a simplicial complex into a space. An embedding
+    """The abstract embedding of a simplicial complex into a space. An embedding
     associates a position with each 0-simplex in the complex, allowing spatial calculations
     to be performed.
 
@@ -41,8 +41,8 @@ class Embedding(object):
     regular embeddings. Explicit positions override computed positions, which allows
     small distortions to be applied easily to otherwise regular embeddings.
 
-    It is also possible to override the distane metrioc to construct different ways
-    of metricating a space. 
+    It is also possible to override the distance metric to construct different ways
+    of metricating a space. The default is n-dimensional Euclidean.
 
     Note that in most cases an embedding is based on simplex names, and so care needs to
     be taken when relabeling simplices in the underlying complex.
@@ -50,7 +50,7 @@ class Embedding(object):
     :param c: the complex
     :param dim: the dimension of the embedding space (defaults to 2)
 
-    '''
+    """
 
     def __init__( self, c, dim = 2 ):
         self._complex = c          # underlying complicial complex
@@ -58,30 +58,30 @@ class Embedding(object):
         self._position = dict()    # cache of positions
 
     def dimension( self ):
-        '''Return the dimension of the embedding space.
+        """Return the dimension of the embedding space.
 
-        :retirns: the dimension of the embedding space'''
+        :returns: the dimension of the embedding space"""
         return self._dim
     
     def origin( self ):
-        '''Return the position of the origin of the embedding space.
+        """Return the position of the origin of the embedding space.
 
-        :returns: the origin as a list of zero co-ordinates'''
+        :returns: the origin as a list of zero co-ordinates"""
         return [ 0.0 ] * self.dimension()
 
     def complex( self ):
-        '''Return the underlying simplicial complex.
+        """Return the underlying simplicial complex.
 
-        :returns: the complex'''
+        :returns: the complex"""
         return self._complex
     
     def distance(self, p, q ):
-        '''Compute the distance between two points. This implementation
-        returns the normal Euclidean distance metric.
+        """Compute the distance between two points. This implementation
+        returns the normal n-dimensional Euclidean distance.
 
         :param p: one point
         :param q: the other point
-        :returns: the distance between them'''
+        :returns: the distance between them"""
         sumsq = 0.0
         for d in range(self.dimension()):
             sumsq = sumsq + math.pow(q[d] - p[d], 2)
@@ -91,10 +91,10 @@ class Embedding(object):
     # ----- Positioning simplices -----
 
     def positionSimplex( self, s, pos ):
-        '''Define an explicit position for a simplex.
+        """Define an explicit position for a simplex.
 
         :param s: the simplex
-        :param pos: the position'''
+        :param pos: the position"""
 
         # check dimensions of position
         if len(pos) != self.dimension():
@@ -103,11 +103,11 @@ class Embedding(object):
         self._position[s] = pos
 
     def positionOf( self, s ):
-        '''Return the position of a simplex in the complex when mapped through this
+        """Return the position of a simplex in the complex when mapped through this
         embedding. Locations are only available for 0-simplices.
 
         :param s: the simplex
-        :returns: the position of the simplex'''
+        :returns: the position of the simplex"""
 
         # check that we're being asked for an 0-simplex
         if self.complex().orderOf(s) > 0:
@@ -119,22 +119,22 @@ class Embedding(object):
         return self._position[s]
 
     def computePositionOf( self, s ):
-        '''Compute the position of the given 0-simplex under this embedding.
+        """Compute the position of the given 0-simplex under this embedding.
         The position returned should have the same dimensions as the
         embedding space. This method should be overridden by sub-classes:
         the default returns the origin for all 0-simplices.
 
         :param s: the simplex
-        :returns: the position of the simplex'''
+        :returns: the position of the simplex"""
         return self.origin()
     
     def positionsOf( self, ss = None ):
-        '''Return a dict of positions for a given set of 0-simplices
+        """Return a dict of positions for a given set of 0-simplices
         in the complex. The default is to return the positions of all
         0-simplices.
 
         :param ss: the simplices (defaults to all 0-simplices)
-        :returns: a dict of positions'''
+        :returns: a dict of positions"""
 
         # fill in default
         if ss is None:
@@ -147,42 +147,42 @@ class Embedding(object):
         return pos
 
     def clearPositions( self ):
-        '''Clear the cache of simplex positions, forcing them all to be re-computed
-        and/or re-specified. Use this if the underlying complex is changed.'''
+        """Clear the cache of simplex positions, forcing them all to be re-computed
+        and/or re-specified. Use this if the underlying complex is changed."""
         self._position = dict()
         
 
     # ----- dict-like interface -----
 
     def __len__( self ):
-        '''The length of the embedding is the number of 0-simplices in the underlying
+        """The length of the embedding is the number of 0-simplices in the underlying
         simplicial complex, i.e., the number of simplices we can return positions for.
 
-        :returns: the size of the embedding'''
+        :returns: the size of the embedding"""
         return self.complex().simplicesOfOrder(0)
     
     def __setitem__( self, s, pos ):
-        '''Dict-like interface to define an explicit position for a simplex.
+        """Dict-like interface to define an explicit position for a simplex.
         Equivalent to :meth:`positionSimplex`.
 
         :param s: the simplex
-        :param pos: the position'''
+        :param pos: the position"""
         self.positionSimplex(s, pos)
         
     def __getitem__( self, s ):
-        '''Dict-like interface to return the position of a simplex in the
+        """Dict-like interface to return the position of a simplex in the
         complex when mapped through this embedding. Equivalent to :meth:`positionOf`.
 
         :param s: the simplex
-        :returns: the position of the simplex'''
+        :returns: the position of the simplex"""
         return self.positionOf(s)
 
     def __contains__( self, s ):
-        '''Test if the embedding will embed the given simplex. Checks against the
+        """Test if the embedding will embed the given simplex. Checks against the
         underlying simplicial complex.
 
         :param s: the simplex
-        :returns: True if the embedding comtains the simplex'''
+        :returns: True if the embedding comtains the simplex"""
         return s in self.complex().simplicesOfOrder(0)
 
 
@@ -190,13 +190,13 @@ class Embedding(object):
     # sd: will be re-written to use M-trees
     
     def vietorisRipsComplex( self, eps ):
-        '''Construct the :term:`Vietoris-Rips complex` at scale eps corresponding to the
+        """Construct the :term:`Vietoris-Rips complex` at scale eps corresponding to the
         given embedding. The resulting complex has the same 0-simplices as the
-        embedding, with a simplex constructed beyween every collection of simplices
+        embedding, with a simplex constructed between every collection of simplices
         that are mutually a distance eps or less apart.
 
         :param eps: the scale parameter
-        :returns: the Vietoris-Rips complex at the given scale'''
+        :returns: the Vietoris-Rips complex at the given scale"""
 
         # create a new complex with the same 0-simplices as ourselves
         c = self.complex()

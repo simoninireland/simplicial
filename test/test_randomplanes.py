@@ -1,6 +1,6 @@
 # Tests of Euler computations over large random planar complexes
 #
-# Copyright (C) 2017 Simon Dobson
+# Copyright (C) 2017--2019 Simon Dobson
 # 
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -27,7 +27,7 @@ class RandomPlanesTests(unittest.TestCase):
     SizeOfRandomPlanes = 1000
     
     def setUp( self ):
-        '''Create a large randomly-triangulated planar complex.'''
+        """Create a large randomly-triangulated planar complex."""
         c = SimplicialComplex()
 
         # create the first triangle
@@ -43,7 +43,7 @@ class RandomPlanesTests(unittest.TestCase):
         boundary = list(copy.copy(c.simplicesOfOrder(1)))
         
         # add random triangles
-        for n in xrange(self.SizeOfRandomPlanes):
+        for n in range(self.SizeOfRandomPlanes):
             # choose a random boundary edge
             i = (int) (numpy.random.random() * len(boundary))
             e0 = boundary[i]
@@ -65,11 +65,11 @@ class RandomPlanesTests(unittest.TestCase):
         self._boundary = boundary
             
     def testCreation( self ):
-        '''Test the setup routine.'''
+        """Test the setup routine."""
         pass
 
     def testEuler( self ):
-        '''Test the Euler characteristic calculations on large planes.'''
+        """Test the Euler characteristic calculations on large planes."""
         
         # plane
         self.assertEqual(self._complex.eulerCharacteristic(), 1)

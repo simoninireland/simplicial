@@ -1,6 +1,6 @@
 # Tests of construction of Vietoris-Rips complexes
 #
-# Copyright (C) 2017 Simon Dobson
+# Copyright (C) 2017--2019 Simon Dobson
 # 
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -24,7 +24,7 @@ from simplicial import *
 class VietorisRipsTests(unittest.TestCase):
 
     def testBasis( self ):
-        '''Test we get the right basis.'''
+        """Test we get the right basis."""
         c = SimplicialComplex()
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
@@ -41,7 +41,7 @@ class VietorisRipsTests(unittest.TestCase):
         self.assertEqual(len(vr.simplicesOfOrder(0)), 3)
         
     def testNoHigherSimplices( self ):
-        '''Test we don't add any higher simplices for too small a scale.'''
+        """Test we don't add any higher simplices for too small a scale."""
         c = SimplicialComplex()
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
@@ -58,7 +58,7 @@ class VietorisRipsTests(unittest.TestCase):
         self.assertEqual(len(vr.simplicesOfOrder(0)), 3)
 
     def testOneNotBoth( self ):
-        '''Test we capture the right structure at a slightly larger scale.'''
+        """Test we capture the right structure at a slightly larger scale."""
         c = SimplicialComplex()
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
@@ -74,10 +74,10 @@ class VietorisRipsTests(unittest.TestCase):
         self.assertEqual(len(vr.simplices()), 4)
         self.assertEqual(len(vr.simplicesOfOrder(0)), 3)
         self.assertEqual(len(vr.simplicesOfOrder(1)), 1)
-        self.assertItemsEqual(vr.faces(list(vr.simplicesOfOrder(1))[0]), [ 1, 2 ])
+        six.assertCountEqual(self, vr.faces(list(vr.simplicesOfOrder(1))[0]), [ 1, 2 ])
 
     def testTwoEdges( self ):
-        '''Test we capture the right structure when we should get two simplices but not the triangle.'''
+        """Test we capture the right structure when we should get two simplices but not the triangle."""
         c = SimplicialComplex()
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)

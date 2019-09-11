@@ -1,6 +1,6 @@
 # Tests of triangular lattices
 #
-# Copyright (C) 2017 Simon Dobson
+# Copyright (C) 2017--2019 Simon Dobson
 # 
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -18,13 +18,14 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import unittest
+import six
 from simplicial import *
 import numpy.random
 
 class TriangularLatticeTests(unittest.TestCase):
 
     def _simplexCounts( self, r, c ):
-        '''Check we have the right numbers of simplices.'''
+        """Check we have the right numbers of simplices."""
         self._complex = TriangularLattice(r, c)
 
         # compute numbers of odd and even rows, for computing simplex totals
@@ -46,28 +47,28 @@ class TriangularLatticeTests(unittest.TestCase):
                                  (r - 2) * c - noddtri)   # SE
 
     def testEvenEven( self ):
-        '''Test a lattice with even rows and columns.'''
+        """Test a lattice with even rows and columns."""
         self._simplexCounts(10, 10)
 
     def testEvenOdd( self ):
-        '''Test a lattice with even rows and odd columns.'''
+        """Test a lattice with even rows and odd columns."""
         self._simplexCounts(10, 11)
 
     def testOddEven( self ):
-        '''Test a lattice with odd rows and even columns.'''
+        """Test a lattice with odd rows and even columns."""
         self._simplexCounts(11, 10)
 
     def testOddOdd( self ):
-        '''Test a lattice with odd rows and columns.'''
+        """Test a lattice with odd rows and columns."""
         self._simplexCounts(11, 10)
 
     def testEuler( self ):
-        '''Test the Euler characteristic calculations.'''
+        """Test the Euler characteristic calculations."""
         self._complex = TriangularLattice(20, 20)
         self.assertEqual(self._complex.eulerCharacteristic(), 1)
 
     def testRegularEmbedding( self ):
-        '''Test that the embedding is regular.'''
+        """Test that the embedding is regular."""
         self._complex = TriangularLattice(10, 10)
         e = TriangularLatticeEmbedding(self._complex, 11, 11)
         pos = e.positionsOf()
@@ -98,7 +99,7 @@ class TriangularLatticeTests(unittest.TestCase):
                     self.assertTrue(pos[s2][0] < pos[s1][0])
 
     def testPerturbedEmbedding( self ):
-        '''Test that we can perturb the embedding with explicit new positions.'''
+        """Test that we can perturb the embedding with explicit new positions."""
         self._complex = TriangularLattice(10, 10)
         e = TriangularLatticeEmbedding(self._complex, 11, 11)
         ss = list(self._complex.simplicesOfOrder(0))
@@ -113,4 +114,4 @@ class TriangularLatticeTests(unittest.TestCase):
 
         # make sure position is preserved
         pos1 = e.positionsOf()
-        self.assertItemsEqual(pos1[s], [ 12, 13 ])
+        six.assertCountEqual(self, pos1[s], [ 12, 13 ])

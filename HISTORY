@@ -1,3 +1,10 @@
+Version 0.5.1
+
+   - Refactored internally to use boundary matrices
+   - Improved exception handling in a few places
+   - Changed TriangularLatticeEmbedding to embed any complex as
+     a lattice, relying on simplex order rather than names
+     
 Version 0.4.3 (24Dec2017)
 
    - Maintenance release to move API documentation to

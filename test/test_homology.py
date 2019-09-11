@@ -1,6 +1,6 @@
 # Tests of homology operations in simplicial complex class
 #
-# Copyright (C) 2017 Simon Dobson
+# Copyright (C) 2017--2019 Simon Dobson
 # 
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -18,8 +18,8 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import unittest
+import six
 import numpy
-import copy
 from simplicial import *
 
 class HomologyTests(unittest.TestCase):
@@ -52,21 +52,21 @@ class HomologyTests(unittest.TestCase):
         c = SimplicialComplex()
         c.addSimplex(id = 1)
         bs = c.boundary([ 1 ])
-        self.assertItemsEqual(bs, set())
+        six.assertCountEqual(self, bs, set())
 
     def testBoundary1( self ):
         '''Test the boundary operator for a 1-simplex.'''
         c = SimplicialComplex()
         c.addSimplexWithBasis(bs = [ 1, 2 ], id = 12)
         bs = c.boundary([ 12 ])
-        self.assertItemsEqual(bs, set([ 1, 2 ]))
+        six.assertCountEqual(self, bs, set([ 1, 2 ]))
 
     def testBoundary2( self ):
         '''Test the boundary operator for a 2-simplex.'''
         c = SimplicialComplex()
         c.addSimplexWithBasis(bs = [ 1, 2, 3 ], id = 123)
         bs = c.boundary([ 123 ])
-        self.assertItemsEqual(bs, c.simplicesOfOrder(1))
+        six.assertCountEqual(self, bs, c.simplicesOfOrder(1))
 
     def testBoundary1linked( self ):
         '''Test the boundary operator for two linked 1-simplices.'''
@@ -74,7 +74,7 @@ class HomologyTests(unittest.TestCase):
         c.addSimplexWithBasis(bs = [ 1, 2 ], id = 12)
         c.addSimplexWithBasis(bs = [ 2, 3 ], id = 23)
         bs = c.boundary([ 12, 23 ])
-        self.assertItemsEqual(bs, set([ 1, 3 ]))
+        six.assertCountEqual(self, bs, set([ 1, 3 ]))
 
     def testBoundary2linked( self ):
         '''Test the boundary operator for two linked 2-simplices.'''
@@ -87,7 +87,7 @@ class HomologyTests(unittest.TestCase):
         c.addSimplex(fs = [ 12, 23, 13 ], id = 123)
         c.addSimplex(fs = [ 12, 14, 24 ], id = 124)
         bs = c.boundary([ 123, 124 ])
-        self.assertItemsEqual(bs, set([ 23, 13, 24, 14 ]))
+        six.assertCountEqual(self, bs, set([ 23, 13, 24, 14 ]))
 
     def testBoundary2unlinked( self ):
         '''Test the boundary operator for two disconnected 2-simplices.'''
@@ -101,7 +101,7 @@ class HomologyTests(unittest.TestCase):
         c.addSimplex(fs = [ 12, 23, 13 ], id = 123)
         c.addSimplex(fs = [ 45, 56, 46 ], id = 124)
         bs = c.boundary([ 123, 124 ])
-        self.assertItemsEqual(bs, c.simplicesOfOrder(1))
+        six.assertCountEqual(self, bs, c.simplicesOfOrder(1))
 
     def testBoundary2boundary( self ):
         '''Test the boundary of a boundary is empty.'''
@@ -114,7 +114,7 @@ class HomologyTests(unittest.TestCase):
         c.addSimplex(fs = [ 12, 23, 13 ], id = 123)
         c.addSimplex(fs = [ 12, 14, 24 ], id = 124)
         bs = c.boundary(c.boundary([ 123, 124 ]))
-        self.assertItemsEqual(bs, set())
+        six.assertCountEqual(self, bs, set())
 
     def testBoundaryMatrix0( self ):
         '''Test that the boundary at order 0 is just a zero matrix with a single row.'''
@@ -223,7 +223,7 @@ class HomologyTests(unittest.TestCase):
         c.addSimplexWithBasis([0, 4])
         c.addSimplexWithBasis([4, 2])
         betti = c.bettiNumbers(ks = [1, 2])
-        self.assertItemsEqual(betti.keys(), [ 1, 2 ])
+        six.assertCountEqual(self, betti.keys(), [ 1, 2 ])
         self.assertEqual(betti[1], 1)
         self.assertEqual(betti[2], 1)
 
@@ -265,7 +265,7 @@ class HomologyTests(unittest.TestCase):
         '''Test computing the Betti numbers for all simplex orders.'''
         c = TriangularLattice(10, 10)
         betti = c.bettiNumbers()
-        self.assertItemsEqual(betti.keys(), [ 0, 1, 2 ])
+        six.assertCountEqual(self, betti.keys(), [ 0, 1, 2 ])
         self.assertEqual(betti[0], 1)
         self.assertEqual(betti[1], 0)
         self.assertEqual(betti[2], 0)
@@ -274,7 +274,7 @@ class HomologyTests(unittest.TestCase):
         '''Test that we get a Betti number of 0 for any order higher than the maximum.'''
         c = TriangularLattice(10, 10)
         betti = c.bettiNumbers(ks = [ 3, 7 ])
-        self.assertItemsEqual(betti.keys(), [ 3, 7 ])
+        six.assertCountEqual(self, betti.keys(), [ 3, 7 ])
         self.assertEqual(betti[3], 0)
         self.assertEqual(betti[7], 0)
         
