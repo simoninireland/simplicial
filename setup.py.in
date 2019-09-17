@@ -37,7 +37,6 @@ setup(name = 'simplicial',
                       'Intended Audience :: Developers',
                       'Programming Language :: Python :: 2.7',
                       'Programming Language :: Python :: 3.7',
-                      'Programming Language :: Python :: Implementation :: PyPy','
                       'Topic :: Scientific/Engineering :: Mathematics',
                       'Topic :: Scientific/Engineering :: Physics' ],
       packages = [ 'simplicial' ],
