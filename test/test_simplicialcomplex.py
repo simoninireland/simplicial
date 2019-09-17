@@ -30,7 +30,7 @@ class SimplicialComplexTests(unittest.TestCase):
         kmax = c.maxOrder()
 
         # run through simplices from highest order downwards, checking faces
-        for k in xrange(kmax, 0, -1):
+        for k in range(kmax, 0, -1):
             ss = c.simplicesOfOrder(k)
             for s in ss:
                 # check that the simplex has all its faces
@@ -48,7 +48,7 @@ class SimplicialComplexTests(unittest.TestCase):
                                                                                                         f = f))
 
         # run up simplices from lowest order up, checking parts membership
-        for k in xrange(kmax + 1):
+        for k in range(kmax + 1):
             ss = c.simplicesOfOrder(k)
             for s in ss:
                 # extract all the simplices we're part of
@@ -231,8 +231,8 @@ class SimplicialComplexTests(unittest.TestCase):
                               [ 1, 2, 3, 1001, 1002, 1003,
                                 12, 13, 23, 1004, 1005, 1006,
                                 123, 1007 ])
-        six.assertCountEqual(c.faces(1004), [ 1001, 1002 ])
-        six.assertCountEqual(c.faces(1007), [ 1004, 1005, 1006 ])
+        six.assertCountEqual(self, list(c.faces(1004)), [ 1001, 1002 ])
+        six.assertCountEqual(self, list(c.faces(1007)), [ 1004, 1005, 1006 ])
         
     def testCopyRenameMap( self ):
         """Test copying simplices from one complex to another, with a renaming
@@ -256,7 +256,7 @@ class SimplicialComplexTests(unittest.TestCase):
         d.addSimplex(id = 7, fs = [ 4, 5, 6 ])
 
         r = dict()
-        for i in xrange(1, 8):
+        for i in range(1, 8):
             r[i] = i + 1000
         c.addSimplicesFrom(d, rename = r)
         six.assertCountEqual(self, c.simplices(),
@@ -287,7 +287,7 @@ class SimplicialComplexTests(unittest.TestCase):
         d.addSimplex(id = 456, fs = [ 45, 46, 56 ])
 
         r = dict()
-        for i in xrange(1, 8):
+        for i in range(1, 8):
             r[i] = i + 1000
         r[4] = 1
         with self.assertRaises(Exception):
@@ -402,7 +402,7 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertEqual(nos[3], 1)
 
         tri = c.simplicesOfOrder(3).pop()
-        six.assertCountEqual(c.basisOf(tri), [ 1, 2, 3, 4 ])
+        six.assertCountEqual(self, c.basisOf(tri), [ 1, 2, 3, 4 ])
                          
     def testAddWithBasis2Exists( self ):
         """Check adding a named 2-simplex by its basis when it already exists."""
@@ -762,7 +762,7 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
         c.addSimplex(id = 124, fs = [ 12, 23, 14 ])
         fs = c.partOf(1)
-        six.assertCountEqual(fs, set(fs))
+        six.assertCountEqual(self, fs, set(fs))
         
     def testBasis( self ):
         """Test that we correctly form the basis of various simplices"""

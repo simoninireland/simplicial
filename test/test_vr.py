@@ -18,7 +18,7 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import unittest
-import numpy
+import six
 from simplicial import *
 
 class VietorisRipsTests(unittest.TestCase):

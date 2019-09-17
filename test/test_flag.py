@@ -110,7 +110,7 @@ class FlagTests(unittest.TestCase):
                 ibs = flag.basisOf(s)
             else:
                 ibs &= flag.basisOf(s)
-        six.assertCountEqual(list(ibs), [ 1 ])
+        six.assertCountEqual(self, list(ibs), [ 1 ])
 
     def testGrowComplex( self ):
         '''Test that we grow the complex correctly by adding a single new 1-simplex.'''        

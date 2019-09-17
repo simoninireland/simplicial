@@ -24,7 +24,7 @@ from simplicial import *
 
 class RandomPlanesTests(unittest.TestCase):
 
-    SizeOfRandomPlanes = 1000
+    SizeOfRandomPlanes = 100
     
     def setUp( self ):
         """Create a large randomly-triangulated planar complex."""
@@ -50,7 +50,7 @@ class RandomPlanesTests(unittest.TestCase):
 
             # add a new triangle to that edge
             vs = list(c.faces(e0))
-            self.assertEquals(len(vs), 2)
+            self.assertEqual(len(vs), 2)
             v2 = c.addSimplex()
             e1 = c.addSimplex(fs = [ vs[0], v2 ])
             e2 = c.addSimplex(fs = [ vs[1], v2 ])
@@ -68,16 +68,34 @@ class RandomPlanesTests(unittest.TestCase):
         """Test the setup routine."""
         pass
 
+    def _isInternalTriangle(self, t):
+        """Check whether the given 2-simplex is internal to the plane"""
+        for f in list(self._complex.faces(t)):
+            if len(self._complex.faceOf(f)) == 1:
+                # face is an edge of the entire place
+                #print("face was outside edge")
+                return False
+        return True
+
     def testEuler( self ):
         """Test the Euler characteristic calculations on large planes."""
         
         # plane
         self.assertEqual(self._complex.eulerCharacteristic(), 1)
 
-        # plane with a random triangle removed
+        # plane with a random triangle removed from the middle
         ts = list(self._complex.simplicesOfOrder(2))
-        t = ts[int(numpy.random.random() * len(ts))]
-        fs = list(self._complex.faces(t))                   # for next test
+        while True:
+            # pick a random triangle
+            t = ts[int(numpy.random.random() * len(ts))]
+            if not self._isInternalTriangle(t):
+                # triangle isn't internal, try again
+                continue
+
+            # if we get here, we've picked an interior triangle
+            break
+
+        fs = list(self._complex.faces(t))
         self.assertEqual(len(fs), 3)
         self._complex.deleteSimplex(t)
         self.assertEqual(self._complex.eulerCharacteristic(), 0)
@@ -87,6 +105,7 @@ class RandomPlanesTests(unittest.TestCase):
         ts = list(self._complex.faceOf(f))
         self.assertEqual(len(ts), 1)
         t = ts[0]
+
         self._complex.deleteSimplex(t)
         self.assertEqual(self._complex.eulerCharacteristic(), -1)
 
