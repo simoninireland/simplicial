@@ -364,7 +364,7 @@ class SimplicialComplex(object):
             if s != t and t in self._simplices.keys():
                 raise Exception('Copying attempting to re-write {s} to the name of an existing simplex {t}'.format(s = s, t = t))
             id = self.addSimplex(id = t,
-                                 fs = map(f, c.faces(s)),
+                                 fs = list(map(f, c.faces(s))),
                                  attr = c[s])
             ns.append(id)
         return ns
