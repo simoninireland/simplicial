@@ -1,6 +1,6 @@
 # Makefile for simplicial
 #
-# Copyright (C) 2017 Simon Dobson
+# Copyright (C) 2017--2019 Simon Dobson
 # 
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -80,27 +80,6 @@ SOURCES_GENERATED = \
 	MANIFEST \
 	setup.py
 
-# Requirements for running the library, for the development venv needed to
-# build it, and and OS-specific non-requirements that need to be removed
-# for portability
-PY_REQUIREMENTS = \
-	numpy \
-	matplotlib
-PY_DEV_REQUIREMENTS = \
-	tox \
-	nose \
-	coverage \
-	sphinx \
-	twine
-PY_NON_REQUIREMENTS = \
-	appnope \
-	subprocess32 \
-	functools32 \
-	futures
-VENV = venv3
-REQUIREMENTS = requirements.txt
-DEV_REQUIREMENTS = dev-requirements.txt
-
 
 # ----- Tools -----
 
@@ -121,9 +100,16 @@ RM = rm -fr
 CP = cp
 CHDIR = cd
 ZIP = zip -r
+PASTE = paste
 
 # Root directory
 ROOT = $(shell pwd)
+
+# Requirements for running the library and for the development venv needed to build it
+VENV = venv3
+REQUIREMENTS = requirements.txt
+DEV_REQUIREMENTS = dev-requirements.txt
+PY_REQUIREMENTS = $(shell $(CAT) $(REQUIREMENTS) | $(SED) 's/.*/"&"/g' | $(PASTE) -s -d, -)
 
 # Constructed commands
 RUN_TESTS = $(TOX)
@@ -153,28 +139,14 @@ coverage: env
 doc: $(SOURCES_DOCUMENTATION) $(SOURCES_DOC_CONF)
 	$(ACTIVATE) && $(CHDIR) doc && $(RUN_SPHINX_HTML)
 
-# Build a development venv from the known-good requirements in the repo
+# Build a development venv from the requirements in the repo
 .PHONY: env
 env: $(VENV)
 
 $(VENV):
 	$(VIRTUALENV) $(VENV)
-	$(CP) $(DEV_REQUIREMENTS) $(VENV)/requirements.txt
+	$(CAT) $(REQUIREMENTS) $(DEV_REQUIREMENTS) >$(VENV)/requirements.txt
 	$(ACTIVATE) && $(CHDIR) $(VENV) && $(PIP) install -r requirements.txt
-
-# Build a development venv from the latest versions of the required packages,
-# creating a new requirements.txt ready for committing to the repo. Make sure
-# things actually work in this venv before committing!
-.PHONY: newenv
-newenv:
-	$(RM) $(VENV)
-	$(VIRTUALENV) $(VENV)
-	echo $(PY_REQUIREMENTS) | $(TR) ' ' '\n' >$(VENV)/$(REQUIREMENTS)
-	$(ACTIVATE) && $(CHDIR) $(VENV) && $(PIP) install -r requirements.txt && $(PIP) freeze >requirements.txt
-	$(NON_REQUIREMENTS) $(VENV)/requirements.txt >$(REQUIREMENTS)
-	echo $(PY_DEV_REQUIREMENTS) | $(TR) ' ' '\n' >$(VENV)/$(REQUIREMENTS)
-	$(ACTIVATE) && $(CHDIR) $(VENV) && $(PIP) install -r requirements.txt && $(PIP) freeze >requirements.txt
-	$(NON_REQUIREMENTS) $(VENV)/requirements.txt >$(DEV_REQUIREMENTS)
 
 # Build a source distribution
 sdist: $(SOURCES_SDIST)
@@ -201,7 +173,7 @@ MANIFEST: Makefile
 
 # The setup.py script
 setup.py: $(SOURCES_SETUP_IN) Makefile
-	$(CAT) $(SOURCES_SETUP_IN) | $(SED) -e 's/VERSION/$(VERSION)/g' -e 's/REQUIREMENTS/$(PY_REQUIREMENTS:%="%",)/g' >$@
+	$(CAT) $(SOURCES_SETUP_IN) | $(SED) -e 's/VERSION/$(VERSION)/g' -e 's/REQUIREMENTS/$(PY_REQUIREMENTS)/g' >$@
 
 # The source distribution tarball
 $(SOURCES_SDIST): $(SOURCES_GENERATED) $(SOURCES_CODE) Makefile
@@ -214,7 +186,6 @@ define HELP_MESSAGE
 Available targets:
    make test         run the test suite
    make env          create a known-good development virtual environment
-   make newenv       update the development venv's requirements
    make sdist        create a source distribution
    make upload       upload distribution to PyPi
    make clean        clean-up the build
