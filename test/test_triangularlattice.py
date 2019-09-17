@@ -20,6 +20,7 @@
 import unittest
 import six
 from simplicial import *
+import math
 import numpy.random
 
 class TriangularLatticeTests(unittest.TestCase):
@@ -28,23 +29,22 @@ class TriangularLatticeTests(unittest.TestCase):
         """Check we have the right numbers of simplices."""
         self._complex = TriangularLattice(r, c)
 
-        # compute numbers of odd and even rows, for computing simplex totals
-        nevenr = (r - 1) / 2
-        noddr = nevenr
-        if (r - 1) % 2 != 0:
-            noddr = noddr + 1
-        neventri = (r - 2) / 2
-        noddtri = neventri
-        if (r - 2) % 2 != 0:
-            noddtri = noddtri + 1
+        ntriperr = 2 * (c - 1) + 1
 
         ns = self._complex.numberOfSimplicesOfOrder()
-        self.assertEquals(ns[0], r * c) 
-        self.assertEquals(ns[1], (r - 2) * c +            # NS
-                                 (r - 1) * c - nevenr +   # SW
-                                 (r - 1) * c - noddr)     # SE
-        self.assertEquals(ns[2], (r - 2) * c - neventri + # SW
-                                 (r - 2) * c - noddtri)   # SE
+        self.assertEqual(ns[0], r * c)
+        if len(ns) > 1:
+            self.assertEqual(ns[1], (r - 1) * (2 * c - 1) + (r - 2) * c)
+        if len(ns) > 2:
+            self.assertEqual(ns[2], (r - 2) * ntriperr)
+
+    def testSimplest(self):
+        """Test simplest triangular lattice."""
+        self._simplexCounts(2, 2)
+
+    def testNextSimplest(self):
+        """Test the next simplest lattice."""
+        self._simplexCounts(3, 3)
 
     def testEvenEven( self ):
         """Test a lattice with even rows and columns."""

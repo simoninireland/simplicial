@@ -1,6 +1,6 @@
 # Triangular lattices, the basic coverings of a space
 #
-# Copyright (C) 2017 Simon Dobson
+# Copyright (C) 2017--2019 Simon Dobson
 # 
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+from __future__ import print_function
 from simplicial import *
 
 class TriangularLattice(SimplicialComplex):
@@ -36,13 +37,13 @@ class TriangularLattice(SimplicialComplex):
         # add the basis for the lattice
         for i in range(r):
             for j in range(c):
-                #print self._indexOfVertex(i, j)
+                #print(self._indexOfVertex(i, j))
                 self.addSimplex(id = self._indexOfVertex(i, j))
 
         # add NS edges, jumping adjacent rows
         for i in range(0, r - 2):
             for j in range(c):
-                #print '2NS', self._indexOfVertex(i, j), self._indexOfVertex(i + 2, j)
+                #print('2NS', self._indexOfVertex(i, j), self._indexOfVertex(i + 2, j))
                 self.addSimplexWithBasis([ self._indexOfVertex(i, j),
                                            self._indexOfVertex(i + 2, j) ])
         
@@ -55,7 +56,7 @@ class TriangularLattice(SimplicialComplex):
                         swj = j - 1
                     else:
                         swj = j
-                    #print '2SW', self._indexOfVertex(i, j), self._indexOfVertex(i + 1, swj)
+                    #print('2SW', self._indexOfVertex(i, j), self._indexOfVertex(i + 1, swj))
                     self.addSimplexWithBasis([ self._indexOfVertex(i, j),
                                                self._indexOfVertex(i + 1, swj) ])
 
@@ -65,7 +66,7 @@ class TriangularLattice(SimplicialComplex):
                         sej = j
                     else:
                         sej = j + 1
-                    #print '2SE', self._indexOfVertex(i, j), self._indexOfVertex(i + 1, sej)
+                    #print('2SE', self._indexOfVertex(i, j), self._indexOfVertex(i + 1, sej))
                     self.addSimplexWithBasis([ self._indexOfVertex(i, j),
                                                self._indexOfVertex(i + 1, sej) ])
                     
@@ -78,7 +79,7 @@ class TriangularLattice(SimplicialComplex):
                         swj = j - 1
                     else:
                         swj = j
-                    #print '3SW', self._indexOfVertex(i, j), self._indexOfVertex(i + 1, swj),  self._indexOfVertex(i + 2, j)
+                    #print('3SW', self._indexOfVertex(i, j), self._indexOfVertex(i + 1, swj),  self._indexOfVertex(i + 2, j))
                     self.addSimplexWithBasis([ self._indexOfVertex(i, j),
                                                self._indexOfVertex(i + 1, swj),
                                                self._indexOfVertex(i + 2, j) ] )
