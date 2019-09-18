@@ -4,6 +4,10 @@ Version 0.5.1
    - Improved exception handling in a few places
    - Changed TriangularLatticeEmbedding to embed any complex as
      a lattice, relying on simplex order rather than names
+   - Python 2.7 and 3.7 compatibility, with tox tests
+   - Improved test coverage
+   - Moved to non-versioned requirements
+   - Added a tutorial to the documentation
      
 Version 0.4.3 (24Dec2017)
 
