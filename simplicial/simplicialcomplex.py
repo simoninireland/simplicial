@@ -557,10 +557,13 @@ class SimplicialComplex(object):
             raise Exception('No simplex {s} in complex'.format(s = s))
 
     def indexOf( self, s ):
-        """Return the unique index of the given simplex. Indices form a dense
-        sequence and are unique at each order. The index isn't robust to changes
+        """Return the unique-within-its-order index of the given simplex.
+        Indices form a dense sequence. The index isn't robust to changes
         in the complex, so the index returned for a simplex may change if
         simplices are added or removed.
+
+        Note that indices are unique only within the same order, not across
+        all simplices; simplex names are however globally unique.
 
         :param s: the simplex
         :returns: an index"""
@@ -933,7 +936,7 @@ class SimplicialComplex(object):
         highest order first.
 
         :param s: the simplex
-        :param reverse: (optional) return simplex in decreasing order 
+        :param reverse: (optional) return simplex in decreasing order (defaults to False)
         :param exclude_self: (optional) exclude the simplex itself (defaults to False)
         :returns: the closure of the simplex"""
         k = self.orderOf(s)
@@ -955,7 +958,7 @@ class SimplicialComplex(object):
             topk = k
         if reverse:
             for fk in range(topk, -1, -1):
-                ss == ss + list(cs[fk])
+                ss = ss + list(cs[fk])
         else:
             for fk in range(0, topk + 1):
                 ss = ss + list(cs[fk])
