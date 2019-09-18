@@ -315,6 +315,7 @@ class SimplicialComplex(object):
 
         :param k: the order of the new simplex
         :param id: (optional) name of the new simplex
+        :param attr: (optional) dict of attributes added to the new simplex
         :returns: the name of the new simplex"""
         if k == 0:
             # it's an 0-simplex, just try to create a new one
@@ -583,7 +584,8 @@ class SimplicialComplex(object):
 
     def numberOfSimplicesOfOrder( self ):
         """Return a dict mapping an order to the number of simplices
-        of that order in the complex.
+        of that order in the complex. Use :meth:`simplicesOfOrder` to
+        retrieve the actual simplices.
         
         :returns: a list of number of simplices at each order"""
         orders = []
@@ -615,7 +617,7 @@ class SimplicialComplex(object):
                     
     def simplicesOfOrder( self, k ):
         """Return all the simplices of the given order. This will
-        be empty for any order not returned by :meth:`orders`.
+        be empty for any order greater than that returned by :meth:`maxOrder`.
         
         :param k: the desired order
         :returns: a set of simplices, which may be empty"""
@@ -738,61 +740,6 @@ class SimplicialComplex(object):
         :returns: True is the complex contains a simplex with this basis"""
         return (self.simplexWithBasis(bs) is not None)
     
-
-    # ---------- Joining simplices ----------
-
-    def joinSimplices( self, fs, ts ):
-        """Fuse 0-simplices in fs with the corresponding 0-simplices
-        in ts. The resulting simplices have the same names as the
-        ts simplices, and the combined attributes of both simplices (with
-        the attributes of ts simplices overriding those of the fs simplices
-        in case of duplicates). Fusing the simplices also fuses any higher-order
-        simplices of which the 0-simplices are part.
-
-        :param fs: "from" simplices
-        :param ts: "to" simplices"""
-
-        # sanity checks
-        if len(fs) != len(ts):
-            raise Exception("Simplex sets must be of the same length")
-        ifts = set(fs).intersection(set(ts))
-        if len(ifts) > 0:
-            raise Exception("From and to sets are not disjoint ({ss})".format(ss = ifts))
-
-        # do the join
-        for (s, t) in zip(fs, ts):
-            print("join {s} to {t}".format(s = s, t = t))
-            # extract indices, check that we have two 0-simplices
-            if s not in self:
-                raise Exception("No simplex {s} in complex".format(s = s))
-            (sk, si) = self._simplices[s]
-            if sk != 0:
-                raise Exception("Simplex {s} is not an 0-simplex".format(s = s))
-            if t not in self:
-                raise Exception("No simplex {t} in complex".format(t = t))
-            (tk, ti) = self._simplices[s]
-            if tk != 0:
-                raise Exception("Simplex {t} is not an 0-simplex".format(t = t))
-
-            # delete s form the simplex list and index list
-            del self._simplices[s]
-            self._indices[sk].remove(si)
-
-            # unify the attributes (retaining any originals of t), and then delete those of s
-            for k in self._attributes[s]:
-                if k not in self._attributes[t]:
-                    self.attributes[t][k] = self._attributes[s][k]
-            del self._attributes[s]
-
-            # if we have higher simplices
-            if self.maxOrder() > 0:
-                # replace all occurrances of si with ti in the basis matrices
-                sr = self._bases[k][si, :]     # si'th row
-                tr = self._bases[k][ti, :]     # ti'th row
-
-
-                # replace all occurrances of si with ti in the 1-simplex boundary matrix
-
 
     # ---------- Attributes ----------
     
