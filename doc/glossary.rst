@@ -47,8 +47,10 @@ Glossary
    
          \chi(S) = \sum_{k = 0}^{\infty} (-1)^k \, \#S_k.
 
-      The Euler characteristic is a hole detector for simplicial
-      complexes, in that "un-filled" spaces are counted.
+      The Euler characteristic is a sort of hole detector for simplicial
+      complexes, in that "un-filled" spaces are counted. For a stronger
+      amnd more sophisticated (but more computationally demanding) hole
+      detector, use :term:`homology`.
       
    face
       A :term:`simplex` that lies on the boundary of another
@@ -94,7 +96,8 @@ Glossary
    star
       The set of simplices of which a given :term:`simplex` is a part.
       The star is not necessarily a closed simplicial complex, but the
-      star of the :term:`closure` of a simplex is.
+      star of the :term:`closure` (or indeed the :term:`closure` of the star)
+      is (and they are generally different).
       
    topology
       "The stratosphere of human thought! In the twenty-fourth
