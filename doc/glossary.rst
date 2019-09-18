@@ -81,7 +81,11 @@ Glossary
       (a 1-simplex) is a one-dimensional structure (an edge); a
       simplex of order 2 is a two-dimensional structure (a triangle);
       and so on.
-   
+
+   p-chain
+      In homology, a set of *p*-simplices. The :term:`boundary operator`
+      is defined on p-chains.
+
    simplex
       A component of a :term:`complex`. A simplex has an
       :term:`order` that defines the number of 0-simplices in its
