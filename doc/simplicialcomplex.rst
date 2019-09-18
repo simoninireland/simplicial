@@ -142,9 +142,9 @@ the plane and two triangulated "islands" one of which contains a hole.
 The Euler characteristic of both these structures is 1, but they have
 different homology groups and therefore different Betti numbers. 
 
-In `simplicial` we implement the simplest possible version of
+In ``simplicial`` we implement the simplest possible version of
 simplicial homology in which simplices are treated as un-oriented, which
-leads to chain coefficients over a field of [0, 1]. This massively
+leads to chain coefficients over a field :math:`[0, 1]`. This massively
 simplifies both the calculations and the explanations.
 
 .. automethod:: SimplicialComplex.isChain
