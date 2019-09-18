@@ -46,7 +46,12 @@ class HomologyTests(unittest.TestCase):
         self.assertFalse(c.isChain([ 12, 1, 3 ], p = 1))
         with self.assertRaises(Exception):
             c.isChain([ 1, 3, 12 ], fatal = True)
-                        
+
+    def testBoundaryMissing(self):
+        """Test the boundary of an empty p-chain."""
+        c = SimplicialComplex()
+        self.assertEqual(len(c.boundary([])), 0)
+
     def testBoundary0( self ):
         '''Test the boundary operator for a 0-simplex.'''
         c = SimplicialComplex()

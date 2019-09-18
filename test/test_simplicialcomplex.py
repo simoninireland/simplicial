@@ -124,8 +124,70 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertEqual(c.maxOrder(), 2)
         self.assertEqual(c.eulerCharacteristic(), 1)
 
-    # add tests of bondary operators when we add and remove simplices
-    # including when we add a simplex of order < maxk (add rmpty rows)
+    def testSimplexOutOfOrder(self):
+        """Test that we can't create simplex of too large an order."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        with self.assertRaises(Exception):
+            c.addSimplex(fs = [ 1, 2, 3 ])
+
+    def testOrder(self):
+        """Test we can gtet simplex orders properly."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        self.assertEqual(c.orderOf(1), 0)
+        self.assertEqual(c.orderOf(12), 1)
+        self.assertEqual(c.orderOf(123), 2)
+        with self.assertRaises(Exception):
+            c.orderOf(4)
+
+    def testIndex(self):
+        """Test we get unique indices."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        for k in range(3):
+            iis = set()
+            ss = c.simplicesOfOrder(k)
+            for s in ss:
+                iis.add(c.indexOf(s))
+            self.assertEqual(len(iis), len(ss))
+        with self.assertRaises(Exception):
+            c.indexOf(4)
+
+    def testAttributes(self):
+        """Test we can get and set individual simplex attributes."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1, attr = dict(test = 3))
+        c.addSimplex(id = 2)
+        self.assertDictEqual(c[1], dict(test = 3))
+        self.assertDictEqual(c[2], dict())
+        c[1]['test2'] = 4
+        self.assertDictEqual(c[1], dict(test = 3, test2 = 4))
+        self.assertDictEqual(c[2], dict())
+        c[1]['test'] = 4
+        self.assertDictEqual(c[1], dict(test = 4, test2 = 4))
+        self.assertDictEqual(c[2], dict())
+        c[2]['test'] = 16
+        self.assertDictEqual(c[1], dict(test = 4, test2 = 4))
+        self.assertDictEqual(c[2], dict(test = 16))
+
+    # add tests of boundary operators when we add and remove simplices
+    # including when we add a simplex of order < maxk (add empty rows)
     
     def testOneFace( self ):
         """Test that we fail if we try to ad a simplex with a single face."""
@@ -469,6 +531,8 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
         self.assertEqual(c.simplexWithFaces([ 1, 2 ]), 12)
         self.assertEqual(c.simplexWithFaces([ 12, 31, 23 ]), 123)
+        with self.assertRaises(Exception):
+            self.assertEqual(c.simplexWithFaces([1, 2, 3]))
 
     def testSimplexWithFacesNoSimplex( self ):
         """Test we don't retrieve a simplex that isn't there."""
@@ -482,7 +546,86 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 31, fs = [ 3, 1 ])
         c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
         self.assertEqual(c.simplexWithFaces([ 3, 4 ]), None)
-        
+
+    def testSimplicesInOrder(self):
+        """Test we retrieve simplices in order of their order."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+
+        k = -1
+        for s in c.simplices():
+            sk = c.orderOf(s)
+            if sk == k:
+                # another one of the same order
+                pass
+            else:
+                if sk == k + 1:
+                    # order has increased, record the new order
+                    k = sk
+                else:
+                    self.fail("Simplices not in order order")
+
+    def testSimplicesInReverseOrder(self):
+        """Test we retrieve simplices in reverse order of their order."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+
+        k = c.maxOrder() + 1
+        for s in c.simplices(reverse = True):
+            sk = c.orderOf(s)
+            if sk == k:
+                # another one of the same order
+                pass
+            else:
+                if sk == k - 1:
+                    # order has increased, record the new order
+                    k = sk
+                else:
+                    self.fail("Simplices not in reverse-order order")
+
+    def testContains(self):
+        """Test we can check containment correctly."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        for s in c.simplices():
+            self.assertTrue(c.containsSimplex(s))
+        self.assertFalse(c.containsSimplex(5))
+
+    def testContainsBasis(self):
+        """Test we can check containment of a basis correctly."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        self.assertTrue(c.containsSimplexWithBasis([ 1, 2 ]))
+        self.assertFalse(c.containsSimplexWithBasis([1, 4]))
+
     def testRelabelFunction( self ):
         """Test relabelling with a function."""
         c = SimplicialComplex()
@@ -636,11 +779,14 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertIsNone(c.simplexWithBasis([ 4, 1, 2 ]))
         self.assertEqual(c.simplexWithBasis([ 4, 2 ]), 24)
         self.assertEqual(c.simplexWithBasis([ 4 ]), 4)
+        self.assertEqual(c.simplexWithBasis([ 1, 2, 3, 4 ]), None)
         with self.assertRaises(Exception):
             c.simplexWithBasis([ 1, 2, 12 ], fatal = True)
         with self.assertRaises(Exception):
             c.simplexWithBasis([ 1, 2, 4 ], fatal = True)
-            
+        with self.assertRaises(Exception):
+            c.simplexWithBasis([ 1, 2, 3, 4 ], fatal = True)
+
     def testClosure( self ):
         """Test that we correctly form the closures of various simplices"""
         c = SimplicialComplex()
@@ -658,7 +804,9 @@ class SimplicialComplexTests(unittest.TestCase):
         six.assertCountEqual(self, c.closureOf(13), [ 1, 3, 13 ])
         six.assertCountEqual(self, c.closureOf(23), [ 2, 3, 23 ])
         six.assertCountEqual(self, c.closureOf(123), [ 1, 2, 3, 12, 13, 23, 123 ])
-          
+        six.assertCountEqual(self, c.closureOf(23, reverse = True), [ 23, 2, 3 ])
+        six.assertCountEqual(self, c.closureOf(123, reverse = True), [ 123, 12, 13, 23, 1, 2, 3 ])
+
     def testClosureExclude( self ):
         """Test that we correctly exclude the simplex itself from its closure when requested."""
         c = SimplicialComplex()
@@ -835,6 +983,35 @@ class SimplicialComplexTests(unittest.TestCase):
         six.assertCountEqual(self, c.simplicesOfOrder(1), [ 12, 13, 23 ])
         six.assertCountEqual(self, c.simplicesOfOrder(0), [ 1, 2, 3])
 
+    def testDeleteLots( self ):
+        """Test that we correctly delete multiple simplices, without any cascade."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.deleteSimplices([ 12, 23 ])
+        six.assertCountEqual(self, c.simplicesOfOrder(2), [])
+        six.assertCountEqual(self, c.simplicesOfOrder(1), [ 13 ])
+        six.assertCountEqual(self, c.simplicesOfOrder(0), [ 1, 2, 3])
+
+    def testDeleteOperator( self ):
+        """Test that the delete operator works as expected."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        del c[123]
+        six.assertCountEqual(self, c.simplicesOfOrder(2), [])
+        six.assertCountEqual(self, c.simplicesOfOrder(1), [ 12, 13, 23 ])
+        six.assertCountEqual(self, c.simplicesOfOrder(0), [ 1, 2, 3])
+
     def testDeleteWithParts( self ):
         """Test that we correctly cascade deletion to all the simplices
         that the requested simplex is part of."""
@@ -842,13 +1019,29 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
         c.addSimplex(id = 3)
-        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
-        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
-        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
         c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
         c.deleteSimplex(12)
         six.assertCountEqual(self, c.simplicesOfOrder(2), [])
         six.assertCountEqual(self, c.simplicesOfOrder(1), [ 13, 23 ])
+        six.assertCountEqual(self, c.simplicesOfOrder(0), [ 1, 2, 3])
+
+    def testDeleteLotsWithParts( self ):
+        """Test that we correctly cascade deletion to all the simplices
+        that the deleted simplices were part of."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        c.deleteSimplices([ 12, 23 ])
+        six.assertCountEqual(self, c.simplicesOfOrder(2), [])
+        six.assertCountEqual(self, c.simplicesOfOrder(1), [ 13 ])
         six.assertCountEqual(self, c.simplicesOfOrder(0), [ 1, 2, 3])
 
     def testDeleteByBasis( self ):

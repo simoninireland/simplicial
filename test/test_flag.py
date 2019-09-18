@@ -182,3 +182,4 @@ class FlagTests(unittest.TestCase):
         self.assertEqual(ss[2], 8)
         self.assertEqual(ss[3], 2)
 
+
