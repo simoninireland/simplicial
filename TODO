@@ -4,7 +4,7 @@ To do
 Simplicial complexes:
 
 - Allow deletion of a set of simplices in one operation
-
+- Joining simplices
 - File formats for complexes
 
 
@@ -21,4 +21,6 @@ Homology:
 Derived complexes:
 
 - Other ways to create sub-complexes as well as basis restriction
+- Classes that build the  variant complexes
+
 

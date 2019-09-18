@@ -60,7 +60,6 @@ SOURCES_DOC_ZIP = $(PACKAGENAME)-doc-$(VERSION).zip
 SOURCES_DOCUMENTATION = \
 	doc/index.rst \
 	doc/reference.rst \
-	doc/start.rst \
 	doc/simplicialcomplex.rst \
 	doc/embedding.rst \
 	doc/triangularlattice.rst \
@@ -69,7 +68,11 @@ SOURCES_DOCUMENTATION = \
 	doc/installation.rst \
 	doc/glossary.rst \
 	doc/acknowledgements.rst \
-	doc/bibliography.rst
+	doc/bibliography.rst \
+	doc/tutorial.rst \
+	doc/tutorial/build-complex.rst \
+	doc/tutorial/navigating-complex.rst \
+	doc/tutorial/simplex-attributes.rst
 
 # Extras for the build and packaging system
 SOURCES_EXTRA = \

@@ -1,5 +1,0 @@
-Getting started
-===============
-
-.. currentmodule: simplicial
-
