@@ -161,7 +161,7 @@ upload: $(SOURCES_SDIST)
 
 # Clean up the distribution build
 clean:
-	$(RM) $(SOURCES_GENERATED) epyc.egg-info dist $(SOURCES_DOC_BUILD_DIR) $(SOURCES_DOC_ZIP)
+	$(RM) $(SOURCES_GENERATED) simplicial.egg-info dist $(SOURCES_DOC_BUILD_DIR) $(SOURCES_DOC_ZIP)
 
 # Clean up everything, including the computational environment (which is expensive to rebuild)
 reallyclean: clean
