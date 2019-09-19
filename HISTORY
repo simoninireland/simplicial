@@ -1,4 +1,4 @@
-Version 0.5.1
+Version 0.5.1 (19Sep2019)
 
    - Refactored internally to use boundary matrices
    - Improved exception handling in a few places
