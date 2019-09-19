@@ -137,7 +137,8 @@ This is again a "single-step" operation, and we may also need a transitive closu
 (In the topology literature this operation if often called the :term:`star` of the
 starting simplex.)
 
-
+Buildign and navigating a complex are only building blocks to its :ref:`complex-analysis` using
+various tools from topology.
 
 
 

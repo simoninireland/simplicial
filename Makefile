@@ -72,7 +72,8 @@ SOURCES_DOCUMENTATION = \
 	doc/tutorial.rst \
 	doc/tutorial/build-complex.rst \
 	doc/tutorial/navigating-complex.rst \
-	doc/tutorial/simplex-attributes.rst
+	doc/tutorial/simplex-attributes.rst \
+	doc/tutorial/analysis.rst
 
 # Extras for the build and packaging system
 SOURCES_EXTRA = \

@@ -11,13 +11,21 @@ Glossary
       The 0-simplices that lie at the "base" of a :term:`simplex`. A
       simplex of :term:`order` k has (k + 1) 0-simplices in its basis.
 
+   Betti numbers
+      The count of the number of holes of a given dimension in a complex,
+      computed using :term:`homology`. The 0th Betti number is the number
+      of disconnected components in the complex; the 1st Betti number
+      counts the number of unfilled loops of edges; the 2nd the number
+      of unfilled voids; and so on.
+
    boundary
       The set of faces of a :term:`simplex`.
       
    boundary operator
-      A linear operator taking k-simplices to the their (k-1)-simplex
-      faces. The boundary operator extends to sets (chains) of k-simplices,
-      where it returns all the (k-1)-simplices in the total boundary.
+      A linear operator taking *k*-simplices to the their *(k - 1)*-simplex
+      faces. The boundary operator extends this to a set (or :term:`p-chain`)
+      of *k*-simplices, where it returns all the *(k - 1)*-simplices
+      in the total boundary.
 
    closure
       The closure of a simplex is the set consisting of the simplex
@@ -25,8 +33,8 @@ Glossary
       :term:`basis`.
 	    
    complex
-      A collection of simplices. In `simplicial`, complexes are
-      closed, in the sense that they contain every :term:`face` of
+      A collection of simplices. In ``simplicial``, complexes are
+      *closed*, in the sense that they contain every :term:`face` of
       every :term:`simplex` contained in the complex.
 
    embedding
@@ -60,16 +68,16 @@ Glossary
 
    flag complex
       A flag complex is a complex with all "implied" simplices
-      present. That is to say, if all the (k + 1) faces of a k-simplex
-      are present in the complex, then so is the  k-simplex itself.
+      present. That is to say, if all the *(k + 1)* faces of a *k*-simplex
+      are present in the complex, then so is the  *k*-simplex itself.
       Another way to think of this is that all possible
       triangles of three edges are filled, as are all possible
       tetrahedra of four triangles, and so forth for higher orders.
 
       If we construct a graph of 0- and 1-simplices such that there is
       an edge between two vertices whenever they are within a distance
-      d of each other, then in the derived flag complex each k-simplex
-      represents (k + 1) vertices mutually within d of each
+      *d* of each other, then in the derived flag complex each *k*-simplex
+      represents *(k + 1)* vertices mutually within *d* of each
       other. High-dimensional simplices thus capture the "density" of
       vertices.
    
@@ -111,8 +119,8 @@ Glossary
    Vietoris-Rips complex
       A complex derived from an underlying distance metric. If
       0-simplices are given locations, then for a given distance eps
-      the Vietoris-Rips complex at scale eps has a k-simplex for every
-      collection of (k + 1) 0-simplices lying mutually within a distance eps
+      the Vietoris-Rips complex at scale *eps* has a *k*-simplex for every
+      collection of *(k + 1)* 0-simplices lying mutually within a distance *eps*
       of each other.
 
       Another of saying this is that the Vietoris-Rips complex is the
