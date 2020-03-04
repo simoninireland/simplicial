@@ -112,7 +112,7 @@ class SimplicialComplex(object):
                     raise Exception('Duplicate face {id}'.format(id = f))
                 else:
                     seen.add(f)
-                    
+
         # if we're creating a simplex of an order higher than we've seen before,
         # create the necessary structures
         if k > self.maxOrder():
@@ -1064,9 +1064,12 @@ class SimplicialComplex(object):
     
     def _reduce( self, B, x = 0 ):
         """Reduce a boundary operator matrix to Smith Normal Form.
+        
         The algorithm is taken from `here <https://www.cs.duke.edu/courses/fall06/cps296.1/Lectures/sec-IV-3.pdf>`_.
         Note that this is simpler than other algorithms in the literature because
-        we're working over a binary field.
+        we're working over a binary field. If the boundary operator represents
+        k-simplices then the reduction has complexity :math:`O(n^3)` for
+        a complex with :math:`n` k-simplices
 
         :param B: the boundary matrix to reduce
         :param x: the row/column being reduced, initially 0
@@ -1083,10 +1086,12 @@ class SimplicialComplex(object):
             for l in range(x, cb):
                 if B[k, l] == 1:
                     # exchange rows x and k
-                    B[[x, k], :] = B[[k, x], :]
+                    if x != k:
+                        B[[x, k], :] = B[[k, x], :]
 
                     # exchange columns x and l
-                    B[:, [x, l]] = B[:, [l, x]]
+                    if x != l:
+                        B[:, [x, l]] = B[:, [l, x]]
 
                     # zero the x column in subsequent rows
                     for i in range(x + 1, rb):
