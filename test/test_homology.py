@@ -283,3 +283,31 @@ class HomologyTests(unittest.TestCase):
         self.assertEqual(betti[3], 0)
         self.assertEqual(betti[7], 0)
         
+    def testBettiExample(self):
+        '''The test of Betti numbers from `here <https://www.cs.duke.edu/courses/fall06/cps296.1/Lectures/sec-IV-3.pdf>`_.'''
+        c = SimplicialComplex()
+
+        # create the skeleton of a tetrahedron
+        for s in [ 'a', 'b', 'c', 'd']:
+            c.addSimplex(id = s)
+        c.addSimplex([ 'a', 'b' ], 'ab')
+        c.addSimplex([ 'b', 'c' ], 'bc')
+        c.addSimplex([ 'a', 'c' ], 'ac')
+        c.addSimplex([ 'a', 'd' ], 'ad')
+        c.addSimplex([ 'b', 'd' ], 'bd')
+        c.addSimplex([ 'c', 'd' ], 'cd')
+        betti = c.bettiNumbers()
+        six.assertCountEqual(self, betti.keys(), [ 0, 1 ])
+        self.assertEqual(betti[0], 1)
+        self.assertEqual(betti[1], 3)
+
+        # fill in the triangles
+        c.addSimplex([ 'ab', 'bc', 'ac'], 'abc')
+        c.addSimplex([ 'bc', 'bd', 'cd'], 'bcd')
+        c.addSimplex([ 'ab', 'bd', 'ad'], 'abd')
+        c.addSimplex([ 'ac', 'ad', 'cd'], 'acd')
+        betti = c.bettiNumbers()
+        six.assertCountEqual(self, betti.keys(), [ 0, 1, 2 ])
+        self.assertEqual(betti[0], 1)
+        self.assertEqual(betti[1], 0)
+        self.assertEqual(betti[2], 1)
