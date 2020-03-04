@@ -1,5 +1,8 @@
 tox
 nose
 coverage
+rope
 sphinx
+sphinx-autobuild
+doc8
 twine
