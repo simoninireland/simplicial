@@ -73,6 +73,7 @@ class SimplicialComplex(object):
 
     def addSimplex( self, fs = [], id = None, attr = None ):
         """Add a simplex to the complex whose faces are the elements of fs.
+        The faces must all be distinct.
         If no faces are given then the simplex is a 0-simplex (point).
         If no id is provided one is created. If present, attr should be a
         dict of attributes for the simplex.
@@ -102,6 +103,16 @@ class SimplicialComplex(object):
             # no attributes
             attr = dict()
 
+        # make sure all the faces are distinct
+        if len(fs) != len(set(fs)):
+            # find the duplicate, for reporting -- slow, but we're exiting anyway
+            seen = set()
+            for f in fs:
+                if f in fs:
+                    raise Exception('Duplicate face {id}'.format(id = f))
+                else:
+                    seen.add(f)
+                    
         # if we're creating a simplex of an order higher than we've seen before,
         # create the necessary structures
         if k > self.maxOrder():

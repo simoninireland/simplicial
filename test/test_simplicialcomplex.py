@@ -124,6 +124,16 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertEqual(c.maxOrder(), 2)
         self.assertEqual(c.eulerCharacteristic(), 1)
 
+    def testDuplicateFace(self):
+        '''Test that we can't duplicate a face.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        with self.assertRaises(Exception):
+            c.addSimplex(id = 33, fs = [ 3, 3 ]) 
+        
     def testSimplexOutOfOrder(self):
         """Test that we can't create simplex of too large an order."""
         c = SimplicialComplex()
