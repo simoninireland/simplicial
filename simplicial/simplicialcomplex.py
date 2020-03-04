@@ -704,7 +704,7 @@ class SimplicialComplex(object):
 
     def allSimplices( self, p, reverse = False ):
         """Return all the simplices that match the given predicate, which should
-        be a function from complex and simplex to boolean. The simplices are
+        be a function from a complex and a simplex to a boolean. The simplices are
         sorted according to their orders.
         
         :param p: a predicate
@@ -912,48 +912,19 @@ class SimplicialComplex(object):
         return ss 
 
 
-    # ---------- Euler characteristic and integration ----------
+    # ---------- Euler characteristic ----------
     
     def eulerCharacteristic( self ):
-        """Return the Euler characteristic of this complex, which is a
-        measure of its topological structure.
+        """Return the :term:`Euler characteristic` of this complex.
         
         :returns: the Euler characteristic"""
         euler = 0
         orders = self.numberOfSimplicesOfOrder()
+        p = 1
         for k in range(len(orders)):
-            euler = euler + pow(-1, k) * orders[k]
+            euler += p * orders[k]
+            p *= -1
         return euler
-    
-    def eulerIntegral( self, observation_key = 'height' ):
-        """Perform an Euler integraton across a simplicial complex
-        using the value of a particular attribute.
-    
-        :param c: the complex
-        :param observation_key: the attribute to integrate over (defaults to 'height')"""
-
-        # compute maximum "height"
-        maxHeight = max([ self[s][observation_key] for s in self.simplices() ])
-
-        # perform the integration over the level sets
-        a = 0
-        for s in xrange(maxHeight + 1):
-            # form the level set
-            # sd TODO: the level set is uniformly growing as s decreases, so we can optimise?
-            cprime = copy.deepcopy(self)
-            bs = cprime.allSimplices(lambda csp: self.orderOf(csp[1]) == 0 and
-                                                 self[csp[1]][observation_key] > s)
-            cprime.restrictBasisTo(bs)
-            
-            # compute the Euler characteristic of the level set
-            chi = cprime.eulerCharacteristic()
-            #print 'level {level}, chi = {chi}'.format(level = s, chi = chi)
-            
-            # add to the integral
-            a = a + chi
-
-        # return the accumulated integral
-        return a
 
 
     # ---------- Homology ----------
@@ -983,7 +954,7 @@ class SimplicialComplex(object):
             # check the simplex exists
             if s not in self:
                 if fatal:
-                    raise Exception('{p}-chain contains non-existent simplex {s}'.formats(p = p, s = s))
+                    raise Exception('{p}-chain contains non-existent simplex {s}'.format(p = p, s = s))
                 else:
                     return False
                 
@@ -991,7 +962,7 @@ class SimplicialComplex(object):
             sk = self.orderOf(s)
             if sk != p:
                 if fatal:
-                    raise Exception('{p}-chain contains simplex {s} of order {sk}'.formats(p = p, s = s, sk = sk))
+                    raise Exception('{p}-chain contains simplex {s} of order {sk}'.format(p = p, s = s, sk = sk))
                 else:
                     return False
         return True
@@ -1008,10 +979,9 @@ class SimplicialComplex(object):
         if len(ss) == 0:
             return set()
         
-        # check we have a valid chain and get its order
+        # check we have a valid chain
         self.isChain(ss, fatal = True)
-        p = self.orderOf(ss[0])
-
+ 
         # extract the boundary
         bs = set()
         for s in ss:
@@ -1023,7 +993,7 @@ class SimplicialComplex(object):
             bs ^= fs
         return bs
         
-    def boundaryMatrix( self, k ):
+    def boundaryOperator( self, k ):
         """Return the :term:`boundary operator` of the k-simplices in the 
         complex as a `numpy` matrix. The columns correspond to
         simplices of order k while rows correspond to simplices
@@ -1074,36 +1044,33 @@ class SimplicialComplex(object):
         return True
 
     def smithNormalForm( self, B ):
-        """Reduce a boundary matrix to Smith Normal Form, which has a leading diagonal
+        """Reduce a boundary operator matrix to Smith Normal Form, which has a leading diagonal
         of 1s for some number of rows, and is everywhere else zero.
 
-        :param b: the boundary matrix to reduce
-        :returns: the Smith Normal Form of the boundary matrix"""
-        return self._reduce(B, 0)
+        :param B: the boundary matrix to reduce
+        :returns: the Smith Normal Form of the boundary operator matrix"""
+        return self._reduce(B.copy(), 0)
     
-    def _reduce( self, Bin, x = 0 ):
-        """Reduce a boundary matrix to Smith Normal Form.
+    def _reduce( self, B, x = 0 ):
+        """Reduce a boundary operator matrix to Smith Normal Form.
         The algorithm is taken from `here <https://www.cs.duke.edu/courses/fall06/cps296.1/Lectures/sec-IV-3.pdf>`_.
         Note that this is simpler than other algorithms in the literature because
         we're working over a binary field.
 
-        :param b: the boundary matrix to reduce
+        :param B: the boundary matrix to reduce
         :param x: the row/column being reduced, initially 0
-        :returns: the Smith Normal Form of the boundary matrix"""
+        :returns: the Smith Normal Form of the boundary operator matrix"""
 
         # check we're still in scope
-        (rb, cb) = Bin.shape
+        (rb, cb) = B.shape
         if x >= min([ rb, cb ]):
             # no, return the reduced matrix
-            return Bin
+            return B
 
         #  check if we have another row to reduce
         for k in range(x, rb):
             for l in range(x, cb):
-                if Bin[k, l] == 1:
-                    # yes, make a copy of the matrix
-                    B = Bin.copy()
-                                    
+                if B[k, l] == 1:
                     # exchange rows x and k
                     B[[x, k], :] = B[[k, x], :]
 
@@ -1124,7 +1091,7 @@ class SimplicialComplex(object):
                     return self._reduce(B, x + 1)
 
         # if we get here, we're fully reduced
-        return Bin
+        return B
 
     def bettiNumbers( self, ks = None ):
         """Return a dict of Betti numbers for the different dimensions
@@ -1144,10 +1111,10 @@ class SimplicialComplex(object):
             # compute the reduced boundary operator matrices if we
             # haven't already done so
             if k not in boundary.keys():
-                boundary[k] = self.smithNormalForm(self.boundaryMatrix(k))
+                boundary[k] = self.smithNormalForm(self.boundaryOperator(k))
             A = boundary[k]
             if k + 1 not in boundary.keys():
-                boundary[k + 1] = self.smithNormalForm(self.boundaryMatrix(k + 1))
+                boundary[k + 1] = self.smithNormalForm(self.boundaryOperator(k + 1))
             B = boundary[k + 1]
 
             # dimensions of boundary matrices
@@ -1205,7 +1172,7 @@ class SimplicialComplex(object):
                 nss[k] = set()
                    
             # grab the boundary matrix of the faces
-            boundary = self.boundaryMatrix(k - 1)
+            boundary = self.boundaryOperator(k - 1)
             
             # test all coilections of (k + 1) (k - 1)-simplices that include
             # at least one of the new simplicies to see whether they close

@@ -113,22 +113,13 @@ simplices that can be built from this basis.
 .. automethod:: SimplicialComplex.restrictBasisTo
 
 
-Euler operations
-----------------
+Global properties
+------------------
 
-The Euler operations are based around the :term:`Euler characteristic`
-and its numerical derivatives. These are useful for computing various
-global topological properties.
-
-Euler integrals are (as the name suggests) integrals computed against
-the Euler characteristic of a space.
+Various global properties of complexes can be defined that provide an
+overview of its topological structure.
 
 .. automethod:: SimplicialComplex.eulerCharacteristic
-
-.. automethod:: SimplicialComplex.eulerIntegral
-
-(For more details about Euler integration see :ref:`Baryshnikov and
-Ghrist <BG09a>` or :ref:`Curry <CGR14>`.)
 
 
 Homology
@@ -151,7 +142,7 @@ simplifies both the calculations and the explanations.
 
 .. automethod:: SimplicialComplex.boundary
 
-.. automethod:: SimplicialComplex.boundaryMatrix
+.. automethod:: SimplicialComplex.boundaryOperator
 
 .. automethod:: SimplicialComplex.disjoint
 

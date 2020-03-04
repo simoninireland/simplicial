@@ -10,8 +10,7 @@ Simplicial complexes
    :maxdepth: 2
 
    simplicialcomplex
-   embedding
-   triangularlattice
+   eulerintegrator
 
 :ref:`file`
 

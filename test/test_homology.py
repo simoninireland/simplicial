@@ -121,20 +121,20 @@ class HomologyTests(unittest.TestCase):
         bs = c.boundary(c.boundary([ 123, 124 ]))
         six.assertCountEqual(self, bs, set())
 
-    def testBoundaryMatrix0( self ):
+    def testBoundaryOperator0( self ):
         '''Test that the boundary at order 0 is just a zero matrix with a single row.'''
         c = SimplicialComplex()
         c.addSimplexWithBasis([ 1, 2, 3 ])
-        b0 = c.boundaryMatrix(0)
+        b0 = c.boundaryOperator(0)
         self.assertEqual(b0.shape, (1, 3))
         self.assertTrue((b0 == 0).all())
         
-    def testBoundaryMatrixProperties( self ):
+    def testBoundaryOperatorProperties( self ):
         '''Test algebraic properties of boundary operator.'''
         c = SimplicialComplex()
         c.addSimplexWithBasis([ 1, 2, 3 ])
-        b2 = c.boundaryMatrix(2)
-        b1 = c.boundaryMatrix(1)
+        b2 = c.boundaryOperator(2)
+        b1 = c.boundaryOperator(1)
         b = numpy.dot(b1, b2) % 2         # boundary matrix composition over underlying binary field
         self.assertTrue((b == 0).all())
 

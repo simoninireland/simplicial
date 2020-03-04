@@ -1,6 +1,6 @@
 # Initialisation for simplicial package
 #
-# Copyright (C) 2017 Simon Dobson
+# Copyright (C) 2017--2019 Simon Dobson
 # 
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -39,6 +39,9 @@ for visualisation (although this still needs a lot more work).
 
 # representation and computation
 from .simplicialcomplex import SimplicialComplex
+
+# Euler integration
+from .eulerintegrator import EulerIntegrator
 
 # spatial embeddings and computations
 from .embedding import Embedding
