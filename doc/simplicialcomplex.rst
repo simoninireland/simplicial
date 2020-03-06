@@ -136,6 +136,8 @@ We define several relationships related to sub-complexes, all based
 around the idea of one complex being "less than" another when the latter
 contains all for former's simplices in the same topological rrelationships.
 
+.. automethod:: SimplicialComplex.isSubComplexOf
+
 .. automethod:: SimplicialComplex.__lt__
 
 .. automethod:: SimplicialComplex.__le__

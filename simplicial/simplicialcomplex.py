@@ -109,7 +109,7 @@ class SimplicialComplex(object):
             if id in self:
                 raise Exception('Duplicate simplex {id}'.format(id = id))
         if attr is None:
-            # no attributes
+            # no attributes, use an empty dict
             attr = dict()
 
         # make sure all the faces are distinct
@@ -571,10 +571,10 @@ class SimplicialComplex(object):
         
         :param s: the simplex
         :returns: the order of the simplex"""
-        try:
+        if s in self:
             (k, _) = self._simplices[s]
             return k
-        except:
+        else:
             raise Exception('No simplex {s} in complex'.format(s = s))
 
     def indexOf( self, s ):
@@ -588,10 +588,10 @@ class SimplicialComplex(object):
 
         :param s: the simplex
         :returns: an index"""
-        try:
+        if s in self:
             (_, i) = self._simplices[s]
             return i
-        except:
+        else:
             raise Exception('No simplex {s} in complex'.format(s = s))
         
     def maxOrder( self ):
@@ -742,11 +742,7 @@ class SimplicialComplex(object):
         :param p: a predicate
         :param reverse: (optional) reverse the order 
         :returns: the set of simplices satisfying the predicate"""
-        ss = [ s for s in self._simplices if p(self, s) ]
-        if reverse:
-            return reversed(ss)
-        else:
-            return ss
+        return [ s for s in self.simplices(reverse) if p(self, s) ]
 
     
     # ---------- Testing for simplices ----------
@@ -775,7 +771,7 @@ class SimplicialComplex(object):
 
     # ---------- Inclusion of complexes ----------
 
-    def __le__(self, c):
+    def isSubComplexOf(self, c ):
         '''True if this complex is a (possibly equal) sub-complex of c. This
         is defined as all the simplices in this complex appear in c, with
         the same topological relationships.
@@ -802,6 +798,13 @@ class SimplicialComplex(object):
 
         # if we get here, we've succeeded
         return True
+      
+    def __le__(self, c):
+        '''True if this complex is a (possibly equal) sub-complex of c.
+
+        :param c: the other complex
+        :returns: True if this is a sub-complex of c'''
+        return self.isSubComplexOf(c)
 
     def __lt__(self, c):
         '''True if this complex is a strictly smaller sub-complex of c.
