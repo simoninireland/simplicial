@@ -1005,7 +1005,7 @@ class SimplicialComplex(object):
         
     def boundaryOperator( self, k ):
         """Return the :term:`boundary operator` of the k-simplices in the 
-        complex (usually denoted :math:`\delta_k`) as a `numpy` matrix. The columns correspond to
+        complex (usually denoted :math:`\partial_k`) as a `numpy` matrix. The columns correspond to
         simplices of order k while rows correspond to simplices
         of order (k - 1). The matrix has a 1 when a (k - 1) simplex 
         is a face of the corresponding k-simplex, and 0 otherwise.
@@ -1107,7 +1107,7 @@ class SimplicialComplex(object):
 
     def Z(self, ks = None):
         '''Return a list of the basis of the group of non-boundary k-chains for
-        the requested orders.
+        the requested orders, usually denoted :math:`Z_k`.
 
         :param ks: (optional) dimensions of holes (defaults to all)
         :returns: a dict of lists of p-chains'''
