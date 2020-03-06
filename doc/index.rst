@@ -60,7 +60,6 @@ Current features
    installation
    tutorial
    reference
-   cookbook
    implementation
    glossary
    bibliography

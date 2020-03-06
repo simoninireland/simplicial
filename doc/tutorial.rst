@@ -15,3 +15,4 @@ the :ref:`reference` for all the details.
     tutorial/simplex-attributes.rst
     tutorial/navigating-complex.rst
     tutorial/analysis.rst
+    tutorial/filtrations.rst

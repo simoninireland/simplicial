@@ -32,6 +32,7 @@ SOURCES_SDIST = dist/$(PACKAGENAME)-$(VERSION).tar.gz
 SOURCES_CODE = \
 	simplicial/__init__.py \
 	simplicial/simplicialcomplex.py \
+	simplicial/filtration.py \
 	simplicial/eulerintegrator.py \
 	simplicial/triangularlattice.py \
 	simplicial/embedding.py \
@@ -77,7 +78,9 @@ SOURCES_DOCUMENTATION = \
 	doc/tutorial/navigating-complex.rst \
 	doc/tutorial/simplex-attributes.rst \
 	doc/tutorial/analysis.rst \
+	doc/tutorial/filtrations.rst \
 	doc/implementation.rst \
+	doc/implementation/simplicialcomplex.rst \
 	doc/implementation/homology.rst
 SOURCES_PAPER = \
 	paper.md \

@@ -22,9 +22,9 @@ Glossary
       The set of faces of a :term:`simplex`.
       
    boundary operator
-      A linear operator taking *k*-simplices to the their *(k - 1)*-simplex
+      A linear operator taking k-simplices to the their (k - 1)-simplex
       faces. The boundary operator extends this to a set (or :term:`p-chain`)
-      of *k*-simplices, where it returns all the *(k - 1)*-simplices
+      of k-simplices, where it returns all the (k - 1)-simplices
       in the total boundary.
 
    closure
@@ -57,7 +57,7 @@ Glossary
 
       The Euler characteristic is a sort of hole detector for simplicial
       complexes, in that "un-filled" spaces are counted. For a stronger
-      amnd more sophisticated (but more computationally demanding) hole
+      and more sophisticated (but more computationally demanding) hole
       detector, use :term:`homology`.
       
    face
@@ -66,20 +66,23 @@ Glossary
       less than the simplex of which it is a face: 2-simplices
       (triangle) have faces that are 1-simplices (edges).
 
+   filtration
+      A sequence of simplicial complexes indexed by an ordered index set
+      with the constraint that whenever two indices :math:`i \le j` the
+      complexes associated with them are related by inclusion
+      :math:`C_i \le C_j`. We typically treat the index set as time and
+      the filtration as representing a complex that is built up 
+      progressively over time by adding more simplices. 
+
+      The canonical example of a filtration is the :term:`Vietoris-Rips complex`.
+
    flag complex
       A flag complex is a complex with all "implied" simplices
-      present. That is to say, if all the *(k + 1)* faces of a *k*-simplex
-      are present in the complex, then so is the  *k*-simplex itself.
+      present. That is to say, if all the (k + 1) faces of a k-simplex
+      are present in the complex, then so is the  k-simplex itself.
       Another way to think of this is that all possible
       triangles of three edges are filled, as are all possible
       tetrahedra of four triangles, and so forth for higher orders.
-
-      If we construct a graph of 0- and 1-simplices such that there is
-      an edge between two vertices whenever they are within a distance
-      *d* of each other, then in the derived flag complex each *k*-simplex
-      represents *(k + 1)* vertices mutually within *d* of each
-      other. High-dimensional simplices thus capture the "density" of
-      vertices.
    
    homology
       A :term:`topological invariant` of a complex that has a
@@ -93,7 +96,7 @@ Glossary
       and so on.
 
    p-chain
-      In homology, a set of *p*-simplices. The :term:`boundary operator`
+      In homology, a set of p-simplices. The :term:`boundary operator`
       is defined on p-chains.
 
    simplex
@@ -119,11 +122,15 @@ Glossary
    Vietoris-Rips complex
       A complex derived from an underlying distance metric. If
       0-simplices are given locations, then for a given distance eps
-      the Vietoris-Rips complex at scale *eps* has a *k*-simplex for every
-      collection of *(k + 1)* 0-simplices lying mutually within a distance *eps*
-      of each other.
+      the Vietoris-Rips complex at scale :math:`\epsilon` has a k-simplex for every
+      collection of (k + 1) 0-simplices lying mutually within a distance
+      :math:`\epsilon` of each other.
 
       Another of saying this is that the Vietoris-Rips complex is the
       :term:`flag complex` resulting from a complex consisting of
       1-simplices between all pairs of 0-simplices lying within a distance
-      eps of each other.
+      :math:`\epsilon` of each other.
+
+      If we take a set of geometrically located 0-simplices allow
+      :math:`\epsilon` to increase, the resulting sequence of complexes
+      forms a :term:`filtration`. 

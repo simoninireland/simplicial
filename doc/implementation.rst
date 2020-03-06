@@ -7,4 +7,5 @@ mechanics.
 .. toctree::
     :maxdepth: 2
 
+    implementation/simplicialcomplex.rst
     implementation/homology.rst

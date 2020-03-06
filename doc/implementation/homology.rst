@@ -1,3 +1,6 @@
+.. currentmodule:: simplicial
+
+
 Computing homology
 ==================
 
@@ -18,7 +21,7 @@ where every simplex would appear twice. Another thing we might care about is:
 which direction do we pass over a simplex when traversing a chain? That would let
 us describe paths that fully or partially reversed themselves.
 
-Mathematically, these choices of "what we care about" are represented as a choice
+Mathematically these choices of "what we care about" are represented as a choice
 of what coefficients are allowed for each simplex in the chain. If we care about
 multiple occurrances, we need to count the number of those occurrances; if we care
 about direction of travel, we need to be able to use positive and negative coefficients to
@@ -77,7 +80,7 @@ It is simpler than many others found in the literature because of our use
 of homology over :math:`\mathbb{Z}/2`. (A more general homology theory would have a Smith
 normal form with the same structure but with more general non-zero elements
 instead of only ones.) It still however has a computational complexity of roughly
-:math:`O(|n_k|^3)` for a complex with :math:`n_k` k-simplices.
+:math:`O(n_k^3)` for a complex with :math:`n_k` k-simplices.
 
 
 The :math:`Z_k` sub-group
@@ -99,7 +102,7 @@ that they represent: for :math:`\partial_k` this means that rows represent (k - 
 and columns represent k-simplices. Reduction to Smith normal form works by exchanging pairs
 of rows (or columns), and adding one row (or column) to another row (or column). Extend these
 matrix operations to work on the labels as well as the elements. When the matrix is fully
-reduced, the number of zero columns represents the degree of :math:`Z_k` (whicxh we use
+reduced, the number of zero columns represents the degree of :math:`Z_k` (which we use
 when computing the Betti numbers); the labels on these columns form a basis for :math:`Z_k`,
 which is to say that any cycle around a hole can be constructed as some combination of the
 basis elements.

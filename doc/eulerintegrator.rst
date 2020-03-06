@@ -5,3 +5,4 @@
 
 .. autoclass:: EulerIntegrator
 
+:ref:`Curry et al. <CGR14>`.
