@@ -1,6 +1,6 @@
 # Base class for simplicial complexes
 #
-# Copyright (C) 2017--2019 Simon Dobson
+# Copyright (C) 2017--2020 Simon Dobson
 # 
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -36,9 +36,8 @@ class SimplicialComplex(object):
     on recursively.
 
     The class also includes some more advanced topological operations, notably for
-    computing the :term:`Euler characteristic` of a complex and
-    performing Euler integration, and for computational :term:`homology`.
-
+    computing the :term:`Euler characteristic` of a complex, and for
+    computational :term:`homology`.
     """
 
     # ---------- Initialisation and helpers ----------
@@ -1006,7 +1005,7 @@ class SimplicialComplex(object):
         
     def boundaryOperator( self, k ):
         """Return the :term:`boundary operator` of the k-simplices in the 
-        complex as a `numpy` matrix. The columns correspond to
+        complex (usually denoted :math:`\delta_k`) as a `numpy` matrix. The columns correspond to
         simplices of order k while rows correspond to simplices
         of order (k - 1). The matrix has a 1 when a (k - 1) simplex 
         is a face of the corresponding k-simplex, and 0 otherwise.
@@ -1053,62 +1052,22 @@ class SimplicialComplex(object):
 
         # if we get here, all the simplices were disjoint
         return True
-
-    def smithNormalForm( self, B ):
-        """Reduce a boundary operator matrix to Smith Normal Form, which has a leading diagonal
-        of 1s for some number of rows, and is everywhere else zero.
-
-        :param B: the boundary matrix to reduce
-        :returns: the Smith Normal Form of the boundary operator matrix"""
-        return self._reduce(B.copy(), 0)
-    
-    def _reduce( self, B, x = 0 ):
-        """Reduce a boundary operator matrix to Smith Normal Form.
         
-        The algorithm is taken from `here <https://www.cs.duke.edu/courses/fall06/cps296.1/Lectures/sec-IV-3.pdf>`_.
-        Note that this is simpler than other algorithms in the literature because
-        we're working over a binary field. If the boundary operator represents
-        k-simplices then the reduction has complexity :math:`O(n^3)` for
-        a complex with :math:`n` k-simplices
+    def smithNormalForm( self, k ):
+        """Reduce a boundary operator matrix to Smith Normal Form, which has a leading diagonal
+        of ones for some prefix of its leading diagonal and is zero everywhere else.
 
-        :param B: the boundary matrix to reduce
-        :param x: the row/column being reduced, initially 0
+        :param k: the order of the boundary operator
         :returns: the Smith Normal Form of the boundary operator matrix"""
-
-        # check we're still in scope
-        (rb, cb) = B.shape
-        if x >= min([ rb, cb ]):
-            # no, return the reduced matrix
-            return B
-
-        #  check if we have another row to reduce
-        for k in range(x, rb):
-            for l in range(x, cb):
-                if B[k, l] == 1:
-                    # exchange rows x and k
-                    if x != k:
-                        B[[x, k], :] = B[[k, x], :]
-
-                    # exchange columns x and l
-                    if x != l:
-                        B[:, [x, l]] = B[:, [l, x]]
-
-                    # zero the x column in subsequent rows
-                    for i in range(x + 1, rb):
-                        if B[i, x] == 1:
-                            B[i, :] = (B[i, :] + B[x, :]) % 2
-
-                    # ...and the x row in subsequent columns
-                    for j in range(x + 1, cb):
-                        if B[x, j] == 1:
-                            B[:, j] = (B[:, j] + B[:, x]) % 2
-
-                    # move to the next row
-                    return self._reduce(B, x + 1)
-
-        # if we get here, we're fully reduced
-        return B
-
+        if k == 0 or k > self.maxOrder():
+            # at the extremes the boundary operator is already in SNF
+            snfB = self.boundaryOperator(k).copy()
+        else:
+            rls = list(map((lambda s: [ s ]), self._indices[k - 1].copy()))
+            cls = list(map((lambda s: [ s ]), self._indices[k].copy()))
+            (snfB, _, _) = self._reduceBoundaries(self.boundaryOperator(k).copy(), rls, cls)
+        return snfB
+    
     def bettiNumbers( self, ks = None ):
         """Return a dict of Betti numbers for the different dimensions
         of the complex.
@@ -1121,17 +1080,17 @@ class SimplicialComplex(object):
             ks = range(self.maxOrder() + 1)
 
         # compute the Betti numbers
-        boundary = dict()
+        boundaries = dict()
         betti = dict()
         for k in ks:
             # compute the reduced boundary operator matrices if we
             # haven't already done so
-            if k not in boundary.keys():
-                boundary[k] = self.smithNormalForm(self.boundaryOperator(k))
-            A = boundary[k]
-            if k + 1 not in boundary.keys():
-                boundary[k + 1] = self.smithNormalForm(self.boundaryOperator(k + 1))
-            B = boundary[k + 1]
+            if k not in boundaries.keys():
+                boundaries[k] = self.smithNormalForm(k)
+            A = boundaries[k]
+            if k + 1 not in boundaries.keys():
+                boundaries[k + 1] = self.smithNormalForm(k + 1)
+            B = boundaries[k + 1]
 
             # dimensions of boundary matrices
             (ra, ca) = A.shape
@@ -1145,6 +1104,93 @@ class SimplicialComplex(object):
             betti[k] = kernelDim - imageDim
 
         return betti
+
+    def Z(self, ks = None):
+        '''Return a list of the basis of the group of non-boundary k-chains for
+        the requested orders.
+
+        :param ks: (optional) dimensions of holes (defaults to all)
+        :returns: a dict of lists of p-chains'''
+        
+         # fill in the default
+        if ks is None:
+            ks = range(1, self.maxOrder() + 1)
+
+        # compute the boundaries
+        boundaries = dict()
+        for k in ks:
+            # build the initial lists of row and column labels, each of which is a
+            # list containing just the identifier of the simplex itself
+            B = self.boundaryOperator(k)
+            (rb, cb) = B.shape
+            rls = list(map((lambda s: [ s ]), self._indices[k - 1].copy()))
+            cls = list(map((lambda s: [ s ]), self._indices[k].copy()))
+            
+            # generate the Smith normal form, capturing the changes in labels
+            (A, rls, cls) = self._reduceBoundaries(B.copy(), rls, cls) 
+
+            # compute the ranks of the Z_k group
+            zc = numpy.zeros(rb)
+            kernelDim = [ numpy.all(A[:, j] == zc) for j in range(cb) ].count(True) # zero columns 
+
+            # the boundary k-chains correspond to the zero columns
+            # in the reduced matrix (the kernelDim rightmost entries)
+            chains = cls[-kernelDim:]
+            boundaries[k] = chains
+
+        return boundaries
+ 
+    def _reduceBoundaries( self, B, rLabels, cLabels, x = 0 ):
+        """Compute the Smith normal form keeping track of the labels.
+
+        :param B: the boundary matrix to reduce
+        :param  
+        :param x: the row/column being reduced, initially 0
+        :returns: the Smith Normal Form of the boundary operator matrix"""
+
+        # check we're still in scope
+        (rb, cb) = B.shape
+        if x >= min([ rb, cb ]):
+            # no, return the reduced matrix
+            return (B, rLabels, cLabels)
+
+        #  check if we have another row to reduce
+        for k in range(x, rb):
+            for l in range(x, cb):
+                if B[k, l] == 1:
+                    # exchange rows x and k
+                    if x != k:
+                        B[[x, k], :] = B[[k, x], :]
+                        t = rLabels[x]
+                        rLabels[x] = rLabels[k]
+                        rLabels[k] = t
+
+                    # exchange columns x and l
+                    if x != l:
+                        B[:, [x, l]] = B[:, [l, x]]
+                        t = cLabels[x]
+                        cLabels[x] = cLabels[l]
+                        cLabels[l] = t
+
+                    # zero the x column in subsequent rows
+                    for i in range(x + 1, rb):
+                        if B[i, x] == 1:
+                            B[i, :] = (B[i, :] + B[x, :]) % 2
+                            rls = rLabels[i] + rLabels[x]
+                            rLabels[x] = rls
+
+                    # ...and the x row in subsequent columns
+                    for j in range(x + 1, cb):
+                        if B[x, j] == 1:
+                            B[:, j] = (B[:, j] + B[:, x]) % 2
+                            cls = cLabels[j] + cLabels[x]
+                            cLabels[j] = cls
+
+                    # move to the next row
+                    return self._reduceBoundaries(B, rLabels, cLabels, x + 1)
+
+        # if we get here, we're fully reduced
+        return (B, rLabels, cLabels)
 
 
     # ---------- Derived complexes ----------

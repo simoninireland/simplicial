@@ -149,6 +149,8 @@ simplifies both the calculations and the explanations.
 .. automethod:: SimplicialComplex.smithNormalForm
 
 .. automethod:: SimplicialComplex.bettiNumbers
+
+.. automethod:: SimplicialComplex.Z
 		
 
 Deriving new complexes

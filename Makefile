@@ -21,7 +21,7 @@
 PACKAGENAME = simplicial
 
 # The version we're building
-VERSION = 0.5.1
+VERSION = 0.6.1
 
 
 # ----- Sources -----
@@ -32,6 +32,7 @@ SOURCES_SDIST = dist/$(PACKAGENAME)-$(VERSION).tar.gz
 SOURCES_CODE = \
 	simplicial/__init__.py \
 	simplicial/simplicialcomplex.py \
+	simplicial/eulerintegrator.py \
 	simplicial/triangularlattice.py \
 	simplicial/embedding.py \
 	simplicial/drawing/__init__.py \
@@ -43,6 +44,7 @@ SOURCES_CODE = \
 SOURCES_TESTS = \
 	test/__init__.py \
 	test/test_simplicialcomplex.py \
+	test/test_eulerintegrator.py \
 	test/test_homology.py \
 	test/test_flag.py \
 	test/test_join.py \
@@ -61,6 +63,7 @@ SOURCES_DOCUMENTATION = \
 	doc/index.rst \
 	doc/reference.rst \
 	doc/simplicialcomplex.rst \
+	doc/eulerintegrator.rst \
 	doc/embedding.rst \
 	doc/triangularlattice.rst \
 	doc/drawing.rst \
@@ -73,7 +76,12 @@ SOURCES_DOCUMENTATION = \
 	doc/tutorial/build-complex.rst \
 	doc/tutorial/navigating-complex.rst \
 	doc/tutorial/simplex-attributes.rst \
-	doc/tutorial/analysis.rst
+	doc/tutorial/analysis.rst \
+	doc/implementation.rst \
+	doc/implementation/homology.rst
+SOURCES_PAPER = \
+	paper.md \
+	paper.bib \
 
 # Extras for the build and packaging system
 SOURCES_EXTRA = \
@@ -121,7 +129,6 @@ RUN_COVERAGE = $(COVERAGE) erase && $(COVERAGE) run -a setup.py test && $(COVERA
 RUN_SETUP = $(PYTHON) setup.py
 RUN_SPHINX_HTML = PYTHONPATH=$(ROOT) make html
 RUN_TWINE = $(TWINE) upload dist/$(PACKAGENAME)-$(VERSION).tar.gz dist/$(PACKAGENAME)-$(VERSION).tar.gz.asc
-NON_REQUIREMENTS = $(SED) $(patsubst %, -e '/^%*/d', $(PY_NON_REQUIREMENTS))
 
 
 # ----- Top-level targets -----

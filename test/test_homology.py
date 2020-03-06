@@ -167,13 +167,20 @@ class HomologyTests(unittest.TestCase):
     def testReduce( self ):
         '''Test we reduce matrices correctly to Smith Normal Form.'''
         c = SimplicialComplex()
-        A = numpy.array([[-1, -1, -1, -1,  0,  0,  0,  0],
-                         [ 1,  0,  0,  0, -1, -1,  0,  0],
-                         [ 0,  1,  0,  0,  1,  0, -1, -1],
-                         [ 0,  0,  1,  0,  0,  1,  1,  0],
-                         [ 0,  0,  0,  1,  0,  0,  0,  1]])
-        Ar = c.smithNormalForm(abs(A))
 
+        # create the skeleton of a tetrahedron
+        c.addSimplex(id = 'a')
+        c.addSimplex(id = 'b')
+        c.addSimplex(id = 'c')
+        c.addSimplex(id = 'd')
+        c.addSimplex([ 'a', 'b' ], 'ab')
+        c.addSimplex([ 'a', 'c' ], 'ac')
+        c.addSimplex([ 'a', 'd' ], 'ad')
+        c.addSimplex([ 'b', 'c' ], 'bc')
+        c.addSimplex([ 'b', 'd' ], 'bd')
+        c.addSimplex([ 'c', 'd' ], 'cd')
+
+        Ar = c.smithNormalForm(1)
         (ra, ca) = Ar.shape
         rank = min([ ra, ca ])
         onDiagonal = True
@@ -288,12 +295,14 @@ class HomologyTests(unittest.TestCase):
         c = SimplicialComplex()
 
         # create the skeleton of a tetrahedron
-        for s in [ 'a', 'b', 'c', 'd']:
-            c.addSimplex(id = s)
+        c.addSimplex(id = 'a')
+        c.addSimplex(id = 'b')
+        c.addSimplex(id = 'c')
+        c.addSimplex(id = 'd')
         c.addSimplex([ 'a', 'b' ], 'ab')
-        c.addSimplex([ 'b', 'c' ], 'bc')
         c.addSimplex([ 'a', 'c' ], 'ac')
         c.addSimplex([ 'a', 'd' ], 'ad')
+        c.addSimplex([ 'b', 'c' ], 'bc')
         c.addSimplex([ 'b', 'd' ], 'bd')
         c.addSimplex([ 'c', 'd' ], 'cd')
         betti = c.bettiNumbers()
@@ -303,11 +312,49 @@ class HomologyTests(unittest.TestCase):
 
         # fill in the triangles
         c.addSimplex([ 'ab', 'bc', 'ac'], 'abc')
-        c.addSimplex([ 'bc', 'bd', 'cd'], 'bcd')
         c.addSimplex([ 'ab', 'bd', 'ad'], 'abd')
         c.addSimplex([ 'ac', 'ad', 'cd'], 'acd')
+        c.addSimplex([ 'bc', 'bd', 'cd'], 'bcd')
         betti = c.bettiNumbers()
         six.assertCountEqual(self, betti.keys(), [ 0, 1, 2 ])
         self.assertEqual(betti[0], 1)
         self.assertEqual(betti[1], 0)
         self.assertEqual(betti[2], 1)
+
+    def testCircleHomology(self):
+        '''Test computations of homology on a circle.'''
+        c = SimplicialComplex()
+        
+        # build a circle
+        c.addSimplex(id = 'a')
+        c.addSimplex(id = 'b')
+        c.addSimplex(id = 'c')
+        c.addSimplex(id = 'd')
+        c.addSimplex([ 'a', 'b' ], 'ab')
+        c.addSimplex([ 'b', 'c' ], 'bc')
+        c.addSimplex([ 'c', 'd' ], 'cd')
+        c.addSimplex([ 'a', 'd' ], 'ad')
+        betti = c.bettiNumbers()
+        six.assertCountEqual(self, betti.keys(), [ 0, 1 ])
+        self.assertEqual(betti[0], 1)
+        self.assertEqual(betti[1], 1)
+        holes = c.Z()[1]
+        self.assertEqual(len(holes), 1)
+        six.assertCountEqual(self, holes[0], [ 'ab', 'bc', 'cd', 'ad' ])
+
+        # split the circle in two
+        c.addSimplex([ 'a', 'c' ], 'ac')
+        betti = c.bettiNumbers()
+        six.assertCountEqual(self, betti.keys(), [ 0, 1 ])
+        self.assertEqual(betti[0], 1)
+        self.assertEqual(betti[1], 2)
+        holes = c.Z()
+        self.assertEqual(len(holes[1]), 2)
+        for b in holes[1]:
+            if len(b) == 4:
+                six.assertCountEqual(self, b, [ 'ab', 'bc', 'cd', 'ad' ])
+            else:
+                if len(b) == 3:
+                    six.assertCountEqual(self, b, [ 'ac', 'ab', 'bc' ])
+                else:
+                    raise Exception('Incorrect basis')
