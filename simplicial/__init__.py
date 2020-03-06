@@ -1,6 +1,6 @@
 # Initialisation for simplicial package
 #
-# Copyright (C) 2017--2019 Simon Dobson
+# Copyright (C) 2017--2020 Simon Dobson
 # 
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-'''`simplicial` is a Python package for manipulating simplicial
+'''``simplicial`` is a Python package for manipulating simplicial
 complexes.
 
 Simplicial complexes are generalisations of the triangulation of a
@@ -27,7 +27,7 @@ discrete approximations of continuous spaces or manifolds, or as
 abstract descriptions of information relationships that can then be
 explored and anlysed using techniques from algebraic :term:`topology`.
 
-`simplicial` provides a class :class:`SimplicialComplex` to
+``simplicial`` provides a class :class:`SimplicialComplex` to
 represents complexes and provide some topological operations. It also
 provides some "standard" complexes, typically representatives of a
 particularly structured class of spaces, that can be used as building
@@ -39,6 +39,9 @@ for visualisation (although this still needs a lot more work).
 
 # representation and computation
 from .simplicialcomplex import SimplicialComplex
+
+# sequences of complexes ordered by inclusion
+from .filtration import Filtration
 
 # Euler integration
 from .eulerintegrator import EulerIntegrator
