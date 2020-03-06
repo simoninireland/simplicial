@@ -54,6 +54,22 @@ to delete all the simplices of which the to-be-deleted simplex is a part
 .. automethod:: SimplicialComplex.deleteSimplexWithBasis
 
 
+Copying and equality
+--------------------
+
+Complexes can be freely copied, creating independent versions of the same complex.
+
+.. automethod:: SimplicialComplex.copy
+
+They can also be tested for equality.
+
+.. automethod:: SimplicialComplex.__eq__
+
+.. automethod:: SimplicialComplex.__ne__
+
+(See later for other comparison operators relating to sub-complexes.) 
+
+
 Querying the structure of the complex
 -------------------------------------
 
@@ -62,6 +78,10 @@ Querying the structure of the complex
 .. automethod:: SimplicialComplex.indexOf
 
 .. automethod:: SimplicialComplex.maxOrder
+
+.. automethod:: SimplicialComplex.numberOfSimplices
+
+.. automethod:: SimplicialComplex.__len__
 
 .. automethod:: SimplicialComplex.numberOfSimplicesOfOrder
 
@@ -111,6 +131,18 @@ using :meth:`allSimplices`) and then restricting the complex to all
 simplices that can be built from this basis.
 
 .. automethod:: SimplicialComplex.restrictBasisTo
+
+We define several relationships related to sub-complexes, all based
+around the idea of one complex being "less than" another when the latter
+contains all for former's simplices in the same topological rrelationships.
+
+.. automethod:: SimplicialComplex.__lt__
+
+.. automethod:: SimplicialComplex.__le__
+
+.. automethod:: SimplicialComplex.__gt__
+
+.. automethod:: SimplicialComplex.__ge__
 
 
 Global properties

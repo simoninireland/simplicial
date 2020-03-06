@@ -636,6 +636,119 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertTrue(c.containsSimplexWithBasis([ 1, 2 ]))
         self.assertFalse(c.containsSimplexWithBasis([1, 4]))
 
+    def testSize(self):
+        '''Test we can determine the size of a complex.'''
+        c = SimplicialComplex()
+        self.assertEqual(len(c), 0)
+        c.addSimplex(id = 1)
+        self.assertEqual(len(c), 1)
+        c.addSimplex(id = 2)
+        self.assertEqual(len(c), 2)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        self.assertEqual(len(c), 3)
+        c.deleteSimplex(12)
+        self.assertEqual(len(c), 2)
+
+    def testInclusion(self):
+        '''Test the inclusion of one complex into another.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+       
+        d = SimplicialComplex()
+        d.addSimplex(id = 1)
+        self.assertTrue(d < c)
+        self.assertTrue(d <= c)
+        self.assertTrue(c > d)
+        self.assertTrue(c >= d)
+        self.assertFalse(c < d)
+        d.addSimplex(id = 2)
+        d.addSimplex(id = 12, fs = [ 1, 2 ])
+        self.assertTrue(d < c)
+
+        d.addSimplex(id = 3)
+        d.addSimplex(id = 4)
+        d.addSimplex(id = 23, fs = [ 2, 3 ])
+        d.addSimplex(id = 31, fs = [ 3, 1 ])
+        d.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        self.assertFalse(d < c)
+        self.assertTrue(d <= c)
+
+    def testDeepCopy(self):
+        '''Test that copying is deep enough.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        c[2] = 'hello'
+
+        d = c.copy()
+        d.deleteSimplex(123)
+        self.assertTrue(123 in c)
+        d[2] = 'goodbye'
+        self.assertEqual(c[2], 'hello')
+
+    def testAttributesIgnoredInInclusion(self):
+        '''Test that attributes don;t affect inclusion or equality.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c[2] = 'hello'
+
+        d = SimplicialComplex()
+        d.addSimplex(id = 1)
+        d.addSimplex(id = 2)
+        d.addSimplex(id = 3)
+        d.addSimplex(id = 4)
+        d[2] = 'goodbye'
+
+        self.assertTrue(c == d)
+
+    def testInclusionCopy(self):
+        '''Test copies of complexes are included.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        d = c.copy()
+        self.assertTrue(d <= c)
+        self.assertTrue(c <= d)
+        self.assertTrue(c == d)
+        self.assertFalse(c != d)
+
+    def testInclusionMissingSimplex(self):
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        d = c.copy()
+        d.deleteSimplex(123)
+        self.assertTrue(d < c)
+        self.assertFalse(d == c)
+
     def testRelabelFunction( self ):
         """Test relabelling with a function."""
         c = SimplicialComplex()

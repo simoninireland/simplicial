@@ -68,6 +68,16 @@ class SimplicialComplex(object):
                 i = i + 1
     
 
+    # ---------- Copying ----------
+
+    def copy(self):
+        '''Return a deep copy of this complex. The two complexes have the
+        same simplices, attributes, and topology, and can be modified independently.
+        
+        :returns: a copy of this complex'''
+        return copy.deepcopy(self)
+
+
     # ---------- Adding simplices ----------
 
     def addSimplex( self, fs = [], id = None, attr = None ):
@@ -592,6 +602,18 @@ class SimplicialComplex(object):
         :returns: the largest order that contains at least one simplex, or -1"""
         return self._maxOrder
 
+    def numberOfSimplices(self):
+        '''Return the number of simplices in the complex.
+
+        :returns: the number of simplices'''
+        return len(self._simplices)
+
+    def __len__(self):
+        '''Return the size of the complex, a synonym for :meth:`numberOfSimplices`.
+
+        :returns: the size of the complex'''
+        return self.numberOfSimplices()
+
     def numberOfSimplicesOfOrder( self ):
         """Return a dict mapping an order to the number of simplices
         of that order in the complex. Use :meth:`simplicesOfOrder` to
@@ -750,6 +772,76 @@ class SimplicialComplex(object):
         :returns: True is the complex contains a simplex with this basis"""
         return (self.simplexWithBasis(bs) is not None)
     
+
+    # ---------- Inclusion of complexes ----------
+
+    def __le__(self, c):
+        '''True if this complex is a (possibly equal) sub-complex of c. This
+        is defined as all the simplices in this complex appear in c, with
+        the same topological relationships.
+
+        :param c: the other complex
+        :returns: True if this is a sub-complex of c'''
+        for k in range(self.maxOrder()):
+            ks = self.simplicesOfOrder(k)
+            for i in ks:
+                # check simplex exists
+                if not i in c:
+                    return False
+
+                # check simplex has the right order
+                if c.orderOf(i) != k:
+                    return False
+
+                # check faces are the same
+                fs = self.faces(i)
+                cfs = c.faces(i)
+                for j in fs:
+                    if j not in cfs:
+                        return False
+
+        # if we get here, we've succeeded
+        return True
+
+    def __lt__(self, c):
+        '''True if this complex is a strictly smaller sub-complex of c.
+
+        :param c: the other complex
+        :returns: True if this is a sub-complex of c and with fewer simplices'''
+        return (self <= c) and len(self) < len(c) 
+        
+    def __ge__(self, c):
+        '''True if c is a sub-complex of this one. The dual of :meth:`__le__`.
+
+        :param c: the other complex
+        :returns: True if c is a sub-complex of this'''
+        return c <= self
+        
+    def __gt__(self, c):
+        '''True if c is a structly smaller sub-complex of this one.
+        The dual of :meth:`__lt__`.
+
+        :param c: the other complex
+        :returns: True if c is a sub-complex of this and has fewer simplices'''
+        return c < self
+
+    def __eq__(self, c):
+        '''True if the two complexes have the same simplices with the same
+        relationships. Note that this does not compare simplex attributes:
+        it's purely topological equality.
+
+        :param c: the other complex
+        :returns: True if the two complexes are equal'''
+        return (self <= c) and len(self) == len(c)
+
+    def __ne__(self, c):
+        '''True if the two complexes differ topologically. 
+        The dual of :meth:`__eq__`. Note that this does not compare simplex attributes.
+
+        :param c: the other complex
+        :returns: True if the two complexes are unequal'''
+        return not (self == c)
+
 
     # ---------- Attributes ----------
     
