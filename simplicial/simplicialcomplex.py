@@ -70,12 +70,26 @@ class SimplicialComplex(object):
 
     # ---------- Copying ----------
 
-    def copy(self):
-        '''Return a deep copy of this complex. The two complexes have the
+    def copy(self, c = None):
+        '''Return a copy of this complex. The two complexes have the
         same simplices, attributes, and topology, and can be modified independently.
         
+        :param c: (optional) the complex to copy to (defaults to a new complex)
         :returns: a copy of this complex'''
-        return copy.deepcopy(self)
+
+        # use an instance of SimplicialComplex by default
+        if c is None:
+            c = SimplicialComplex()
+
+        # copy all simplices and attributes across to new complex
+        for s in self.simplices():
+            if self.orderOf(s) == 0:
+                # 0-simplex, just add it
+                c.addSimplex(id = s, attr = copy.copy(self[s]))
+            else:
+                # higher simplex, add the faces
+                c.addSimplex(fs = self.faces(s), id = s, attr = copy.copy(self[s]))
+        return c
 
 
     # ---------- Adding simplices ----------
@@ -660,7 +674,7 @@ class SimplicialComplex(object):
 
     def simplexWithBasis( self, bs, fatal = False ):
         """Return the simplex with the given basis, if it exists
-        in the complex. If no such simplex exists, or if the givcen
+        in the complex. If no such simplex exists, or if the given
         set is not a basis, then None is returned; if fatal is True, then
         an exception is raised instead.
 
