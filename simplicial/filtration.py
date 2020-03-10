@@ -23,6 +23,47 @@ import itertools
 
 from simplicial import *
 
+
+class FiltrationIterator(object):
+    '''An iterator over the complexes in a filtration.
+
+    The iterator returns the complexes in a filtration in increasing order of
+    index. Each complex returned will by definition be a sub-complex of the
+    next.
+
+    As is usually the case with iterators, iteration isn't stable if the
+    underlying collection is changed during iteration.
+
+    @param f: the filtration to iterate over
+    '''
+
+    def __init__(self, f):
+        self._f = f
+ 
+    def __iter__(self):
+        '''Initialise the iterator.
+
+        :returns: the iterator'''
+        self._indices = list(self._f.indices())
+        self._i = 0
+        return self
+
+    def __next__(self):
+        '''Return the next complex in the filtration.
+
+        :returns: a complex'''
+        if self._i >= len(self._indices):
+            raise StopIteration()
+        ind = self._indices[self._i]
+        self._i += 1
+
+        oldInd = self._f.getIndex()
+        self._f.setIndex(ind)
+        c = self._f.snap()
+        self._f.setIndex(oldInd)
+        return c
+
+
 class Filtration(SimplicialComplex):
     '''A filtration of simplicial complexes.
     
@@ -54,6 +95,47 @@ class Filtration(SimplicialComplex):
         self._maxOrders = dict()    # maximum orders at each index
         self._maxOrders[ind] = self.maxOrder()
 
+
+    # ---------- Copying ----------
+
+    def copy(self, f = None):
+        '''Return a copy of this filtration, maintaining the indexing.
+        
+        :param f: (optional) the filtration to copy into (defaults to a new filtration)
+        :returns: a copy of this filtration'''
+        inds = self.indices()
+
+        # use an instance of Filtration by default
+        if f is None:
+            f = Filtration(inds[0])
+
+        # copy all simplices and attributes across to new filtration
+        for ind in inds:
+            f.setIndex(ind)
+            for s in self.simplicesAddedAtIndex(ind):
+                if self.orderOf(s) == 0:
+                    # 0-simplex, just add it
+                    f.addSimplex(id = s, attr = self[s])
+                else:
+                    # higher simplex, add the faces
+                    f.addSimplex(fs = self.faces(s), id = s, attr = self[s])
+        return f
+
+    def snap(self, c = None):
+        '''Return a snapshot of the complex at the current index. This returns a single
+        simplicial complex, not a filtration as returned by :meth:`copy`.
+
+        :param c: (optional) the complex to copy to (defaults to a new complex)
+        :returns: a complex built from the filtration at this index'''
+        return super(Filtration, self).copy(c)
+
+    def complexes(self):
+        '''Return an iterator over the complexes forming this filtration,
+        ordered by increasing index.
+
+        :returns: the iterator'''
+        return FiltrationIterator(self)
+
     
     # ---------- Indexing ----------
 
@@ -71,6 +153,20 @@ class Filtration(SimplicialComplex):
         :returns: the indices'''
         return sorted(self._includes.keys(), reverse = reverse)
         
+    def isIndex(self, ind, fatal = False):
+        '''True is the given value is an index in this filtration.
+
+        :param ind: the index
+        :param fatal: (optional) make a non-index fatal (defaults to False)
+        :returns: True if the index appears in this filtration'''
+        if ind in self._includes.keys():
+            return True
+        else:
+            if fatal:
+                raise Exception('{i} is not an index in the filtration'.format(i = ind))
+            else:
+                return False
+
     def setIndex(self, ind):
         '''Set the index.
 
@@ -148,8 +244,21 @@ class Filtration(SimplicialComplex):
         self._includes[ind].add(nid)
         if self.maxOrder() > self._maxOrders[ind]:
             self._maxOrders[ind] = self.maxOrder()
+        return nid
 
     # All other simplex addition methods use this one as their base
+
+    def addComplex(self, c):
+        '''Add all the simplices in the given complex to the filtration
+        at the current index. The simplices in the complex being added will need
+        identifiers that are distinct from those already in the filtration: this
+        can be accomplished by relabelling if required (see :meth:`SimplicialComplex.relabel`).
+
+        If the comploex being added is itself a filtration, its index structure
+        will be preserved in this filtration.
+        
+        :param c: the complex to add''' 
+        c.copy(self)
 
 
     # ---------- Relabelling ----------
@@ -207,6 +316,23 @@ class Filtration(SimplicialComplex):
         :returns: a list of simplices'''
         return [ s for s in super(Filtration, self).simplices(reverse) if s in self ]
     
+    def simplicesAddedAtIndex(self, ind, reverse = False):
+        '''Return all the simplices added at the given index. By default the
+        simplices are returned in increasing order of order, 0-simplices first.
+
+        :param ind: the index
+        :param reverse: (optional) reverse sort order (defaults to False)
+        :returns: the simplices'''
+
+        # make sure the index exists
+        self.isIndex(ind, fatal = True)
+
+        # retrieve the list of simplices that appeared at this index
+        ss = self._includes[ind].copy()
+
+        # return the simplices sorted by order
+        return sorted(ss, key = lambda s: self.orderOf(s), reverse = reverse)
+
     def numberOfSimplices(self):
         '''Return the number of simplices in the filtration up to and including
         the current index.
@@ -230,7 +356,7 @@ class Filtration(SimplicialComplex):
  
         # filter out any simplices not defined at the current index
         empty = set()
-        for k in nsos.keys():
+        for k in range(len(nsos)):
             nsos[k] = len([ s for s in nsos[k] if k in self ])
             if nsos[k] == 0:
                 empty.add(k)

@@ -11,7 +11,7 @@ are complexes where :math:`C_1` appears before :math:`C_2` in the filtration,
 then :math:`C_1 \le C_2`: :math:`C_1` is a sub-complex of :math:`C_2`.
 
 Another way to think of this is that there is an index set :math:`I` that
-is useed to index a collection of simplicial complexes :math:`C_i` such that
+is used to index a collection of simplicial complexes :math:`C_i` such that
 :math:`i \le j \implies C_1 \le C2`.
 
 The index set might represent time, in which case the filtration models how
@@ -20,10 +20,10 @@ each complex has to be a sub-complex of those that come after.) Or it might
 represent distance in some underlying geometry which is being used to define
 a progressively richer simplicial complex. (The :term:`Vietoris-Rips complex`
 is usually built like this.) Or one could forget the index set altogether
-and treat the filtration simply as a list of complexes.
+and treat the filtration simply as a list of complexes with inclusion.
 
 ``simplicial``'s :class:`Filtration` class supports all these views, allowing
-a filtration to be built from existign complexes or by adding and deleting
+a filtration to be built from existing complexes or by adding and deleting
 simplicies subject to some correctness checking.
 
 
@@ -46,7 +46,7 @@ We can construct a sequence of complexes and glue them together into a filtratio
     c.addSimplex([ 1, 2 ], id = 12)
     f.addComplex(1.0, c)
 
-This would create a filtration with two complexes, indexed by an real number. We can
+This creates a filtration with two complexes, indexed by an real number. We can
 access the sequence of complexes in the filtration either as a list or by
 enumeration:
 
@@ -158,13 +158,12 @@ ensures that the filtration respects its inclusion rules.
 Accessing the filtration as a sequence of complexes
 ---------------------------------------------------
 
-You can extract a copy of the filtration at any index value, which will result in
-a "clean" copy detatched form the filtration itself:
+You can extract a copy of the filtration at any index value:
 
 .. code-block:: python
 
     f.setIndex(0.0)
-    c = f.copy()
+    c = f.snap()
 
 You can also get iterators over the index set:
 
@@ -186,7 +185,11 @@ or over the sequence of complexes:
     3
     5
 
-
+Accessing the filtration in either of these ways generates "clean" copies of the
+complexes, detached from the filtration, whcih can then be changed as required.
+The iterators returned by  :meth:`Filtration.indices` and
+:meth:`Filtration.complexes` are compatible, in the sense that the order of
+complexes matches the order of indices.
 
 
 
