@@ -74,7 +74,7 @@ class FiltrationTests(unittest.TestCase):
         c.addSimplex([1, 3], id = 13)
         c.addSimplex([2, 3], id = 23)
         c.addSimplex([12, 23, 13], id = 123)
-        f.addComplex(c)
+        f.addSimplicesFrom(c)
         self.assertEqual(f.indices(), [ 0.0 ])
         six.assertCountEqual(self, f.simplices(), [ 100, 200, 1, 2, 3, 12, 23, 13, 123 ])
 
@@ -92,7 +92,7 @@ class FiltrationTests(unittest.TestCase):
         c.addSimplex([2, 3], id = 23)
         c.addSimplex([12, 23, 13], id = 123)
         f.setIndex(1.0)
-        f.addComplex(c)
+        f.addSimplicesFrom(c)
         self.assertEqual(f.indices(), [ 0.0, 1.0 ])
         f.setIndex(0.0)
         six.assertCountEqual(self, f.simplices(), [ 100, 200 ])
@@ -109,7 +109,51 @@ class FiltrationTests(unittest.TestCase):
         c.addSimplex(id = 2)
         c.addSimplex([1, 2], id = 12)
         with self.assertRaises(Exception):
-            f.addComplex(c)
+            f.addSimplicesFrom(c)
+
+    def testAddComplexRenaming(self):
+        '''Test we can rename as we copy.'''
+        f = Filtration()
+        f.addSimplex(id = 1)
+        f.addSimplex(id = 2)
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex([1, 2], id = 12)
+        r = dict()
+        r[1] = 4
+        r[2] = 5
+        f.addSimplicesFrom(c, rename = r)
+        six.assertCountEqual(self, f.simplices(), [ 1, 2, 4, 5, 12  ])
+        six.assertCountEqual(self, f.faces(12), [ 4, 5 ])
+
+    def testAddFiltration(self):
+        '''Test that adding a filtration  works, and flattens the index structure of the one added.'''
+        f = Filtration()
+        f.addSimplex(id = 1)
+        f.addSimplex(id = 2)
+        f.setIndex(0.5)
+        f.addSimplex([1, 2], id = 12)
+        f.setIndex(1.0)
+        f.addSimplex(id = 3)
+        f.addSimplex([1, 3], id = 13)
+        f.addSimplex([2, 3], id = 23)
+        f.addSimplex([12, 23, 13], id = 123)
+
+        g = Filtration()
+        g.addSimplex(id = 4)
+        g.setIndex(0.7)
+        g.addSimplex(id = 5)
+        g.addSimplex([4, 5], id = 45)
+
+        f.addSimplicesFrom(g)
+        f.setIndex(0)
+        six.assertCountEqual(self, f.simplices(), [ 1, 2 ])
+        f.setIndex(0.5)
+        six.assertCountEqual(self, f.simplices(), [ 1, 2, 12])
+        self.assertFalse(f.isIndex(0.7))
+        f.setIndex(1.0)
+        six.assertCountEqual(self, f.simplices(), [ 1, 2, 12, 3, 23, 13, 123, 4, 5, 45])
 
     def testExtremeIndices(self):
         '''Test we can move to the ends of the filtration.'''

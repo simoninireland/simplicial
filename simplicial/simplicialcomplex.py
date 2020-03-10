@@ -363,6 +363,26 @@ class SimplicialComplex(object):
             # create the new simplex and return it
             return self.addSimplexWithBasis(bs, id, attr)
     
+    def _createRelabelling(self, rename):
+        '''Create as relabelling function that's safe to be called multiple times
+        with the same simplex.
+
+        :param rename: the rename dict, function, or None
+        :returns: a safe- re-entrant version'''
+        if rename is None:
+            return lambda s: s
+        else:
+            if isinstance(rename, dict):
+                lookup = lambda s: rename[s] if s in rename.keys() else s
+            else:
+                lookup = rename
+            newNames = dict()
+            def newName(s):
+                if s not in newNames.keys():
+                    newNames[s] = lookup(s)
+                return newNames[s]
+            return newName
+
     def addSimplicesFrom( self, c, rename = None ):
         """Add simplices from the given complex. The rename parameter
         is an optional mapping of the names in c that can be provided
@@ -370,7 +390,7 @@ class SimplicialComplex(object):
         to names.
 
         If the relabeling is a dict it may be incomplete, in which
-        case simplices retain their names.  (If the relabeling is a
+        case simplices retain their names. (If the relabeling is a
         function, it has to handle all names.)
 
         This operation is equivalent to copying the other complex,
@@ -384,13 +404,7 @@ class SimplicialComplex(object):
         :returns: a list of simplex names"""
 
         # fill-out the defaults
-        if rename is None:
-            f = lambda s: s
-        else:
-            if isinstance(rename, dict):
-                f = lambda s: rename[s] if s in rename.keys() else s
-            else:
-                f = rename
+        f = self._createRelabelling(rename)
 
         # perform the copy, renaming the nodes as they come in
         ns = []
@@ -416,10 +430,13 @@ class SimplicialComplex(object):
         case unmentioned simplices retain their names. (If the relabeling is a
         function, it has to handle all names.)
 
+        The relabelling function is guaranteed to only ever be called once
+        for every simplex, so it's completely acceptable to pass a
+        function that just returns a sequence of unique identifiers.
+
         In both cases, :meth:`relabel` will complain if the relabeling
         generates as a "new" name a name already in the complex. (This
-        detection isn't completely foolproof: just don't do it.) If you want
-        to unify simplices, use :meth:`joinSimplices` instead.
+        detection isn't completely foolproof: just don't do it.)
 
         (Be careful with attributes: if a simplex has an attribute the
         value of which is the name of another simplex, then renaming
@@ -429,10 +446,7 @@ class SimplicialComplex(object):
         :returns: a list of simplices with their new names"""
 
         # force the map to be a function
-        if isinstance(rename, dict):
-            f = lambda s: rename[s] if s in rename.keys() else s
-        else:
-            f = rename
+        f = self._createRelabelling(rename)
 
         # perform the renaming
         ss = list(self._simplices.keys())   # grab so we can change the structure

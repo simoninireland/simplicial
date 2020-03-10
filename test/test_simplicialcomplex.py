@@ -365,6 +365,27 @@ class SimplicialComplexTests(unittest.TestCase):
         with self.assertRaises(Exception):
             c.addSimplicesFrom(d, rename = r)
 
+    def testRelabelSequence(self):
+        '''Test relabelling with a simple sequence generator.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
+        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        def makeUniques(u):
+            def unique(s):
+                nonlocal u
+                u += 1
+                return u
+            return unique
+
+        ss = c.relabel(makeUniques(100))
+        six.assertCountEqual(self, ss, [ 101, 102, 103, 104, 105, 106, 107 ])
+
     def testIsBasis( self ):
         """Test we can correctly test for a basis."""
         c = SimplicialComplex()

@@ -35,49 +35,59 @@ We can construct a sequence of complexes and glue them together into a filtratio
 .. code-block:: python
 
     f = Filtration()
+    f.addSimplicesFrom(c)
+    f.setIndex(1.0)
+    f.addSimplicesFrom(d)
 
-    c = SimplicialComplex()
-    c.addSimplex(id = 1)
-    c.addSimplex(id = 2)
-    c.addSimplex(id = 3)
-    f.addComplex(0.0, c)
-
-    c.addSimplex(id = 4)
-    c.addSimplex([ 1, 2 ], id = 12)
-    f.addComplex(1.0, c)
-
-This creates a filtration with two complexes, indexed by an real number. We can
-access the sequence of complexes in the filtration either as a list or by
-enumeration:
+This creates a filtration from the simplices of two other complexes, indexed
+by an real number. They could have been added to the same index if appropriate:
 
 .. code-block:: python
 
-    for c in f:
-       print(c.maxOrder())
+    f = Filtration()
+    f.addSimplicesFrom(c)
+    f.addSimplicesFrom(d)
 
-    0
-    1
-
-Notice that when we built the filtration we created a single complex and added it
-twice, having added some simplices; but when we accessed it, we saw two complexes
-having different maximum orders. :class:`Filtration` copies any complex that's
-added to it into an internal data structure, and so doesn't see any subsequent
-changes. The complexes are sanity-checked to make sure that we meet the criteria 
-for a filtration, so the following code won't work: 
+Adding in this way is susceptible to duplicate simplex identifiers, since all
+simplices must be uniquely named. This can be avoided by renaming the simplices
+ahead of copying using a renaming function or dict:
 
 .. code-block:: python
 
-    c.deleteSimplex(12)
-    f.addComplex(2.0, c)
+    f = Filtration()
+    f.addSimplicesFrom(c)
+    u = 1000
+    def unique(s):
+        nonlocal u
+        u += 1
+        return u
+    f.addSimplicesFrom(c, rename = unique)
 
-This will fail because the complex being added with index 2.0 isn't a super-complex
-of the complex at index 1.0.
+You can also add the simplices from one filtration to another:
+
+.. code-block:: python
+
+    f = Filtration()
+    f.addSimplex(id = 1)
+
+    g = Filtration()
+    g.addSimplex(id = 2)
+    g.setIndex(1.0)
+    g.adSimplex(id = 3)
+
+    f.addSimplicesFrom(g)
+    f.indices()
+
+    [ 0.0 ]
+
+Notice that the filtration added (g) was treated like an "ordinary" simplicial complex,
+so its own index structure was destroyed and all the simplices visible at its (g's)
+current index were added at the receiver's (f's) current index.
 
 
 Building the filtration from simplices
 --------------------------------------
 
-The above example treats the filtration as a sequence of complexes built outside.   
 In other circumstances it's easier to build the filtration as a single complex
 at different "stages of definition", where we advance the index and add some
 simplices. The above example would then look like:
@@ -151,14 +161,14 @@ even if the higher-order simplices appear at a later index:
 
     False
 
-where the simplex 12 has been deleted along with the simplex in its basis. This
-ensures that the filtration respects its inclusion rules.
+where the simplex 12 has been deleted when the simplex 1 from its basis disappeared.
+This ensures that the filtration respects its inclusion rules.
 
 
 Accessing the filtration as a sequence of complexes
 ---------------------------------------------------
 
-You can extract a copy of the filtration at any index value:
+You can extract a snapshot of the filtration at any index value:
 
 .. code-block:: python
 

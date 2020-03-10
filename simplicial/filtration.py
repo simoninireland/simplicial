@@ -81,7 +81,7 @@ class Filtration(SimplicialComplex):
     operations for efficiently computing the homology groups of the sequence of
     complexes.   
 
-    :param ind: the initial index (defaults to 0)
+    :param ind: (optional) the initial index (defaults to 0)
     '''
 
     # ---------- Initialisation and helpers ----------
@@ -110,6 +110,7 @@ class Filtration(SimplicialComplex):
             f = Filtration(inds[0])
 
         # copy all simplices and attributes across to new filtration
+        indf = f.getIndex()
         for ind in inds:
             f.setIndex(ind)
             for s in self.simplicesAddedAtIndex(ind):
@@ -119,6 +120,7 @@ class Filtration(SimplicialComplex):
                 else:
                     # higher simplex, add the faces
                     f.addSimplex(fs = self.faces(s), id = s, attr = self[s])
+        f.setIndex(indf)
         return f
 
     def snap(self, c = None):
@@ -247,19 +249,8 @@ class Filtration(SimplicialComplex):
         return nid
 
     # All other simplex addition methods use this one as their base
-
-    def addComplex(self, c):
-        '''Add all the simplices in the given complex to the filtration
-        at the current index. The simplices in the complex being added will need
-        identifiers that are distinct from those already in the filtration: this
-        can be accomplished by relabelling if required (see :meth:`SimplicialComplex.relabel`).
-
-        If the comploex being added is itself a filtration, its index structure
-        will be preserved in this filtration.
-        
-        :param c: the complex to add''' 
-        c.copy(self)
-
+    # sd: is that true? check the basis ones
+    
 
     # ---------- Relabelling ----------
 
