@@ -45,6 +45,7 @@ SOURCES_CODE = \
 SOURCES_TESTS = \
 	test/__init__.py \
 	test/test_simplicialcomplex.py \
+	test/test_filtration.py \
 	test/test_eulerintegrator.py \
 	test/test_homology.py \
 	test/test_flag.py \
