@@ -50,7 +50,11 @@ sub-classing a much smaller number of methods. These will typically be:
 
 * :meth:`SimplicialComplex.addSimplex` to perform basic addition of simplices
 
-* :meth:`SimplicialComplex.deleteSimplex` to delete simplices
+* :meth:`SimplicialComplex._deleteSimplex` (private method) to delete simplices
+
+* :meth:`SimplicialComplex.containsSimplex` to test for membership
+
+And possibly also:
 
 * :meth:`SimplicialComplex.simplices` to enumerate simplices
 
@@ -60,10 +64,6 @@ sub-classing a much smaller number of methods. These will typically be:
 
 * :meth:`SimplicialComplex.numberOfSimplicesOfOrder` to get the scale of the
   complex at a given order
-
-* :meth:`SimplicialComplex.containsSimplex` to test for membership
-
-And possibly also:
 
 * :meth:`SimplicialComplex.copy` to create a deep copy of a complex
 
