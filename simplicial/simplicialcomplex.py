@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
+from __future__ import print_function
 import numpy
 import copy
 import itertools
@@ -160,9 +161,9 @@ class SimplicialComplex(object):
             
         # if we have simplices in the order above this one, extend that order's boundary operator
         # for that order
-        if self.maxOrder() > k:
+        if self._maxOrder > k:
             # we have a higher order of simplices, add a row of zeros to its boundary operator
-            #print "extended structures for order {kp}".format(kp = k + 1)
+            #print("extended structures for order {kp}".format(kp = k + 1))
             self._boundaries[k + 1] = numpy.r_[self._boundaries[k + 1], numpy.zeros([ 1, len(self._indices[k + 1]) ])]
 
         # perform the addition
@@ -174,8 +175,8 @@ class SimplicialComplex(object):
             self._attributes[id] = attr             # store the attributes of the new simplex
             
             # extend all the basis matrices with this new simplex
-            if self.maxOrder() > 0:
-                for i in range(1, self.maxOrder() + 1):
+            if self._maxOrder > 0:
+                for i in range(1, self._maxOrder + 1):
                     self._bases[i] = numpy.r_[self._bases[i], numpy.zeros([ 1, len(self._indices[i]) ])]
 
             # mark the simplex as its own basis
@@ -185,12 +186,12 @@ class SimplicialComplex(object):
                 #print "after {b}".format(b = self._bases[0])
             else:
                 # later 0-simplices, add a row and column for the new 0-simplex
-                #print "before {b}".format(b = self._bases[0])
+                #print("before {b}".format(b = self._bases[0]))
                 self._bases[0] = numpy.c_[self._bases[0], numpy.zeros([ si, 1 ])]
-                #print "during {b}".format(b = self._bases[0])
+                #print("during {b}".format(b = self._bases[0]))
                 self._bases[0] = numpy.r_[self._bases[0], numpy.zeros([ 1, si + 1 ])]
                 (self._bases[0])[si, si] = 1
-                #print "after {b}".format(b = self._bases[0])
+                #print("after {b}".format(b = self._bases[0]))
         else:
             # build the boundary operator for the new higher simplex
             bk = numpy.zeros([ len(self._indices[k - 1]), 1 ])
@@ -201,7 +202,7 @@ class SimplicialComplex(object):
                     (fo, fi) = self._simplices[f] 
                     if fo == k - 1:
                         # add the face to the boundary
-                        #print "added {id} ({i}) to boundary".format(id = f, i = fi)
+                        #print("added {id} ({i}) to boundary".format(id = f, i = fi))
                         bk[fi, 0] = 1
 
                         # add the face's basis to the simplex' basis
@@ -212,7 +213,7 @@ class SimplicialComplex(object):
                                                                                                                            k = k))
                 else:
                     raise Exception("Unknown simplex {f}".format(f = f))
-            #print "boundary of {id} is {b}".format(id = id, b = bk)
+            #print("boundary of {id} is {b}".format(id = id, b = bk))
 
             # add simplex
             self._indices[k].append(id)                                # add simplex to canonical ordering
@@ -224,7 +225,7 @@ class SimplicialComplex(object):
             for b in bs:
                 (_, bi) = self._simplices[b]
                 (self._bases[k])[bi, si] = 1                           # mark the 0-simplex in the basis
-            #print "added {id} with basis {bs}".format(id = id, bs = bs)
+            #print("added {id} with basis {bs}".format(id = id, bs = bs))
             
         # return the simplex' name
         return id
@@ -364,8 +365,9 @@ class SimplicialComplex(object):
             return self.addSimplexWithBasis(bs, id, attr)
     
     def _createRelabelling(self, rename):
-        '''Create as relabelling function that's safe to be called multiple times
-        with the same simplex.
+        '''Private method to create a relabelling function that's safe to be called
+        multiple times with the same simplex. This just simplifies the user interface
+        as the user-supplied function needn't worry about its own consistency.
 
         :param rename: the rename dict, function, or None
         :returns: a safe- re-entrant version'''
@@ -491,14 +493,19 @@ class SimplicialComplex(object):
         (k, i) = self._simplices[s]
 
         # for higher-order simplices, delete from boundary and basis matrices 
+        #print('delete {s} {i} (order {k})'.format(s = s, i = i, k = k))
         if k > 0:
-            # delete from the boundary matrices
+            # delete column from order-k boundary
+            #print('delete col {i} from {k}-boundary'.format(i = i, k = k))
             self._boundaries[k] = numpy.delete(self._boundaries[k], i, axis = 1)
-            if k < self.maxOrder():
-                self._boundaries[k + 1] = numpy.delete(self._boundaries[k + 1], i, axis = 0)
 
             # delete from the basis matrix
             self._bases[k] = numpy.delete(self._bases[k], i, axis = 1)
+
+        if k < self._maxOrder:
+            # delete row from order-(k + 1) boundary
+            #print('delete row {i} from ({k} + 1)-boundary'.format(i = i, k = k))
+            self._boundaries[k + 1] = numpy.delete(self._boundaries[k + 1], i, axis = 0)
 
         # delete from the attributes dict
         del self._attributes[s]
@@ -513,6 +520,14 @@ class SimplicialComplex(object):
         ss = self._indices[k]
         for j in range(i, len(ss)):
             self._simplices[ss[j]] = (k, j)
+
+        # if we've emptied the maximum order, reduce it by one
+        # and delete the now-empty matrices
+        if k == self._maxOrder and len(self._indices[k]) == 0:
+            self._maxOrder -= 1
+            #print('maxorder reduced to {m}'.format(m = self._maxOrder))
+            del self._boundaries[k]
+            del self._bases[k]
         
     def deleteSimplex( self, s ):
         """Delete a simplex and all simplices of which it is a part. 
@@ -720,7 +735,7 @@ class SimplicialComplex(object):
             
         # check for a simplex with the given basis
         for i in range(len(self._indices[k])):
-            #print "check {bs} against {s}".format(bs = bc, s = (self._bases[k])[:, i])
+            #print("check {bs} against {s}".format(bs = bc, s = (self._bases[k])[:, i]))
             if ((self._bases[k])[:, i] == bc).all():
                 return (self._indices[k])[i]
 
@@ -904,15 +919,15 @@ class SimplicialComplex(object):
             return set()
 
         # extract the column of the boundary matrix
-        #print "boundary for {s} order {k} {b}".format(k = k, s = s, b = self._boundaries[k])
+        #print("boundary for {s} order {k} {b}".format(k = k, s = s, b = self._boundaries[k]))
         b = (self._boundaries[k])[:, i]
-        #print "boundary of {s} is {b}".format(s = s, b = b)
+        #print("boundary of {s} is {b}".format(s = s, b = b))
 
         # extract the simplex names from this column
         fs = set()
         for i in range(len(b)):
             if b[i] == 1:
-                #print "add index {i} = {id}".format(i = i, id = (self._indices[k - 1])[i])
+                #print("add index {i} = {id}".format(i = i, id = (self._indices[k - 1])[i]))
                 fs.add((self._indices[k - 1])[i])
         return fs
     
@@ -995,12 +1010,12 @@ class SimplicialComplex(object):
         :returns: the set of 0-simplices that form the basis of s"""
         (k, si) = self._simplices[s]
         bk = (self._bases[k])[:, si]
-        #print "simplex {s} basis column {bk}".format(s = s, bk = bk)
+        #print (simplex {s} basis column {bk}".format(s = s, bk = bk))
         bs = set()
         for i in range(len(bk)):
             if bk[i] == 1:
                 bs.add((self._indices[0])[i])
-        #print "basis {bs}".format(bs = bs)
+        #print("basis {bs}".format(bs = bs))
         return bs
     
     def closureOf( self, s, reverse = False, exclude_self = False ):
