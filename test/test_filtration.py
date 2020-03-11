@@ -270,3 +270,51 @@ class FiltrationTests(unittest.TestCase):
         cs = list(f.complexes())
         for i in range(len(cs) - 1):
             self.assertTrue(cs[i] <= cs[i + 1])
+
+    def testDeletionPreservesInclusion(self):
+        '''Test the deletions cascade properly.'''
+        f = Filtration()
+        f.addSimplex(id = 1)
+        f.addSimplex(id = 2)
+        f.setIndex(0.5)
+        f.addSimplex([1, 2], id = 12)
+        f.setIndex(1.0)
+        f.addSimplex(id = 3)
+        f.addSimplex([1, 3], id = 13)
+        f.addSimplex([2, 3], id = 23)
+        f.addSimplex([12, 23, 13], id = 123)
+
+        f.deleteSimplex(2)
+        six.assertCountEqual(self, f.simplices(), [ 1, 3, 13 ])
+
+        cs = list(f.complexes())
+        for i in range(len(cs) - 1):
+            self.assertTrue(cs[i] <= cs[i + 1])
+
+    def testAdded(self):
+        '''Test we can retrieve birth times.'''
+        f = Filtration()
+        f.addSimplex(id = 1)
+        f.addSimplex(id = 2)
+        f.setIndex(0.5)
+        f.addSimplex([1, 2], id = 12)
+        f.setIndex(0.7)
+        self.assertEqual(f.addedAtIndex(12), 0.5)
+        self.assertEqual(f.addedAtIndex(1), 0.0)
+        six.assertCountEqual(self, f.simplicesAddedAtIndex(0.0), [ 1, 2])
+        six.assertCountEqual(self, f.simplicesAddedAtIndex(0.5), [ 12])
+        six.assertCountEqual(self, f.simplicesAddedAtIndex(0.7), [])
+
+    def testDeleteionDeletesBirthTime(self):
+        '''Test that deletion destroys the birth time.'''
+        f = Filtration()
+        f.addSimplex(id = 1)
+        f.addSimplex(id = 2)
+        f.setIndex(0.5)
+        f.addSimplex([1, 2], id = 12)
+        f.deleteSimplex(1)
+        with self.assertRaises(Exception):
+            self.assertEqual(f.addedAtIndex(1), 0.0)
+        self.assertEqual(f.addedAtIndex(2), 0.0)
+        with self.assertRaises(Exception):
+            self.assertEqual(f.addedAtIndex(12), 0.5)

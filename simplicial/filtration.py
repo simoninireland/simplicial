@@ -125,7 +125,8 @@ class Filtration(SimplicialComplex):
 
     def snap(self, c = None):
         '''Return a snapshot of the complex at the current index. This returns a single
-        simplicial complex, not a filtration as returned by :meth:`copy`.
+        simplicial complex, not a filtration as returned by :meth:`copy`. The complexes
+        corresponding to all, indices can be retrieved using :meth:`complexes`.
 
         :param c: (optional) the complex to copy to (defaults to a new complex)
         :returns: a complex built from the filtration at this index'''
@@ -133,7 +134,8 @@ class Filtration(SimplicialComplex):
 
     def complexes(self):
         '''Return an iterator over the complexes forming this filtration,
-        ordered by increasing index.
+        ordered by increasing index. The complex at a single index can
+        be accessed using :meth:`snap`.
 
         :returns: the iterator'''
         return FiltrationIterator(self)
@@ -250,7 +252,6 @@ class Filtration(SimplicialComplex):
 
     # All other simplex addition methods use this one as their base
     # sd: is that true? check the basis ones
-    
 
     # ---------- Relabelling ----------
 
@@ -264,12 +265,19 @@ class Filtration(SimplicialComplex):
 
         :param s: the simplex'''
         super(Filtration, self)._deleteSimplex(s)
+
+        # in addition to the normal complex, each simplex
+        # appears in the appearance index dict and in the 
+        # inclusion list for that index
+
         i = self._appears[s]
         del self._appears[s]
         self._includes[i].remove(s)
         if len(self._includes[i]) == 0:
-            # last simplex at this index. delete the index as well
+            # last simplex at this index. delete the index
+            # from the inclusion list and the max orders list
             del self._includes[i]
+            del self._maxOrders[i]
 
 
     # ---------- Accessing simplices ----------
@@ -279,7 +287,7 @@ class Filtration(SimplicialComplex):
         an exception if the simplex isn't defined at the current index.
 
         :param s: the simplex
-        :reeturns: the order of the simplex'''
+        :returns: the order of the simplex'''
         try:
             return super(Filtration, self).orderOf(s)
         except(Exception):
@@ -291,7 +299,7 @@ class Filtration(SimplicialComplex):
         an exception if the simplex isn't defined at the current index.
 
         :param s: the simplex
-        :reeturns: the index of the simplex within its order'''
+        :returns: the index of the simplex within its order'''
         try:
             return super(Filtration, self).indexOf(s)
         except(Exception):
@@ -307,23 +315,6 @@ class Filtration(SimplicialComplex):
         :returns: a list of simplices'''
         return [ s for s in super(Filtration, self).simplices(reverse) if s in self ]
     
-    def simplicesAddedAtIndex(self, ind, reverse = False):
-        '''Return all the simplices added at the given index. By default the
-        simplices are returned in increasing order of order, 0-simplices first.
-
-        :param ind: the index
-        :param reverse: (optional) reverse sort order (defaults to False)
-        :returns: the simplices'''
-
-        # make sure the index exists
-        self.isIndex(ind, fatal = True)
-
-        # retrieve the list of simplices that appeared at this index
-        ss = self._includes[ind].copy()
-
-        # return the simplices sorted by order
-        return sorted(ss, key = lambda s: self.orderOf(s), reverse = reverse)
-
     def numberOfSimplices(self):
         '''Return the number of simplices in the filtration up to and including
         the current index.
@@ -357,7 +348,39 @@ class Filtration(SimplicialComplex):
             del nsos[k]
 
         return nsos
-        
+    
+
+    # ---------- Accessing simplex addition indices ----------
+
+    def simplicesAddedAtIndex(self, ind, reverse = False):
+        '''Return all the simplices added at the given index. By default the
+        simplices are returned in increasing order of order, 0-simplices first.
+
+        :param ind: the index
+        :param reverse: (optional) reverse sort order (defaults to False)
+        :returns: the simplices'''
+
+        # make sure the index exists
+        self.isIndex(ind, fatal = True)
+
+        # retrieve the list of simplices that appeared at this index
+        ss = self._includes[ind].copy()
+
+        # return the simplices sorted by order
+        return sorted(ss, key = lambda s: self.orderOf(s), reverse = reverse)
+
+    def addedAtIndex(self, s):
+        '''Return the  index at which the given simplex was added
+        to the filtration. When the index is considered as representing
+        time this is sometimes called the "birth time" for the simplex. 
+
+        :param s: the simplex
+        :returns: the index'''
+        if self.containsSimplexAtSomeIndex(s):
+            return self._appears[s]
+        else:
+            raise Exception('No simplex {s} in filtration'.format(s = s))
+   
 
     # ---------- Testing for simplices ----------
 
@@ -368,5 +391,15 @@ class Filtration(SimplicialComplex):
 
         :returns: True if the simplex is in the filtration'''
         return super(Filtration, self).containsSimplex(s) and self._appears[s] <= self.getIndex()
+
+    def containsSimplexAtSomeIndex(self, s):
+        '''Test whether the simplex exists in the filtration at some index, ignoring
+        the current index. This isn't commonly needed, so use
+        :meth:`contrainsSimplex` instead.
+
+        :param s: the simplex
+        :returns: True if the simplex exists at some index within the filtration'''
+        return super(Filtration, self).containsSimplex(s)
+
 
     # ---------- Inclusion of complexes ----------
