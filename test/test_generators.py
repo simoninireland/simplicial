@@ -76,3 +76,15 @@ class GeneratorTests(unittest.TestCase):
         self.assertTrue(ns[0], 4)
         self.assertTrue(ns[1], 6)
         self.assertTrue(ns[2], 4)
+
+    def testRing(self):
+        '''Test the construction of a ring.'''
+        c = ring(10)
+        ns = c.numberOfSimplicesOfOrder()
+        self.assertEqual(len(ns), 2)
+        self.assertTrue(ns[0], 10)
+        self.assertTrue(ns[1], 10)
+        betti = c.bettiNumbers([0, 1])
+        self.assertTrue(betti[0], 1)
+        self.assertTrue(betti[1], 1)
+

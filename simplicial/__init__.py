@@ -40,6 +40,9 @@ for visualisation (although this still needs a lot more work).
 # representation and computation
 from .simplicialcomplex import SimplicialComplex
 
+# generator functions for common complexes
+from .generators import k_simplex, k_skeleton, k_void, ring
+
 # sequences of complexes ordered by inclusion
 from .filtration import Filtration
 

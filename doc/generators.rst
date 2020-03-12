@@ -18,3 +18,9 @@ Simplices, skeletons, and voids
 
 .. autofunction:: k_void
 
+
+Structures
+----------
+
+.. autofunction:: ring
+

@@ -22,6 +22,8 @@ import itertools
 from simplicial import *
 
 
+# ---------- Basic structures ----------
+
 def k_skeleton(k, c = None):
     '''Create the skeleton of a k-simplex, consisting
     of (k + 1) 0-simplices for the basis and k(k - 1)/2 1-simplices
@@ -95,3 +97,33 @@ def k_void( k, c = None ):
     sos = list(d.simplicesOfOrder(k + 1))
     d.deleteSimplex(sos[0])
     return d
+
+
+# ---------- Larger example structures ----------
+
+def ring( n, c = None ):
+    '''Create a closed ring of n lines (1-simplices), where
+    n is strictly greater than 2.
+
+    :param n: the number of lines in the ring
+    :param c: (optional) the complex to create into
+    :returns: a complex containing the skeleton'''
+    if n <= 2:
+        raise Exception('Can\'t create a ring of {n} <= 2 lines'.format(n = n))
+
+    # fill in defaults
+    if c is None:
+        c = SimplicialComplex()
+
+    # construct the 0-simplices
+    ss = []
+    for i in range(n + 1):
+        ss.append(c.addSimplex())
+
+    # construct the 1-simplices
+    for i in range(n - 1):
+        c.addSimplex(fs = [ ss[i], ss[i + 1] ])
+    c.addSimplex(fs = [ ss[n - 1], ss[0] ])
+
+    # return the complex we added into
+    return c
