@@ -15,12 +15,6 @@ faces, and a dict of attributes.
 
 .. automethod:: SimplicialComplex.addSimplex
 
-If we just want a new simplex with a given order, we can get one
-and `simplicial` will build all the component simplices, all of
-which will new new.
-
-.. automethod:: SimplicialComplex.addSimplexOfOrder
-
 Since a simplex is uniquely defined by its :term:`basis`, we can
 simply provide the basis and let `simplicial` work out all the
 other simplices that need to be added. This can be a major simplification
