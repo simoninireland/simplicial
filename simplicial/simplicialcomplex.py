@@ -146,9 +146,9 @@ class SimplicialComplex(object):
             else:
                 # add empty structures
                 #print "created structures for order {k}".format(k = k)
-                self._indices.append([])                                                  # empty indices
-                self._boundaries.append(numpy.zeros([ len(self._indices[k - 1]), 0 ]))    # null boundary operator
-                self._bases.append(numpy.zeros([ len(self._indices[0]), 0 ]))             # no simplex bases
+                self._indices.append([])                                                                      # empty indices
+                self._boundaries.append(numpy.zeros([ len(self._indices[k - 1]), 0 ], dtype = numpy.int8))    # null boundary operator
+                self._bases.append(numpy.zeros([ len(self._indices[0]), 0 ], dtype = numpy.int8))             # no simplex bases
                 self._maxOrder = k
         else:
             # check we don't already have a simplex of this order with
@@ -164,7 +164,7 @@ class SimplicialComplex(object):
         if self._maxOrder > k:
             # we have a higher order of simplices, add a row of zeros to its boundary operator
             #print("extended structures for order {kp}".format(kp = k + 1))
-            self._boundaries[k + 1] = numpy.r_[self._boundaries[k + 1], numpy.zeros([ 1, len(self._indices[k + 1]) ])]
+            self._boundaries[k + 1] = numpy.r_[self._boundaries[k + 1], numpy.zeros([ 1, len(self._indices[k + 1]) ], dtype = numpy.int8)]
 
         # perform the addition
         if k == 0:
@@ -177,7 +177,7 @@ class SimplicialComplex(object):
             # extend all the basis matrices with this new simplex
             if self._maxOrder > 0:
                 for i in range(1, self._maxOrder + 1):
-                    self._bases[i] = numpy.r_[self._bases[i], numpy.zeros([ 1, len(self._indices[i]) ])]
+                    self._bases[i] = numpy.r_[self._bases[i], numpy.zeros([ 1, len(self._indices[i]) ], dtype = numpy.int8)]
 
             # mark the simplex as its own basis
             if len(self._bases[0]) == 0:
@@ -187,14 +187,14 @@ class SimplicialComplex(object):
             else:
                 # later 0-simplices, add a row and column for the new 0-simplex
                 #print("before {b}".format(b = self._bases[0]))
-                self._bases[0] = numpy.c_[self._bases[0], numpy.zeros([ si, 1 ])]
+                self._bases[0] = numpy.c_[self._bases[0], numpy.zeros([ si, 1 ], dtype = numpy.int8)]
                 #print("during {b}".format(b = self._bases[0]))
-                self._bases[0] = numpy.r_[self._bases[0], numpy.zeros([ 1, si + 1 ])]
+                self._bases[0] = numpy.r_[self._bases[0], numpy.zeros([ 1, si + 1 ], dtype = numpy.int8)]
                 (self._bases[0])[si, si] = 1
                 #print("after {b}".format(b = self._bases[0]))
         else:
             # build the boundary operator for the new higher simplex
-            bk = numpy.zeros([ len(self._indices[k - 1]), 1 ])
+            bk = numpy.zeros([ len(self._indices[k - 1]), 1 ], dtype = numpy.int8)
             bs = set()
             for f in fs:
                 if f in self:
@@ -221,7 +221,7 @@ class SimplicialComplex(object):
             self._simplices[id] = (k, si)                              # map simplex to its order and index
             self._boundaries[k] = numpy.c_[self._boundaries[k], bk]    # append boundary operator column
             self._attributes[id] = attr                                # store the attributes of the new simplex
-            self._bases[k] = numpy.c_[self._bases[k], numpy.zeros([len(self._indices[0]), 1 ])]
+            self._bases[k] = numpy.c_[self._bases[k], numpy.zeros([len(self._indices[0]), 1 ], dtype = numpy.int8)]
             for b in bs:
                 (_, bi) = self._simplices[b]
                 (self._bases[k])[bi, si] = 1                           # mark the 0-simplex in the basis
@@ -343,27 +343,6 @@ class SimplicialComplex(object):
 
         return s
     
-    def _createRelabelling(self, rename):
-        '''Private method to create a relabelling function that's safe to be called
-        multiple times with the same simplex. This just simplifies the user interface
-        as the user-supplied function needn't worry about its own consistency.
-
-        :param rename: the rename dict, function, or None
-        :returns: a safe- re-entrant version'''
-        if rename is None:
-            return lambda s: s
-        else:
-            if isinstance(rename, dict):
-                lookup = lambda s: rename[s] if s in rename.keys() else s
-            else:
-                lookup = rename
-            newNames = dict()
-            def newName(s):
-                if s not in newNames.keys():
-                    newNames[s] = lookup(s)
-                return newNames[s]
-            return newName
-
     def addSimplicesFrom( self, c, rename = None ):
         """Add simplices from the given complex. The rename parameter
         is an optional mapping of the names in c that can be provided
@@ -402,6 +381,27 @@ class SimplicialComplex(object):
 
     # ---------- Relabelling ----------
     
+    def _createRelabelling(self, rename):
+        '''Private method to create a relabelling function that's safe to be called
+        multiple times with the same simplex. This just simplifies the user interface
+        as the user-supplied function needn't worry about its own consistency.
+
+        :param rename: the rename dict, function, or None
+        :returns: a safe- re-entrant version'''
+        if rename is None:
+            return lambda s: s
+        else:
+            if isinstance(rename, dict):
+                lookup = lambda s: rename[s] if s in rename.keys() else s
+            else:
+                lookup = rename
+            newNames = dict()
+            def newName(s):
+                if s not in newNames.keys():
+                    newNames[s] = lookup(s)
+                return newNames[s]
+            return newName
+
     def relabel( self, rename ):
         """Re-label simplices using the given relabeling, which may be a
         dict from old names to new names or a function taking a name
@@ -552,7 +552,7 @@ class SimplicialComplex(object):
         # form a column vector with 1s in the rows corresponding to each element
         # in the basis
         sizeOfBasis = len(self._indices[0])
-        basisMask = numpy.zeros([ sizeOfBasis ])
+        basisMask = numpy.zeros([ sizeOfBasis ], dtype = numpy.int8)
         for b in bs:
             (_, i) = self._simplices[b]
             basisMask[i] = 1
@@ -989,7 +989,7 @@ class SimplicialComplex(object):
         :returns: the set of 0-simplices that form the basis of s"""
         (k, si) = self._simplices[s]
         bk = (self._bases[k])[:, si]
-        #print (simplex {s} basis column {bk}".format(s = s, bk = bk))
+        #print("simplex {s} basis column {bk}".format(s = s, bk = bk))
         bs = set()
         for i in range(len(bk)):
             if bk[i] == 1:
@@ -1258,7 +1258,8 @@ class SimplicialComplex(object):
         return boundaries
  
     def _reduceBoundaries( self, B, rLabels, cLabels, x = 0 ):
-        """Compute the Smith normal form keeping track of the labels.
+        """Compute the Smith normal form, keeping track of the labels on
+        rows and columns so we can extract the resulting basis vectors.
 
         :param B: the boundary matrix to reduce
         :param  
