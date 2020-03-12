@@ -510,46 +510,6 @@ class SimplicialComplexTests(unittest.TestCase):
         with self.assertRaises(Exception):
             c.addSimplexWithBasis([ 1, 2, 3])
 
-    def testAddSimplexOrder0( self ):
-        """ Test we can create a new simplex of order 0."""
-        c = SimplicialComplex()
-        s = c.addSimplexOfOrder(0)
-        six.assertCountEqual(self, c.simplices(), [ s ])
-        six.assertCountEqual(self, c.simplicesOfOrder(0), [ s ])
-
-    def testAddSimplexOrder0Named( self ):
-        """ Test we can create a named new simplex of order 0."""
-        c = SimplicialComplex()
-        s = c.addSimplexOfOrder(0, id = 'point')
-        self.assertEqual(s, 'point')
-        six.assertCountEqual(self, c.simplices(), [ s ])
-        six.assertCountEqual(self, c.simplicesOfOrder(0), [ s ])
-
-    def testAddSimplexOrder0NamedDontMatch( self ):
-        """ Test we can create a named new simplex of order 0 when there's
-        already a different-order simplex with that name."""
-        c = SimplicialComplex()
-        c.addSimplexOfOrder(0, id = 'point')
-        with self.assertRaises(Exception):
-            c.addSimplexOfOrder(0, id = 'point')
-
-    def testAddSimplexOrder1( self ):
-        """ Test we can create a new simplex of order 1."""
-        c = SimplicialComplex()
-        s = c.addSimplexOfOrder(1)
-        self.assertEqual(len(c.simplicesOfOrder(0)), 2)
-        self.assertEqual(len(c.simplices()), 3)
-        six.assertCountEqual(self, c.simplicesOfOrder(1), [ s ])
-
-    def testAddSimplexOrder1Named( self ):
-        """ Test we can create a named new simplex of order 1."""
-        c = SimplicialComplex()
-        s = c.addSimplexOfOrder(1, id = 'line')
-        self.assertEqual(s, 'line')
-        self.assertEqual(len(c.simplicesOfOrder(0)), 2)
-        self.assertEqual(len(c.simplices()), 3)
-        six.assertCountEqual(self, c.simplicesOfOrder(1), [ s ])
-
     def testSimplexWithFacesSuccess( self ):
         """Test we can retrieve a simplex from its faces."""
         c = SimplicialComplex()

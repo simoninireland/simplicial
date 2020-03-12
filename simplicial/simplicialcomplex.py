@@ -342,27 +342,6 @@ class SimplicialComplex(object):
         s = self._addSimplexWithBasis(id, attr, k, bs)
 
         return s
-
-    def addSimplexOfOrder( self, k, id = None, attr = None ):
-        """Add a new simplex, disjoint from all others, with the given order.
-        This will create all the necessary faces and so on down to a new
-        basis.
-
-        :param k: the order of the new simplex
-        :param id: (optional) name of the new simplex
-        :param attr: (optional) dict of attributes added to the new simplex
-        :returns: the name of the new simplex"""
-        if k == 0:
-            # it's an 0-simplex, just try to create a new one
-            return self.addSimplex(id = id, attr = attr)
-        else:
-            # create a basis of new names
-            bs = []
-            for i in range(k + 1):
-                bs.append(self.addSimplex())
-
-            # create the new simplex and return it
-            return self.addSimplexWithBasis(bs, id, attr)
     
     def _createRelabelling(self, rename):
         '''Private method to create a relabelling function that's safe to be called
