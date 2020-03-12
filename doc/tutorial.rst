@@ -14,5 +14,6 @@ the :ref:`reference` for all the details.
     tutorial/build-complex.rst
     tutorial/simplex-attributes.rst
     tutorial/navigating-complex.rst
+    tutorial/constructing.rst
     tutorial/analysis.rst
     tutorial/filtrations.rst

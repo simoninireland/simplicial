@@ -10,7 +10,10 @@ Simplicial complexes
    :maxdepth: 2
 
    simplicialcomplex
+   filtration
    eulerintegrator
+
+:ref:`generators`
 
 :ref:`file`
 
