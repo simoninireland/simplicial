@@ -1,0 +1,16 @@
+README.rst
+LICENSE
+HISTORY
+MANIFEST
+setup.py
+simplicial/__init__.py
+simplicial/simplicialcomplex.py
+simplicial/generators.py
+simplicial/filtration.py
+simplicial/eulerintegrator.py
+simplicial/triangularlattice.py
+simplicial/embedding.py
+simplicial/drawing/__init__.py
+simplicial/drawing/drawing.py
+simplicial/file/__init__.py
+simplicial/file/json_simplicial.py

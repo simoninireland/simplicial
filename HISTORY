@@ -1,3 +1,14 @@
+Version 0.6.1 (15Mar2020)
+
+   - Added a paper for the Journal of Open Source Software for the library
+   - Added various extra references to the bibliography
+   - Simplified some of the operations
+   - Improved copying to work with sub-classing
+   - Added filtrations
+   - Added generator functions for common structures, refactoring a little
+     out of the SimplicialComplex class
+   - Added numpy types on boundary matrices to reduce memory footprint
+
 Version 0.5.1 (19Sep2019)
 
    - Refactored internally to use boundary matrices

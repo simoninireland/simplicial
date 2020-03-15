@@ -25,7 +25,7 @@ with open('README.rst') as f:
     longDescription = f.read()
 
 setup(name = 'simplicial',
-      version = '0.5.1',
+      version = '0.6.1',
       description = 'Simplicial topology in Python',
       long_description = longDescription,
       url = 'http://github.com/simoninireland/simplicial',

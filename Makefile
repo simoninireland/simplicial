@@ -1,6 +1,6 @@
 # Makefile for simplicial
 #
-# Copyright (C) 2017--2019 Simon Dobson
+# Copyright (C) 2017--2020 Simon Dobson
 # 
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -32,6 +32,7 @@ SOURCES_SDIST = dist/$(PACKAGENAME)-$(VERSION).tar.gz
 SOURCES_CODE = \
 	simplicial/__init__.py \
 	simplicial/simplicialcomplex.py \
+	simplicial/generators.py \
 	simplicial/filtration.py \
 	simplicial/eulerintegrator.py \
 	simplicial/triangularlattice.py \
@@ -65,7 +66,9 @@ SOURCES_DOCUMENTATION = \
 	doc/index.rst \
 	doc/reference.rst \
 	doc/simplicialcomplex.rst \
+	doc/filtration.rst \
 	doc/eulerintegrator.rst \
+	doc/generators.rst \
 	doc/embedding.rst \
 	doc/triangularlattice.rst \
 	doc/drawing.rst \
@@ -78,6 +81,7 @@ SOURCES_DOCUMENTATION = \
 	doc/tutorial/build-complex.rst \
 	doc/tutorial/navigating-complex.rst \
 	doc/tutorial/simplex-attributes.rst \
+	doc/tutorial/constructing.rst \
 	doc/tutorial/analysis.rst \
 	doc/tutorial/filtrations.rst \
 	doc/implementation.rst \
