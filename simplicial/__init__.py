@@ -57,8 +57,7 @@ from .triangularlattice import TriangularLattice, TriangularLatticeEmbedding
 #from .toroidallattice import ToroidalLattice
 
 # file I/O
-import simplicial.file
-from simplicial.file import *
+from . import file
 
 # drawing support
 #import simplicial.drawing

@@ -1,6 +1,6 @@
 # Initialisation for simplicial's drawingpersistent file routines
 #
-# Copyright (C) 2017 Simon Dobson
+# Copyright (C) 2017--2020 Simon Dobson
 # 
 # This file is part of simplicial, simplicial topology in Python.
 #
