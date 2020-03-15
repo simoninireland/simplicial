@@ -21,7 +21,7 @@
 PACKAGENAME = simplicial
 
 # The version we're building
-VERSION = 0.6.1
+VERSION = 0.6.2
 
 
 # ----- Sources -----
@@ -29,6 +29,7 @@ VERSION = 0.6.1
 # Source code
 SOURCES_SETUP_IN = setup.py.in
 SOURCES_SDIST = dist/$(PACKAGENAME)-$(VERSION).tar.gz
+SOURCES_WHEEL = dist/$(PACKAGENAME)-$(VERSION)-py2-py3-none-any.whl
 SOURCES_CODE = \
 	simplicial/__init__.py \
 	simplicial/simplicialcomplex.py \
@@ -170,14 +171,17 @@ $(VENV):
 # Build a source distribution
 sdist: $(SOURCES_SDIST)
 
+# Build a wheel distribution
+wheel: $(SOURCES_WHEEL)
+
 # Upload a source distribution to PyPi
-upload: $(SOURCES_SDIST)
+upload: sdist wheel
 	$(GPG) --detach-sign -a dist/$(PACKAGENAME)-$(VERSION).tar.gz
 	$(ACTIVATE) && $(RUN_TWINE)
 
 # Clean up the distribution build
 clean:
-	$(RM) $(SOURCES_GENERATED) simplicial.egg-info dist $(SOURCES_DOC_BUILD_DIR) $(SOURCES_DOC_ZIP)
+	$(RM) $(SOURCES_GENERATED) simplicial.egg-info dist $(SOURCES_DOC_BUILD_DIR) $(SOURCES_DOC_ZIP) dist build
 
 # Clean up everything, including the computational environment (which is expensive to rebuild)
 reallyclean: clean
@@ -198,6 +202,9 @@ setup.py: $(SOURCES_SETUP_IN) Makefile
 $(SOURCES_SDIST): $(SOURCES_GENERATED) $(SOURCES_CODE) Makefile
 	$(ACTIVATE) && $(RUN_SETUP) sdist
 
+# The binary (wheel) distribution
+$(SOURCES_WHEEL): $(SOURCES_GENERATED) $(SOURCES_CODE) Makefile
+	$(ACTIVATE) && $(RUN_SETUP) bdist_wheel
 
 # ----- Usage -----
 
@@ -206,6 +213,7 @@ Available targets:
    make test         run the test suite
    make env          create a known-good development virtual environment
    make sdist        create a source distribution
+   make wheel	     create binary (wheel) distribution
    make upload       upload distribution to PyPi
    make clean        clean-up the build
    make reallyclean  clean up build and development venv

@@ -2,7 +2,7 @@
 
 # Setup for simplicial
 #
-# Copyright (C) 2017--2019 Simon Dobson
+# Copyright (C) 2017--2020 Simon Dobson
 # 
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -25,7 +25,7 @@ with open('README.rst') as f:
     longDescription = f.read()
 
 setup(name = 'simplicial',
-      version = '0.6.1',
+      version = '0.6.2',
       description = 'Simplicial topology in Python',
       long_description = longDescription,
       url = 'http://github.com/simoninireland/simplicial',
@@ -39,7 +39,7 @@ setup(name = 'simplicial',
                       'Programming Language :: Python :: 3.7',
                       'Topic :: Scientific/Engineering :: Mathematics',
                       'Topic :: Scientific/Engineering :: Physics' ],
-      packages = [ 'simplicial' ],
+      packages = [ 'simplicial', 'simplicial.file' ],
       zip_safe = True,
       install_requires = [ "numpy","matplotlib" ])
 

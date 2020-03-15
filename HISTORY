@@ -1,3 +1,7 @@
+Version 0.6.2 (15Mar2020)
+
+   - Fixed package problem (simplicial.fil not being included)
+
 Version 0.6.1 (15Mar2020)
 
    - Added a paper for the Journal of Open Source Software for the library
