@@ -2,7 +2,7 @@
 
 # Setup for simplicial
 #
-# Copyright (C) 2017--2019 Simon Dobson
+# Copyright (C) 2017--2020 Simon Dobson
 # 
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -39,7 +39,7 @@ setup(name = 'simplicial',
                       'Programming Language :: Python :: 3.7',
                       'Topic :: Scientific/Engineering :: Mathematics',
                       'Topic :: Scientific/Engineering :: Physics' ],
-      packages = [ 'simplicial' ],
+      packages = [ 'simplicial', 'simplicial.file' ],
       zip_safe = True,
       install_requires = [ REQUIREMENTS ])
 
