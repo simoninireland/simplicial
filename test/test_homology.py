@@ -269,7 +269,7 @@ class HomologyTests(unittest.TestCase):
     def testBettiZeroDisconnected( self ):
         '''Test the zero'th Betti number of a complex of two "islands"'''
         c = TriangularLattice(10, 10)
-        c.addSimplexOfOrder(2)
+        k_simplex(2, c = c)
         betti = c.bettiNumbers(ks = [0])
         self.assertEqual(betti[0], 2)
 

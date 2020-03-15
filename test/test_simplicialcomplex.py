@@ -365,6 +365,16 @@ class SimplicialComplexTests(unittest.TestCase):
         with self.assertRaises(Exception):
             c.addSimplicesFrom(d, rename = r)
 
+    # sd: this wiuld be cleaner as a closure, but they're hard
+    # # to do portably between Python 2.7 and 3  
+    _unique = 0
+    def makeUniques(self, iu):
+        self._unique = iu
+        def unique(s):
+            self._unique += 1
+            return self._unique
+        return unique
+
     def testRelabelSequence(self):
         '''Test relabelling with a simple sequence generator.'''
         c = SimplicialComplex()
@@ -376,14 +386,7 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 23, fs = [ 2, 3 ])
         c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
 
-        def makeUniques(u):
-            def unique(s):
-                nonlocal u
-                u += 1
-                return u
-            return unique
-
-        ss = c.relabel(makeUniques(100))
+        ss = c.relabel(self.makeUniques(100))
         six.assertCountEqual(self, ss, [ 101, 102, 103, 104, 105, 106, 107 ])
 
     def testIsBasis( self ):
