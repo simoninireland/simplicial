@@ -63,6 +63,12 @@ class FiltrationIterator(object):
         self._f.setIndex(oldInd)
         return c
 
+    def next(self):
+        '''Python 2.7 compatibility version of :meth:`__next__`.
+
+        :returns: a complex'''
+        return self.__next__()
+
 
 class Filtration(SimplicialComplex):
     '''A filtration of simplicial complexes.

@@ -1180,8 +1180,8 @@ class SimplicialComplex(object):
             # at the extremes the boundary operator is already in SNF
             snfB = self.boundaryOperator(k).copy()
         else:
-            rls = list(map((lambda s: [ s ]), self._indices[k - 1].copy()))
-            cls = list(map((lambda s: [ s ]), self._indices[k].copy()))
+            rls = list(map((lambda s: [ s ]), copy.copy(self._indices[k - 1])))
+            cls = list(map((lambda s: [ s ]), copy.copy(self._indices[k])))
             (snfB, _, _) = self._reduceBoundaries(self.boundaryOperator(k).copy(), rls, cls)
         return snfB
     
@@ -1240,8 +1240,8 @@ class SimplicialComplex(object):
             # list containing just the identifier of the simplex itself
             B = self.boundaryOperator(k)
             (rb, cb) = B.shape
-            rls = list(map((lambda s: [ s ]), self._indices[k - 1].copy()))
-            cls = list(map((lambda s: [ s ]), self._indices[k].copy()))
+            rls = list(map((lambda s: [ s ]), copy.copy(self._indices[k - 1])))
+            cls = list(map((lambda s: [ s ]), copy.copy(self._indices[k])))
             
             # generate the Smith normal form, capturing the changes in labels
             (A, rls, cls) = self._reduceBoundaries(B.copy(), rls, cls) 
