@@ -1,3 +1,5 @@
+setuptools
+wheel
 tox
 nose
 coverage
