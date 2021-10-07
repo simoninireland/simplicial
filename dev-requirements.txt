@@ -1,7 +1,6 @@
 setuptools
 wheel
 tox
-nose
 coverage
 rope
 sphinx
