@@ -1,7 +1,7 @@
 # Tests of reading and writing in JSON format
 #
 # Copyright (C) 2017--2019 Simon Dobson
-# 
+#
 # This file is part of simplicial, simplicial topology in Python.
 #
 # Simplicial is free software: you can redistribute it and/or modify
@@ -20,18 +20,19 @@
 import unittest
 import six
 from simplicial import *
+from simplicial.file import *
 import json
 
 class JSONTests(unittest.TestCase):
 
-    def test0( self ):
-        """Test we can write and read anm empty complex."""
+    def testEmpty( self ):
+        """Test we can write and read an empty complex."""
         c = SimplicialComplex()
         d = json.loads(as_json(c), object_hook = as_simplicial_complex)
 
         self.assertEqual(len(d.simplices()), 0)
         self.assertEqual(len(c.simplices()), 0)
- 
+
     def test0( self ):
         """Test we can write and read a complex with a single 0-simplex."""
         c = SimplicialComplex()
@@ -42,7 +43,7 @@ class JSONTests(unittest.TestCase):
         six.assertCountEqual(self, d[1].keys(), c[1].keys())
         for k in d[1].keys():
             self.assertEqual(d[1][k], c[1][k])
- 
+
     def test0s( self ):
         """Test we can write and read a complex with multiple 0-simplices."""
         c = SimplicialComplex()
@@ -57,7 +58,7 @@ class JSONTests(unittest.TestCase):
         for s in d.simplices():
             for k in d[s].keys():
                 self.assertEqual(d[1][k], c[1][k])
-        
+
 
     def test1s( self ):
         """Test we can write and read a complex with multiple 1-simplices."""
@@ -70,4 +71,3 @@ class JSONTests(unittest.TestCase):
         six.assertCountEqual(self, d.simplices(), c.simplices())
         for s in d.simplicesOfOrder(1):
             six.assertCountEqual(self, d.faces(s), d.faces(s))
-            
