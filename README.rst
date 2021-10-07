@@ -22,12 +22,12 @@ The master distribution of ``simplicial`` is hosted on GitHub. To obtain a
 copy, just clone the repo:
 
 ::
-   
+
     git clone git@github.com:simoninireland/simplicial.git
     cd simplicial
     python setup.py install
 
-   
+
 Documentation
 -------------
 
@@ -37,7 +37,6 @@ The `API documentation <https://simplicial.readthedocs.io/en/stable/>`_ is hoste
 Author and license
 ------------------
 
-Copyright (c) 2017--2019, Simon Dobson <simon.dobson@computer.org>
+Copyright (c) 2017--2021, Simon Dobson <simoniinireland@gmail.com>
 
 Licensed under the `GNU General Public Licence v.3.0 <https://www.gnu.org/licenses/gpl-3.0.en.html>`_.
-
