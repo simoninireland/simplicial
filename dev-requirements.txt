@@ -1,9 +1,12 @@
-setuptools
 wheel
+mypy
 tox
 coverage
 rope
 sphinx
-sphinx-autobuild
-doc8
+sphinx_rtd_theme
 twine
+black
+pylint
+flake8
+rope
