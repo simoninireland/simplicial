@@ -3,7 +3,7 @@
 # Setup for simplicial
 #
 # Copyright (C) 2017--2020 Simon Dobson
-# 
+#
 # This file is part of simplicial, simplicial topology in Python.
 #
 # Simplicial is free software: you can redistribute it and/or modify
@@ -24,23 +24,26 @@ from setuptools import setup
 with open('README.rst') as f:
     longDescription = f.read()
 
-setup(name = 'simplicial',
-      version = '0.6.2',
-      description = 'Simplicial topology in Python',
-      long_description = longDescription,
-      url = 'http://github.com/simoninireland/simplicial',
-      author = 'Simon Dobson',
-      author_email = 'simon.dobson@computer.org',
-      license = 'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
-      classifiers = [ 'Development Status :: 4 - Beta',
-                      'Intended Audience :: Science/Research',
-                      'Intended Audience :: Developers',
-                      'Programming Language :: Python :: 2.7',
-                      'Programming Language :: Python :: 3.7',
-                      'Topic :: Scientific/Engineering :: Mathematics',
-                      'Topic :: Scientific/Engineering :: Physics' ],
-      packages = [ 'simplicial', 'simplicial.file' ],
-      zip_safe = True,
-      install_requires = [ "numpy","matplotlib" ])
-
-
+setup(name='simplicial',
+      version='0.6.3',
+      description='Simplicial topology in Python',
+      long_description=longDescription,
+      url='http://github.com/simoninireland/simplicial',
+      author='Simon Dobson',
+      author_email='simoninireland@gmail.com',
+      license='License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+      classifiers=['Development Status :: 4 - Beta',
+                   'Intended Audience :: Science/Research',
+                   'Intended Audience :: Developers',
+                   'Programming Language :: Python :: 2.7',
+                   'Programming Language :: Python :: 3.7',
+                   'Programming Language :: Python :: 3.9',
+                   'Topic :: Scientific/Engineering :: Mathematics',
+                   'Topic :: Scientific/Engineering :: Physics'
+                   ],
+      packages=['simplicial',
+                'simplicial.file',
+                'simplicial.drawing',
+                ],
+      zip_safe=False,
+      install_requires=[ "numpy","matplotlib" ])
