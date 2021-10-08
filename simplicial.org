@@ -7,11 +7,11 @@
 
 *** Release 0.7.1
 
-**** Coding [0/5]
+**** Coding [3/5]
 
-     - [ ] Add type annotations
-     - [ ] ...and therefore, drop Python2 support
-     - [ ] Add CI hooks for Github
+     - [X] Add type annotations
+     - [X] ...and therefore, drop Python2 support
+     - [X] Add CI hooks for Github
      - [ ] Add pasting of simplices to improve construction
      - [ ] Change generators to return complex *and* simplex
 
