@@ -1,7 +1,7 @@
 # Tests of triangular lattices
 #
 # Copyright (C) 2017--2019 Simon Dobson
-# 
+#
 # This file is part of simplicial, simplicial topology in Python.
 #
 # Simplicial is free software: you can redistribute it and/or modify
@@ -18,10 +18,9 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import unittest
-import six
-from simplicial import *
 import math
 import numpy.random
+from simplicial import *
 
 class TriangularLatticeTests(unittest.TestCase):
 
@@ -114,4 +113,8 @@ class TriangularLatticeTests(unittest.TestCase):
 
         # make sure position is preserved
         pos1 = e.positionsOf()
-        six.assertCountEqual(self, pos1[s], [ 12, 13 ])
+        assertCountEqual(pos1[s], [ 12, 13 ])
+
+
+if __name__ == '__main__':
+    unittest.main()

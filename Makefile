@@ -1,7 +1,7 @@
 # Makefile for simplicial
 #
 # Copyright (C) 2017--2020 Simon Dobson
-# 
+#
 # This file is part of simplicial, simplicial topology in Python.
 #
 # Simplicial is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 PACKAGENAME = simplicial
 
 # The version we're building
-VERSION = 0.6.2
+VERSION = 0.7.1
 
 
 # ----- Sources -----

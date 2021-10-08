@@ -1,7 +1,7 @@
 # Generator functions for common complexes
 #
 # Copyright (C) 2017--2020 Simon Dobson
-# 
+#
 # This file is part of simplicial, simplicial topology in Python.
 #
 # Simplicial is free software: you can redistribute it and/or modify
@@ -17,14 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-from __future__ import print_function
 import itertools
-from simplicial import *
+from typing import Optional, Any
+from simplicial import SimplicialComplex, Attributes
 
 
 # ---------- Basic structures ----------
 
-def k_skeleton(k, c = None):
+def k_skeleton(k, c: Optional[SimplicialComplex] = None) -> SimplicialComplex:
     '''Create the skeleton of a k-simplex, consisting
     of (k + 1) 0-simplices for the basis and k(k - 1)/2 1-simplices
     for the skeleton. Note that this doesn't create the k-simplex
@@ -46,12 +46,13 @@ def k_skeleton(k, c = None):
 
     # construct the 1-simplices
     for p in itertools.combinations(ss, 2):
-        c.addSimplex(fs = list(p))
+        c.addSimplex(fs=list(p))
 
     # return the complex we added into
     return c
 
-def k_simplex( k, id = None, attr = None, c = None ):
+
+def k_simplex(k: int, id: Any = None, attr: Attributes = None, c: SimplicialComplex = None) -> SimplicialComplex:
     '''Create a k-simplex. If no complex is provided, a new one is created.
     The top-level simplex can be named and given attributes; its faces
     will be "anonymous" and have names created for them.
@@ -68,7 +69,7 @@ def k_simplex( k, id = None, attr = None, c = None ):
 
     if k == 0:
         # it's an 0-simplex, just create a new one
-        c.addSimplex(id = id, attr = attr)
+        c.addSimplex(id=id, attr=attr)
     else:
         # create a basis of new simplices
         bs = []
@@ -76,13 +77,14 @@ def k_simplex( k, id = None, attr = None, c = None ):
             bs.append(c.addSimplex())
 
         # create the new simplex with this basis, which
-        # will automatically create all the faces 
-        c.addSimplexWithBasis(bs, id = id, attr = attr)
+        # will automatically create all the faces
+        c.addSimplexWithBasis(bs, id=id, attr=attr)
 
     # return the complex we added into
     return c
 
-def k_void( k, c = None ):
+
+def k_void(k: int, c: SimplicialComplex = None) -> SimplicialComplex:
     '''Create a (k + 1)-dimensional void with a k-dimensional boundary -- or
     in other words all the faces of a (k + 1)-simplex without filling in the
     (k + 1) simplex itself.
@@ -101,7 +103,7 @@ def k_void( k, c = None ):
 
 # ---------- Larger example structures ----------
 
-def ring( n, c = None ):
+def ring(n: int, c: SimplicialComplex = None) -> SimplicialComplex:
     '''Create a closed ring of n lines (1-simplices), where
     n is strictly greater than 2.
 
@@ -109,7 +111,7 @@ def ring( n, c = None ):
     :param c: (optional) the complex to create into
     :returns: a complex containing the skeleton'''
     if n <= 2:
-        raise Exception('Can\'t create a ring of {n} <= 2 lines'.format(n = n))
+        raise Exception(f'Can\'t create a ring of {n} <= 2 lines')
 
     # fill in defaults
     if c is None:
@@ -122,8 +124,8 @@ def ring( n, c = None ):
 
     # construct the 1-simplices
     for i in range(n - 1):
-        c.addSimplex(fs = [ ss[i], ss[i + 1] ])
-    c.addSimplex(fs = [ ss[n - 1], ss[0] ])
+        c.addSimplex(fs = [ss[i], ss[i + 1]])
+    c.addSimplex(fs = [ss[n - 1], ss[0]])
 
     # return the complex we added into
     return c
