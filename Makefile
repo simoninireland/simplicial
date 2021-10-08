@@ -51,7 +51,7 @@ SOURCES_TESTS = \
 	test/test_eulerintegrator.py \
 	test/test_homology.py \
 	test/test_flag.py \
-	test/test_join.py \
+	#test/test_join.py \
 	test/test_vr.py \
 	test/test_triangularlattice.py \
 	test/test_randomplanes.py \
@@ -117,6 +117,7 @@ ACTIVATE = . $(VENV)/bin/activate
 TR = tr
 CAT = cat
 SED = sed
+ETAGS = etags
 RM = rm -fr
 CP = cp
 CHDIR = cd
@@ -146,6 +147,10 @@ RUN_TWINE = $(TWINE) upload dist/$(PACKAGENAME)-$(VERSION).tar.gz dist/$(PACKAGE
 help:
 	@make usage
 
+# Build the tags file
+tags:
+	$(ETAGS) -o TAGS $(SOURCES_CODE) $(SOURCES_TESTS)
+
 # Run tests for all versions of Python we're interested in
 test: env setup.py
 	$(ACTIVATE) && $(RUN_TESTS)
@@ -166,7 +171,7 @@ env: $(VENV)
 $(VENV):
 	$(VIRTUALENV) $(VENV)
 	$(CAT) $(REQUIREMENTS) $(DEV_REQUIREMENTS) >$(VENV)/requirements.txt
-	$(ACTIVATE) && $(CHDIR) $(VENV) && $(PIP) install -r requirements.txt
+	$(ACTIVATE) && $(CHDIR) $(VENV) && $(PIP) install -U pip wheel && $(PIP) install -r requirements.txt
 
 # Build a source distribution
 sdist: $(SOURCES_SDIST)
@@ -211,6 +216,7 @@ $(SOURCES_WHEEL): $(SOURCES_GENERATED) $(SOURCES_CODE) Makefile
 define HELP_MESSAGE
 Available targets:
    make test         run the test suite
+   make tags         build the TAGS file
    make env          create a known-good development virtual environment
    make sdist        create a source distribution
    make wheel	     create binary (wheel) distribution
