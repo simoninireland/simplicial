@@ -23,29 +23,35 @@ from typing import List, Dict, Optional, Set
 from simplicial import SimplicialComplex, Simplex
 
 
-class Embedding():
-    """The abstract embedding of a simplicial complex into a space. An embedding
-    associates a position with each 0-simplex in the complex, allowing spatial calculations
-    to be performed.
+class Embedding:
+    """The abstract embedding of a simplicial complex into a space. An
+    embedding associates a position with each 0-simplex in the
+    complex, allowing spatial calculations to be performed.
 
-    Embeddings serve two distinct purposes. Firstly, they admit spatial calculations
-    as well as purely topological ones, which broadens the application areas to which
-    we can apply simplicial ideas. Secondly, embeddings form the basis for visualisation,
-    as they allow points (0-simplices) in a complex to be associated with points in
-    an n-dimensional embedding space. This can result in more meaingful diagrams.
+    Embeddings serve two distinct purposes. Firstly, they admit
+    spatial calculations as well as purely topological ones, which
+    broadens the application areas to which we can apply simplicial
+    ideas. Secondly, embeddings form the basis for visualisation, as
+    they allow points (0-simplices) in a complex to be associated with
+    points in an n-dimensional embedding space. This can result in
+    more meaingful diagrams.
 
-    An embedding can be specified in two distinct ways. Positions can be supplied
-    explicitly for simplices by name. Alternatively, sub-clases can provide positioning
-    functions that map simplices to positions using arbitrary code. The former is useful
-    for complexes with irregular embeddings, while the latter is better-suited to
-    regular embeddings. Explicit positions override computed positions, which allows
-    small distortions to be applied easily to otherwise regular embeddings.
+    An embedding can be specified in two distinct ways. Positions can
+    be supplied explicitly for simplices by name. Alternatively,
+    sub-clases can provide positioning functions that map simplices to
+    positions using arbitrary code. The former is useful for complexes
+    with irregular embeddings, while the latter is better-suited to
+    regular embeddings. Explicit positions override computed
+    positions, which allows small distortions to be applied easily to
+    otherwise regular embeddings.
 
-    It is also possible to override the distance metric to construct different ways
-    of metricating a space. The default is n-dimensional Euclidean.
+    It is also possible to override the distance metric to construct
+    different ways of metricating a space. The default is
+    n-dimensional Euclidean.
 
-    Note that in most cases an embedding is based on simplex names, and so care needs to
-    be taken when relabeling simplices in the underlying complex.
+    Note that in most cases an embedding is based on simplex names,
+    and so care needs to be taken when relabeling simplices in the
+    underlying complex.
 
     :param c: the complex
     :param dim: the dimension of the embedding space (defaults to 2)
@@ -53,9 +59,9 @@ class Embedding():
     """
 
     def __init__(self, c: SimplicialComplex, dim: int = 2):
-        self._complex = c          # underlying complicial complex
-        self._dim = dim            # dimension of embedding space
-        self._position = dict()    # cache of positions
+        self._complex = c                                      # underlying complicial complex
+        self._dim = dim                                        # dimension of embedding space
+        self._position: Dict[Simplex, List[float]] = dict()    # cache of positions
 
     def dimension(self) -> int:
         """Return the dimension of the embedding space.

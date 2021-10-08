@@ -53,11 +53,11 @@ class SimplicialComplex:
     def __init__(self):
         self._sequence: int = 1                  # sequence number for generating simplex names
         self._maxOrder: int = -1                 # order of largest simplex in the complex
-        self._simplices: Dict[Any, int] = dict()            # dict mapping simplex names to their order and index
-        self._indices: List[List[Any]] = []                  # array of arrays of simplices in canonical order
-        self._boundaries = []               # array of boundary matrices
-        self._bases = []                    # array of basis matrices
-        self._attributes: Dict[Simplex, Attributes] = dict()           # dict of simplex attributes
+        self._simplices: Dict[Any, int] = dict()                 # dict mapping simplex names to their order and index
+        self._indices: List[List[Simplex]] = []                  # array of arrays of simplices in canonical order
+        self._boundaries: List[numpy.ndarray] = []               # array of boundary matrices
+        self._bases: List[numpy.ndarray] = []                    # array of basis matrices
+        self._attributes: Dict[Simplex, Attributes] = dict()     # dict of simplex attributes
 
     def _newUniqueIndex(self, d: int) -> str:
         """Generate a new unique identifier for a simplex. The default naming
