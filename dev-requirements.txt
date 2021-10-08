@@ -5,6 +5,9 @@ coverage
 rope
 sphinx
 sphinx_rtd_theme
+sphinx-autodoc-typehints
+sphinxcontrib-bibtex
+doc8
 twine
 black
 pylint
