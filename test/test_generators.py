@@ -20,6 +20,7 @@
 import unittest
 from simplicial import *
 
+
 class GeneratorTests(unittest.TestCase):
 
     def testSkeleton1simplex(self):

@@ -1,7 +1,7 @@
 # Tests of homology operations in simplicial complex class
 #
 # Copyright (C) 2017--2019 Simon Dobson
-# 
+#
 # This file is part of simplicial, simplicial topology in Python.
 #
 # Simplicial is free software: you can redistribute it and/or modify
@@ -18,7 +18,6 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import unittest
-import six
 import numpy
 from simplicial import *
 
@@ -30,9 +29,9 @@ class HomologyTests(unittest.TestCase):
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
         c.addSimplex(id = 3)
-        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
-        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
-        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
         c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
         self.assertTrue(c.isChain([]))
         self.assertTrue(c.isChain([ 1 ]))
@@ -57,21 +56,21 @@ class HomologyTests(unittest.TestCase):
         c = SimplicialComplex()
         c.addSimplex(id = 1)
         bs = c.boundary([ 1 ])
-        six.assertCountEqual(self, bs, set())
+        self.assertCountEqual(bs, set())
 
     def testBoundary1( self ):
         '''Test the boundary operator for a 1-simplex.'''
         c = SimplicialComplex()
         c.addSimplexWithBasis(bs = [ 1, 2 ], id = 12)
         bs = c.boundary([ 12 ])
-        six.assertCountEqual(self, bs, set([ 1, 2 ]))
+        self.assertCountEqual(bs, set([ 1, 2 ]))
 
     def testBoundary2( self ):
         '''Test the boundary operator for a 2-simplex.'''
         c = SimplicialComplex()
         c.addSimplexWithBasis(bs = [ 1, 2, 3 ], id = 123)
         bs = c.boundary([ 123 ])
-        six.assertCountEqual(self, bs, c.simplicesOfOrder(1))
+        self.assertCountEqual(bs, c.simplicesOfOrder(1))
 
     def testBoundary1linked( self ):
         '''Test the boundary operator for two linked 1-simplices.'''
@@ -79,7 +78,7 @@ class HomologyTests(unittest.TestCase):
         c.addSimplexWithBasis(bs = [ 1, 2 ], id = 12)
         c.addSimplexWithBasis(bs = [ 2, 3 ], id = 23)
         bs = c.boundary([ 12, 23 ])
-        six.assertCountEqual(self, bs, set([ 1, 3 ]))
+        self.assertCountEqual(bs, set([ 1, 3 ]))
 
     def testBoundary2linked( self ):
         '''Test the boundary operator for two linked 2-simplices.'''
@@ -92,7 +91,7 @@ class HomologyTests(unittest.TestCase):
         c.addSimplex(fs = [ 12, 23, 13 ], id = 123)
         c.addSimplex(fs = [ 12, 14, 24 ], id = 124)
         bs = c.boundary([ 123, 124 ])
-        six.assertCountEqual(self, bs, set([ 23, 13, 24, 14 ]))
+        self.assertCountEqual(bs, set([ 23, 13, 24, 14 ]))
 
     def testBoundary2unlinked( self ):
         '''Test the boundary operator for two disconnected 2-simplices.'''
@@ -106,7 +105,7 @@ class HomologyTests(unittest.TestCase):
         c.addSimplex(fs = [ 12, 23, 13 ], id = 123)
         c.addSimplex(fs = [ 45, 56, 46 ], id = 124)
         bs = c.boundary([ 123, 124 ])
-        six.assertCountEqual(self, bs, c.simplicesOfOrder(1))
+        self.assertCountEqual(bs, c.simplicesOfOrder(1))
 
     def testBoundary2boundary( self ):
         '''Test the boundary of a boundary is empty.'''
@@ -119,7 +118,7 @@ class HomologyTests(unittest.TestCase):
         c.addSimplex(fs = [ 12, 23, 13 ], id = 123)
         c.addSimplex(fs = [ 12, 14, 24 ], id = 124)
         bs = c.boundary(c.boundary([ 123, 124 ]))
-        six.assertCountEqual(self, bs, set())
+        self.assertCountEqual(bs, set())
 
     def testBoundaryOperator0( self ):
         '''Test that the boundary at order 0 is just a zero matrix with a single row.'''
@@ -128,7 +127,7 @@ class HomologyTests(unittest.TestCase):
         b0 = c.boundaryOperator(0)
         self.assertEqual(b0.shape, (1, 3))
         self.assertTrue((b0 == 0).all())
-        
+
     def testBoundaryOperatorProperties( self ):
         '''Test algebraic properties of boundary operator.'''
         c = SimplicialComplex()
@@ -144,16 +143,16 @@ class HomologyTests(unittest.TestCase):
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
         c.addSimplex(id = 3)
-        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
-        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
-        c.addSimplex(id = 23, fs = [ 2, 3 ]) 
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
         c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
         c.addSimplex(id = 4)
         c.addSimplex(id = 5)
         c.addSimplex(id = 6)
-        c.addSimplex(id = 45, fs = [ 4, 5 ]) 
-        c.addSimplex(id = 46, fs = [ 4, 6 ]) 
-        c.addSimplex(id = 56, fs = [ 5, 6 ]) 
+        c.addSimplex(id = 45, fs = [ 4, 5 ])
+        c.addSimplex(id = 46, fs = [ 4, 6 ])
+        c.addSimplex(id = 56, fs = [ 5, 6 ])
         c.addSimplex(id = 456, fs = [ 45, 46, 56 ])
         self.assertTrue(c.disjoint([1, 2]))
         self.assertTrue(c.disjoint([1, 23]))
@@ -163,7 +162,7 @@ class HomologyTests(unittest.TestCase):
         self.assertFalse(c.disjoint([1, 123]))
         self.assertFalse(c.disjoint([1, 13]))
         self.assertTrue(c.disjoint([456, 123]))
-        
+
     def testReduce( self ):
         '''Test we reduce matrices correctly to Smith Normal Form.'''
         c = SimplicialComplex()
@@ -201,7 +200,7 @@ class HomologyTests(unittest.TestCase):
         for j in range(ca):
             for i in range(rank, ra):
                 self.assertEqual(Ar[i, j], 0)
-                
+
     def testBettiSmall( self ):
         '''Test computation of Betti numbers on a small complex.'''
         c = SimplicialComplex()
@@ -224,7 +223,7 @@ class HomologyTests(unittest.TestCase):
         c.addSimplex(["1d12", "1d13", "1d23"], id = "2d123")
         betti = c.bettiNumbers(ks = [1])
         self.assertEqual(betti[1], 1)
-        
+
     def testBettiSmallFromBasis( self ):
         '''Test computation of Betti numbers on a small complex created just from its basis.'''
         c = SimplicialComplex()
@@ -235,7 +234,7 @@ class HomologyTests(unittest.TestCase):
         c.addSimplexWithBasis([0, 4])
         c.addSimplexWithBasis([4, 2])
         betti = c.bettiNumbers(ks = [1, 2])
-        six.assertCountEqual(self, betti.keys(), [ 1, 2 ])
+        self.assertCountEqual(betti.keys(), [ 1, 2 ])
         self.assertEqual(betti[1], 1)
         self.assertEqual(betti[2], 1)
 
@@ -248,24 +247,24 @@ class HomologyTests(unittest.TestCase):
     def testBettiHoledPlane( self ):
         '''Test Betti numbers for a plane with one 2-simplex removed.'''
         c = TriangularLattice(10, 10)
-        c.deleteSimplex("2d284")         # a simplex we know is central-ish 
+        c.deleteSimplex("2d284")         # a simplex we know is central-ish
         betti = c.bettiNumbers(ks = [1])
         self.assertEqual(betti[1], 1)
 
     def testBettiDoubleHoledPlane( self ):
         '''Test Betti numbers for a plane with two 2-simplices removed.'''
         c = TriangularLattice(10, 10)
-        c.deleteSimplex("2d284")         # simplices we know are central-ish 
+        c.deleteSimplex("2d284")         # simplices we know are central-ish
         c.deleteSimplex("2d257")
         betti = c.bettiNumbers(ks = [1])
         self.assertEqual(betti[1], 2)
-        
+
     def testBettiZeroConnected( self ):
         '''Test the zero'th Betti number of a connected complex'''
         c = TriangularLattice(10, 10)
         betti = c.bettiNumbers(ks = [0])
         self.assertEqual(betti[0], 1)
-        
+
     def testBettiZeroDisconnected( self ):
         '''Test the zero'th Betti number of a complex of two "islands"'''
         c = TriangularLattice(10, 10)
@@ -277,19 +276,19 @@ class HomologyTests(unittest.TestCase):
         '''Test computing the Betti numbers for all simplex orders.'''
         c = TriangularLattice(10, 10)
         betti = c.bettiNumbers()
-        six.assertCountEqual(self, betti.keys(), [ 0, 1, 2 ])
+        self.assertCountEqual(betti.keys(), [ 0, 1, 2 ])
         self.assertEqual(betti[0], 1)
         self.assertEqual(betti[1], 0)
         self.assertEqual(betti[2], 0)
-        
+
     def testBettiHigh( self ):
         '''Test that we get a Betti number of 0 for any order higher than the maximum.'''
         c = TriangularLattice(10, 10)
         betti = c.bettiNumbers(ks = [ 3, 7 ])
-        six.assertCountEqual(self, betti.keys(), [ 3, 7 ])
+        self.assertCountEqual(betti.keys(), [ 3, 7 ])
         self.assertEqual(betti[3], 0)
         self.assertEqual(betti[7], 0)
-        
+
     def testBettiExample(self):
         '''The test of Betti numbers from `here <https://www.cs.duke.edu/courses/fall06/cps296.1/Lectures/sec-IV-3.pdf>`_.'''
         c = SimplicialComplex()
@@ -306,7 +305,7 @@ class HomologyTests(unittest.TestCase):
         c.addSimplex([ 'b', 'd' ], 'bd')
         c.addSimplex([ 'c', 'd' ], 'cd')
         betti = c.bettiNumbers()
-        six.assertCountEqual(self, betti.keys(), [ 0, 1 ])
+        self.assertCountEqual(betti.keys(), [ 0, 1 ])
         self.assertEqual(betti[0], 1)
         self.assertEqual(betti[1], 3)
 
@@ -316,7 +315,7 @@ class HomologyTests(unittest.TestCase):
         c.addSimplex([ 'ac', 'ad', 'cd'], 'acd')
         c.addSimplex([ 'bc', 'bd', 'cd'], 'bcd')
         betti = c.bettiNumbers()
-        six.assertCountEqual(self, betti.keys(), [ 0, 1, 2 ])
+        self.assertCountEqual(betti.keys(), [ 0, 1, 2 ])
         self.assertEqual(betti[0], 1)
         self.assertEqual(betti[1], 0)
         self.assertEqual(betti[2], 1)
@@ -324,7 +323,7 @@ class HomologyTests(unittest.TestCase):
     def testCircleHomology(self):
         '''Test computations of homology on a circle.'''
         c = SimplicialComplex()
-        
+
         # build a circle
         c.addSimplex(id = 'a')
         c.addSimplex(id = 'b')
@@ -335,26 +334,30 @@ class HomologyTests(unittest.TestCase):
         c.addSimplex([ 'c', 'd' ], 'cd')
         c.addSimplex([ 'a', 'd' ], 'ad')
         betti = c.bettiNumbers()
-        six.assertCountEqual(self, betti.keys(), [ 0, 1 ])
+        self.assertCountEqual(betti.keys(), [ 0, 1 ])
         self.assertEqual(betti[0], 1)
         self.assertEqual(betti[1], 1)
         holes = c.Z()[1]
         self.assertEqual(len(holes), 1)
-        six.assertCountEqual(self, holes[0], [ 'ab', 'bc', 'cd', 'ad' ])
+        self.assertCountEqual(holes[0], [ 'ab', 'bc', 'cd', 'ad' ])
 
         # split the circle in two
         c.addSimplex([ 'a', 'c' ], 'ac')
         betti = c.bettiNumbers()
-        six.assertCountEqual(self, betti.keys(), [ 0, 1 ])
+        self.assertCountEqual(betti.keys(), [ 0, 1 ])
         self.assertEqual(betti[0], 1)
         self.assertEqual(betti[1], 2)
         holes = c.Z()
         self.assertEqual(len(holes[1]), 2)
         for b in holes[1]:
             if len(b) == 4:
-                six.assertCountEqual(self, b, [ 'ab', 'bc', 'cd', 'ad' ])
+                self.assertCountEqual(b, [ 'ab', 'bc', 'cd', 'ad' ])
             else:
                 if len(b) == 3:
-                    six.assertCountEqual(self, b, [ 'ac', 'ab', 'bc' ])
+                    self.assertCountEqual(b, [ 'ac', 'ab', 'bc' ])
                 else:
                     raise Exception('Incorrect basis')
+
+
+if __name__ == '__main__':
+    unittest.main()
