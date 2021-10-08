@@ -77,7 +77,7 @@ SOURCES_DOCUMENTATION = \
 	doc/installation.rst \
 	doc/glossary.rst \
 	doc/acknowledgements.rst \
-	doc/bibliography.rst \
+	doc/zbibliography.rst \
 	doc/tutorial.rst \
 	doc/tutorial/build-complex.rst \
 	doc/tutorial/navigating-complex.rst \

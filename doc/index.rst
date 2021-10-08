@@ -67,5 +67,5 @@ Current features
    reference
    implementation
    glossary
-   bibliography
+   zbibliography
    acknowledgements
