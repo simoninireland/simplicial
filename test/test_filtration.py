@@ -18,7 +18,6 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import unittest
-import six
 from simplicial import *
 
 class FiltrationTests(unittest.TestCase):
@@ -28,14 +27,14 @@ class FiltrationTests(unittest.TestCase):
         f = Filtration()
         f.addSimplex(id = 1)
         f.addSimplex(id = 2)
-        six.assertCountEqual(self, f.simplices(), [ 1, 2 ])
+        self.assertCountEqual(f.simplices(), [ 1, 2 ])
         f.setIndex(0.5)
-        six.assertCountEqual(self, f.simplices(), [ 1, 2 ])
+        self.assertCountEqual(f.simplices(), [ 1, 2 ])
         f.addSimplex([1, 2], id = 12)
-        six.assertCountEqual(self, f.simplices(), [ 1, 2, 12 ])
+        self.assertCountEqual(f.simplices(), [ 1, 2, 12 ])
         f.setIndex(0)
-        six.assertCountEqual(self, f.simplices(), [ 1, 2 ])
-        
+        self.assertCountEqual(f.simplices(), [ 1, 2 ])
+
     def testAddDuplicateSimplex(self):
         '''Test we can't duplicate simplices at the same or different indices.'''
         f = Filtration()
@@ -46,7 +45,7 @@ class FiltrationTests(unittest.TestCase):
         f.setIndex(1.0)
         with self.assertRaises(Exception):
             f.addSimplex(id = 2)
-       
+
     def testAddWithBasis(self):
         '''Test we can add a simplex by basis.'''
         f = Filtration()
@@ -60,7 +59,7 @@ class FiltrationTests(unittest.TestCase):
         self.assertTrue(f.numberOfSimplices(), 7)
         for s in [ 1, 2, 3, 12, 123 ]:   # there are auto-named simplices too
             self.assertTrue(s in f)
-        
+
     def testAddComplexSimple(self):
         '''Test we can add a complete complex in one operation.'''
         f = Filtration()
@@ -76,7 +75,7 @@ class FiltrationTests(unittest.TestCase):
         c.addSimplex([12, 23, 13], id = 123)
         f.addSimplicesFrom(c)
         self.assertEqual(f.indices(), [ 0.0 ])
-        six.assertCountEqual(self, f.simplices(), [ 100, 200, 1, 2, 3, 12, 23, 13, 123 ])
+        self.assertCountEqual(f.simplices(), [ 100, 200, 1, 2, 3, 12, 23, 13, 123 ])
 
     def testAddComplexLater(self):
         '''Test we can add a complete complex at the right index.'''
@@ -95,9 +94,9 @@ class FiltrationTests(unittest.TestCase):
         f.addSimplicesFrom(c)
         self.assertEqual(f.indices(), [ 0.0, 1.0 ])
         f.setIndex(0.0)
-        six.assertCountEqual(self, f.simplices(), [ 100, 200 ])
+        self.assertCountEqual(f.simplices(), [ 100, 200 ])
         f.setIndex(1.0)
-        six.assertCountEqual(self, f.simplices(), [ 100, 200, 1, 2, 3, 12, 23, 13, 123 ])
+        self.assertCountEqual(f.simplices(), [ 100, 200, 1, 2, 3, 12, 23, 13, 123 ])
 
     def testAddComplexDuplicateSimplex(self):
         '''Test we detect duplicate simplices.'''
@@ -124,8 +123,8 @@ class FiltrationTests(unittest.TestCase):
         r[1] = 4
         r[2] = 5
         f.addSimplicesFrom(c, rename = r)
-        six.assertCountEqual(self, f.simplices(), [ 1, 2, 4, 5, 12  ])
-        six.assertCountEqual(self, f.faces(12), [ 4, 5 ])
+        self.assertCountEqual(f.simplices(), [ 1, 2, 4, 5, 12  ])
+        self.assertCountEqual(f.faces(12), [ 4, 5 ])
 
     def testAddFiltration(self):
         '''Test that adding a filtration  works, and flattens the index structure of the one added.'''
@@ -148,12 +147,12 @@ class FiltrationTests(unittest.TestCase):
 
         f.addSimplicesFrom(g)
         f.setIndex(0)
-        six.assertCountEqual(self, f.simplices(), [ 1, 2 ])
+        self.assertCountEqual(f.simplices(), [ 1, 2 ])
         f.setIndex(0.5)
-        six.assertCountEqual(self, f.simplices(), [ 1, 2, 12])
+        self.assertCountEqual(f.simplices(), [ 1, 2, 12])
         self.assertFalse(f.isIndex(0.7))
         f.setIndex(1.0)
-        six.assertCountEqual(self, f.simplices(), [ 1, 2, 12, 3, 23, 13, 123, 4, 5, 45])
+        self.assertCountEqual(f.simplices(), [ 1, 2, 12, 3, 23, 13, 123, 4, 5, 45])
 
     def testExtremeIndices(self):
         '''Test we can move to the ends of the filtration.'''
@@ -167,13 +166,13 @@ class FiltrationTests(unittest.TestCase):
         f.addSimplexWithBasis(bs = [1, 2, 3], id = 123)
         f.setMinimumIndex()
         self.assertEqual(f.getIndex(), 0)
-        six.assertCountEqual(self, f.simplices(), [ 1, 2 ])
+        self.assertCountEqual(f.simplices(), [ 1, 2 ])
         f.setMaximumIndex()
         self.assertEqual(f.getIndex(), 1.0)
         self.assertTrue(f.numberOfSimplices(), 7)
         for s in [ 1, 2, 3, 12, 123 ]:   # there are auto-named simplices too
             self.assertTrue(s in f)
-    
+
     def testIndices(self):
         '''Test we can extract the indices.'''
         f = Filtration()
@@ -206,11 +205,11 @@ class FiltrationTests(unittest.TestCase):
         self.assertEqual(g.indices(), [ 0.1, 0.5, 1.0 ])
         self.assertEqual(g[2]['name'], 'hello')
         g.setIndex(0.1)
-        six.assertCountEqual(self, g.simplices(), [ 1, 2 ])
+        self.assertCountEqual(g.simplices(), [ 1, 2 ])
         g.setIndex(0.5)
-        six.assertCountEqual(self, g.simplices(), [ 1, 2, 12 ])
+        self.assertCountEqual(g.simplices(), [ 1, 2, 12 ])
         g.setIndex(1.0)
-        six.assertCountEqual(self, g.simplices(), [ 1, 2, 3, 12, 23, 13, 123 ])
+        self.assertCountEqual(g.simplices(), [ 1, 2, 3, 12, 23, 13, 123 ])
 
     def testSnapComplex(self):
         '''Test we extract the complex at the right index when copying.'''
@@ -228,7 +227,7 @@ class FiltrationTests(unittest.TestCase):
 
         f.setIndex(0.5)
         c = f.snap()
-        six.assertCountEqual(self, c.simplices(), [ 1, 2, 12 ])
+        self.assertCountEqual(c.simplices(), [ 1, 2, 12 ])
         self.assertEqual(c[2]['name'], f[2]['name'])
         f[2]['name'] = 'goodbye'
         self.assertEqual(c[2]['name'], 'hello')
@@ -246,11 +245,11 @@ class FiltrationTests(unittest.TestCase):
         f.addSimplex([1, 3], id = 13)
         f.addSimplex([2, 3], id = 23)
         f.addSimplex([12, 23, 13], id = 123)
-        
+
         cs = list(f.complexes())
-        six.assertCountEqual(self, cs[0].simplices(), [ 1, 2 ])
-        six.assertCountEqual(self, cs[1].simplices(), [ 1, 2, 12 ])
-        six.assertCountEqual(self, cs[2].simplices(), [ 1, 2, 3, 12, 23, 13, 123 ])
+        self.assertCountEqual(cs[0].simplices(), [ 1, 2 ])
+        self.assertCountEqual(cs[1].simplices(), [ 1, 2, 12 ])
+        self.assertCountEqual(cs[2].simplices(), [ 1, 2, 3, 12, 23, 13, 123 ])
 
     def testInclusion(self):
         '''Test the filtration forms a valid sequence of inclusions.'''
@@ -285,7 +284,7 @@ class FiltrationTests(unittest.TestCase):
         f.addSimplex([12, 23, 13], id = 123)
 
         f.deleteSimplex(2)
-        six.assertCountEqual(self, f.simplices(), [ 1, 3, 13 ])
+        self.assertCountEqual(f.simplices(), [ 1, 3, 13 ])
 
         cs = list(f.complexes())
         for i in range(len(cs) - 1):
@@ -301,9 +300,9 @@ class FiltrationTests(unittest.TestCase):
         f.setIndex(0.7)
         self.assertEqual(f.addedAtIndex(12), 0.5)
         self.assertEqual(f.addedAtIndex(1), 0.0)
-        six.assertCountEqual(self, f.simplicesAddedAtIndex(0.0), [ 1, 2])
-        six.assertCountEqual(self, f.simplicesAddedAtIndex(0.5), [ 12])
-        six.assertCountEqual(self, f.simplicesAddedAtIndex(0.7), [])
+        self.assertCountEqual(f.simplicesAddedAtIndex(0.0), [ 1, 2])
+        self.assertCountEqual(f.simplicesAddedAtIndex(0.5), [ 12])
+        self.assertCountEqual(f.simplicesAddedAtIndex(0.7), [])
 
     def testDeleteionDeletesBirthTime(self):
         '''Test that deletion destroys the birth time.'''
@@ -318,3 +317,7 @@ class FiltrationTests(unittest.TestCase):
         self.assertEqual(f.addedAtIndex(2), 0.0)
         with self.assertRaises(Exception):
             self.assertEqual(f.addedAtIndex(12), 0.5)
+
+
+if __name__ == '__main__':
+    unittest.main()

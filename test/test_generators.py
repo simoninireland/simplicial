@@ -18,7 +18,6 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import unittest
-import six
 from simplicial import *
 
 class GeneratorTests(unittest.TestCase):
@@ -44,7 +43,7 @@ class GeneratorTests(unittest.TestCase):
         c = k_skeleton(10)
         ns = c.numberOfSimplicesOfOrder()
         self.assertEqual(len(ns), 2)
-  
+
     def test1simplex(self):
         '''Test construction of a 1-simplex (a line).'''
         c = k_simplex(1)
@@ -88,3 +87,6 @@ class GeneratorTests(unittest.TestCase):
         self.assertTrue(betti[0], 1)
         self.assertTrue(betti[1], 1)
 
+
+if __name__ == '__main__':
+    unittest.main()

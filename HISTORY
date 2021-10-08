@@ -1,6 +1,9 @@
+Version 0.7.1
+
+
 Version 0.6.2 (15Mar2020)
 
-   - Fixed package problem (simplicial.fil not being included)
+   - Fixed package problem (simplicial.file not being included)
 
 Version 0.6.1 (15Mar2020)
 
@@ -23,7 +26,7 @@ Version 0.5.1 (19Sep2019)
    - Improved test coverage
    - Moved to non-versioned requirements
    - Added a tutorial to the documentation
-     
+
 Version 0.4.3 (24Dec2017)
 
    - Maintenance release to move API documentation to
@@ -32,7 +35,7 @@ Version 0.4.3 (24Dec2017)
 Version 0.4.2 (24Dec2017)
 
    - Maintenance release to fix a problem with the manifest
-   
+
 Version 0.4.1 (23Dec2017)
 
    - Added computations for boundary operators and Betti numbers
@@ -56,5 +59,3 @@ Version 0.1.1 (8Mar2017)
 
    - Initial representation
    - First attempt at documentation
-   
-   

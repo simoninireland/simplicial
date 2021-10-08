@@ -1,7 +1,7 @@
 # Initialisation for simplicial package
 #
 # Copyright (C) 2017--2020 Simon Dobson
-# 
+#
 # This file is part of simplicial, simplicial topology in Python.
 #
 # Simplicial is free software: you can redistribute it and/or modify
@@ -38,7 +38,7 @@ for visualisation (although this still needs a lot more work).
 '''
 
 # representation and computation
-from .simplicialcomplex import SimplicialComplex
+from .simplicialcomplex import Simplex, Attributes, Renaming, SimplicialComplex
 
 # generator functions for common complexes
 from .generators import k_simplex, k_skeleton, k_void, ring
@@ -62,5 +62,3 @@ from . import file
 # drawing support
 #import simplicial.drawing
 #from simplicial.drawing import *
-
-

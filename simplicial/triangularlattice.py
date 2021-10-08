@@ -1,7 +1,7 @@
 # Triangular lattices, the basic coverings of a space
 #
 # Copyright (C) 2017--2019 Simon Dobson
-# 
+#
 # This file is part of simplicial, simplicial topology in Python.
 #
 # Simplicial is free software: you can redistribute it and/or modify
@@ -17,8 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-from __future__ import print_function
-from simplicial import *
+from typing import List
+from simplicial import SimplicialComplex, Simplex, Embedding
+
 
 class TriangularLattice(SimplicialComplex):
     """A triangular simplicial tiling of a plane. Triangular lattices have simplices
@@ -28,12 +29,12 @@ class TriangularLattice(SimplicialComplex):
     :param c: the number of columns
 
     """
-    
-    def __init__( self, r, c ):
+
+    def __init__(self, r: int, c: int):
         super(TriangularLattice, self).__init__()
         self._rows = r
         self._columns = c
-        
+
         # add the basis for the lattice
         for i in range(r):
             for j in range(c):
@@ -44,9 +45,9 @@ class TriangularLattice(SimplicialComplex):
         for i in range(0, r - 2):
             for j in range(c):
                 #print('2NS', self._indexOfVertex(i, j), self._indexOfVertex(i + 2, j))
-                self.addSimplexWithBasis([ self._indexOfVertex(i, j),
-                                           self._indexOfVertex(i + 2, j) ])
-        
+                self.addSimplexWithBasis([self._indexOfVertex(i, j),
+                                          self._indexOfVertex(i + 2, j)])
+
         # add SW and SE edges
         for i in range(0, r - 1):
             for j in range(c):
@@ -57,8 +58,8 @@ class TriangularLattice(SimplicialComplex):
                     else:
                         swj = j
                     #print('2SW', self._indexOfVertex(i, j), self._indexOfVertex(i + 1, swj))
-                    self.addSimplexWithBasis([ self._indexOfVertex(i, j),
-                                               self._indexOfVertex(i + 1, swj) ])
+                    self.addSimplexWithBasis([self._indexOfVertex(i, j),
+                                              self._indexOfVertex(i + 1, swj)])
 
                 # add SE edge except for column (c - 1) of odd-numbered rows
                 if not(j == c - 1 and (i % 2) == 1):
@@ -67,9 +68,9 @@ class TriangularLattice(SimplicialComplex):
                     else:
                         sej = j + 1
                     #print('2SE', self._indexOfVertex(i, j), self._indexOfVertex(i + 1, sej))
-                    self.addSimplexWithBasis([ self._indexOfVertex(i, j),
-                                               self._indexOfVertex(i + 1, sej) ])
-                    
+                    self.addSimplexWithBasis([self._indexOfVertex(i, j),
+                                              self._indexOfVertex(i + 1, sej)])
+
         # fill in the triangles
         for i in range(0, r - 2):
             for j in range(c):
@@ -80,10 +81,10 @@ class TriangularLattice(SimplicialComplex):
                     else:
                         swj = j
                     #print('3SW', self._indexOfVertex(i, j), self._indexOfVertex(i + 1, swj),  self._indexOfVertex(i + 2, j))
-                    self.addSimplexWithBasis([ self._indexOfVertex(i, j),
-                                               self._indexOfVertex(i + 1, swj),
-                                               self._indexOfVertex(i + 2, j) ] )
-                    
+                    self.addSimplexWithBasis([self._indexOfVertex(i, j),
+                                              self._indexOfVertex(i + 1, swj),
+                                              self._indexOfVertex(i + 2, j) ])
+
                 # add SE triangle for all except column (c - 1) of odd-numbered rows
                 if not(j == c - 1 and (i % 2) == 1):
                     if i % 2 == 0:
@@ -91,28 +92,28 @@ class TriangularLattice(SimplicialComplex):
                     else:
                         sej = j + 1
                     #print('3SE', self._indexOfVertex(i, j), self._indexOfVertex(i + 2, j),  self._indexOfVertex(i + 1, sej))
-                    self.addSimplexWithBasis([ self._indexOfVertex(i, j),
-                                               self._indexOfVertex(i + 2, j),
-                                               self._indexOfVertex(i + 1, sej) ] )
-            
-    def _indexOfVertex( self, i, j ):
+                    self.addSimplexWithBasis([self._indexOfVertex(i, j),
+                                              self._indexOfVertex(i + 2, j),
+                                              self._indexOfVertex(i + 1, sej)])
+
+    def _indexOfVertex(self, i: int, j: int) -> int:
         """Return the identifier of the given (row, column) vertex (0-simplex).
         Row and column indexing start from zero.
-        
+
         :param i: the row
         :param j: the column
         :returns: the identifier of the point"""
         return i * self.columns() + j
 
-    def rows( self ):
+    def rows(self) -> int:
         """Return the number of rows in the lattice.
-        
+
         :returns: the number of rows"""''
         return self._rows
-    
-    def columns( self ):
+
+    def columns(self) -> int:
         """Return the number of columns in the lattice.
-        
+
         :returns: the number of columns"""''
         return self._columns
 
@@ -128,24 +129,24 @@ class TriangularLatticeEmbedding(Embedding):
 
     """
 
-    def __init__( self, c, h = 1.0, w = 1.0 ):
+    def __init__(self, c: SimplicialComplex, h: float = 1.0, w: float = 1.0):
         super(TriangularLatticeEmbedding, self).__init__(c, 2)
         self._height = h
         self._width = w
-        
-    def height( self ):
+
+    def height(self) -> float:
         """Return the height of the lattice.
 
         :returns: the height of the lattice"""
         return self._height
 
-    def width( self ):
+    def width(self) -> float:
         """Return the width of the lattice.
 
         :returns: the width of the lattice"""
         return self._width
 
-    def computePositionOf( self, s ):
+    def computePositionOf(self, s: Simplex) -> List[float]:
         """Compute the position of the given simplex.
 
         :param s: the simplex
@@ -154,7 +155,7 @@ class TriangularLatticeEmbedding(Embedding):
         # extract simplex index
         c = self.complex()
         n = c.indexOf(s)
-        
+
         # convert index to (row, column) co-ordinates
         nr = c.rows()
         nc = c.columns()
@@ -170,5 +171,4 @@ class TriangularLatticeEmbedding(Embedding):
         else:
             # shift along for odd-numbered rows
             x = cw * ((j * 2) + 1)
-        return [ x, y ]
-        
+        return [x, y]
