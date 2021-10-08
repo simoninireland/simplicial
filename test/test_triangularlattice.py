@@ -113,7 +113,7 @@ class TriangularLatticeTests(unittest.TestCase):
 
         # make sure position is preserved
         pos1 = e.positionsOf()
-        assertCountEqual(pos1[s], [ 12, 13 ])
+        self.assertCountEqual(pos1[s], [ 12, 13 ])
 
 
 if __name__ == '__main__':

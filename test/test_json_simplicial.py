@@ -18,7 +18,6 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import unittest
-import six
 from simplicial import *
 from simplicial.file import *
 import json
@@ -39,8 +38,8 @@ class JSONTests(unittest.TestCase):
         c.addSimplex(id = 1, attr = dict(name = 'me', pos = [ 1, 2 ]))
         d = json.loads(as_json(c), object_hook = as_simplicial_complex)
 
-        six.assertCountEqual(self, d.simplices(), c.simplices())
-        six.assertCountEqual(self, d[1].keys(), c[1].keys())
+        self.assertCountEqual(d.simplices(), c.simplices())
+        self.assertCountEqual(d[1].keys(), c[1].keys())
         for k in d[1].keys():
             self.assertEqual(d[1][k], c[1][k])
 
@@ -53,8 +52,8 @@ class JSONTests(unittest.TestCase):
         c.addSimplex(id = 4, attr = dict(name = 'him', pos = [ 1, 4 ]))
         d = json.loads(as_json(c), object_hook = as_simplicial_complex)
 
-        six.assertCountEqual(self, d.simplices(), c.simplices())
-        six.assertCountEqual(self, d[1].keys(), c[1].keys())
+        self.assertCountEqual(d.simplices(), c.simplices())
+        self.assertCountEqual(d[1].keys(), c[1].keys())
         for s in d.simplices():
             for k in d[s].keys():
                 self.assertEqual(d[1][k], c[1][k])
@@ -68,6 +67,10 @@ class JSONTests(unittest.TestCase):
         c.addSimplexWithBasis(bs = [ 1, 3 ], id = 13)
         d = json.loads(as_json(c), object_hook = as_simplicial_complex)
 
-        six.assertCountEqual(self, d.simplices(), c.simplices())
+        self.assertCountEqual(d.simplices(), c.simplices())
         for s in d.simplicesOfOrder(1):
-            six.assertCountEqual(self, d.faces(s), d.faces(s))
+            self.assertCountEqual(d.faces(s), d.faces(s))
+
+
+if __name__ == '__main__':
+    unittest.main()

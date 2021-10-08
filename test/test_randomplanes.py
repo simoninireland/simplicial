@@ -1,7 +1,7 @@
 # Tests of Euler computations over large random planar complexes
 #
 # Copyright (C) 2017--2019 Simon Dobson
-# 
+#
 # This file is part of simplicial, simplicial topology in Python.
 #
 # Simplicial is free software: you can redistribute it and/or modify
@@ -22,10 +22,11 @@ import numpy
 import copy
 from simplicial import *
 
+
 class RandomPlanesTests(unittest.TestCase):
 
     SizeOfRandomPlanes = 100
-    
+
     def setUp( self ):
         """Create a large randomly-triangulated planar complex."""
         c = SimplicialComplex()
@@ -34,14 +35,14 @@ class RandomPlanesTests(unittest.TestCase):
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
         c.addSimplex(id = 3)
-        c.addSimplex(id = 12, fs = [ 1, 2 ]) 
-        c.addSimplex(id = 13, fs = [ 1, 3 ]) 
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
         c.addSimplex(id = 23, fs = [ 2, 3 ])
         c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
 
         # the initial boundary is the set of edges
         boundary = list(copy.copy(c.simplicesOfOrder(1)))
-        
+
         # add random triangles
         for n in range(self.SizeOfRandomPlanes):
             # choose a random boundary edge
@@ -63,7 +64,7 @@ class RandomPlanesTests(unittest.TestCase):
         # store the complex and the final boundary
         self._complex = c
         self._boundary = boundary
-            
+
     def testCreation( self ):
         """Test the setup routine."""
         pass
@@ -79,7 +80,7 @@ class RandomPlanesTests(unittest.TestCase):
 
     def testEuler( self ):
         """Test the Euler characteristic calculations on large planes."""
-        
+
         # plane
         self.assertEqual(self._complex.eulerCharacteristic(), 1)
 
@@ -113,3 +114,7 @@ class RandomPlanesTests(unittest.TestCase):
         # thereby collapsing the two holes into one
         self._complex.deleteSimplex(f)
         self.assertEqual(self._complex.eulerCharacteristic(), 0)
+
+
+if __name__ == '__main__':
+    unittest.main()

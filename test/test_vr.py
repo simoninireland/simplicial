@@ -1,7 +1,7 @@
 # Tests of construction of Vietoris-Rips complexes
 #
 # Copyright (C) 2017--2019 Simon Dobson
-# 
+#
 # This file is part of simplicial, simplicial topology in Python.
 #
 # Simplicial is free software: you can redistribute it and/or modify
@@ -18,7 +18,6 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import unittest
-import six
 from simplicial import *
 
 class VietorisRipsTests(unittest.TestCase):
@@ -39,7 +38,7 @@ class VietorisRipsTests(unittest.TestCase):
 
         self.assertEqual(len(vr.simplices()), 3)
         self.assertEqual(len(vr.simplicesOfOrder(0)), 3)
-        
+
     def testNoHigherSimplices( self ):
         """Test we don't add any higher simplices for too small a scale."""
         c = SimplicialComplex()
@@ -70,11 +69,11 @@ class VietorisRipsTests(unittest.TestCase):
         em[3] = [4, 0]
 
         vr = em.vietorisRipsComplex(3)
-        
+
         self.assertEqual(len(vr.simplices()), 4)
         self.assertEqual(len(vr.simplicesOfOrder(0)), 3)
         self.assertEqual(len(vr.simplicesOfOrder(1)), 1)
-        six.assertCountEqual(self, vr.faces(list(vr.simplicesOfOrder(1))[0]), [ 1, 2 ])
+        self.assertCountEqual(vr.faces(list(vr.simplicesOfOrder(1))[0]), [ 1, 2 ])
 
     def testTwoEdges( self ):
         """Test we capture the right structure when we should get two simplices but not the triangle."""
@@ -89,9 +88,11 @@ class VietorisRipsTests(unittest.TestCase):
         em[3] = [4, 0]
 
         vr = em.vietorisRipsComplex(4)
-        
+
         self.assertEqual(len(vr.simplices()), 5)
         self.assertEqual(len(vr.simplicesOfOrder(0)), 3)
         self.assertEqual(len(vr.simplicesOfOrder(1)), 2)
 
 
+if __name__ == '__main__':
+    unittest.main()

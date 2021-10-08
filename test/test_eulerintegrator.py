@@ -18,7 +18,6 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import unittest
-import six
 from simplicial import *
 
 class EulerIntegratorTests(unittest.TestCase):
@@ -45,3 +44,5 @@ class EulerIntegratorTests(unittest.TestCase):
         self.assertEqual(i.integrate(c), 1)
 
 
+if __name__ == '__main__':
+    unittest.main()
