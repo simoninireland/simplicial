@@ -21,7 +21,7 @@ from typing import Iterable, Optional, Set, List
 from simplicial import SimplicialComplex, Simplex, Attributes
 
 
-class FiltrationIterator():
+class FiltrationIterator:
     '''An iterator over the complexes in a filtration.
 
     The iterator returns the complexes in a filtration in increasing order of
@@ -64,27 +64,31 @@ class FiltrationIterator():
 class Filtration(SimplicialComplex):
     '''A filtration of simplicial complexes.
 
-    A filtration is a sequence of simplicial complexes parameterised by a single
-    index (typically a number) and ordered by inclusion. For two values of the index :math:`p_1`
-    and :math:`p_2` with corresponding complexes :math:`C_1` and :math:`C_2`,
-    :math:`p_1 < p_2 \implies C_1 < C_2`: all the simplices in :math:`C_1` are
-    contained in :math:`C_2`, with both being legal simplicial complexes.
+    A filtration is a sequence of simplicial complexes parameterised
+    by a single index (typically a number) and ordered by
+    inclusion. For two values of the index :math:`p_1` and :math:`p_2`
+    with corresponding complexes :math:`C_1` and :math:`C_2`,
+    :math:`p_1 < p_2 \implies C_1 < C_2`: all the simplices in
+    :math:`C_1` are contained in :math:`C_2`, with both being legal
+    simplicial complexes.
 
-    This class allows different simplices to be assigned to different indices
-    while maintaining the integrity of the complex. It provides a method
-    for copying just the complex at a given level if required.
+    This class allows different simplices to be assigned to different
+    indices while maintaining the integrity of the complex. It
+    provides a method for copying just the complex at a given level if
+    required.
 
-    Filtrations are the basis for persistent homology, and this class also provides
-    operations for efficiently computing the homology groups of the sequence of
-    complexes.
+    Filtrations are the basis for persistent homology, and this class
+    also provides operations for efficiently computing the homology
+    groups of the sequence of complexes.
 
     :param ind: (optional) the initial index (defaults to 0)
+
     '''
 
     # ---------- Initialisation and helpers ----------
 
     def __init__(self,  ind: int = 0):
-        super(Filtration, self).__init__()
+        super().__init__()
         self._index = ind           # index
         self._appears = dict()      # mapping from simplex to the index value it appears at
         self._includes = dict()     # the reverse mapping, from index to a set of simplices
@@ -95,30 +99,30 @@ class Filtration(SimplicialComplex):
 
     # ---------- Copying ----------
 
-    def copy(self, f: Optional['Filtration'] = None) -> 'Filtration':
+    def copy(self, c: Optional['Filtration'] = None) -> 'Filtration':
         '''Return a copy of this filtration, maintaining the indexing.
 
-        :param f: (optional) the filtration to copy into (defaults to a new filtration)
+        :param c: (optional) the filtration to copy into (defaults to a new filtration)
         :returns: a copy of this filtration'''
         inds = self.indices()
 
         # use an instance of Filtration by default
-        if f is None:
-            f = Filtration(inds[0])
+        if c is None:
+            c = Filtration(inds[0])
 
         # copy all simplices and attributes across to new filtration
-        indf = f.getIndex()
+        indf = c.getIndex()
         for ind in inds:
-            f.setIndex(ind)
+            c.setIndex(ind)
             for s in self.simplicesAddedAtIndex(ind):
                 if self.orderOf(s) == 0:
                     # 0-simplex, just add it
-                    f.addSimplex(id = s, attr = self[s])
+                    c.addSimplex(id = s, attr = self[s])
                 else:
                     # higher simplex, add the faces
-                    f.addSimplex(fs = self.faces(s), id = s, attr = self[s])
-        f.setIndex(indf)
-        return f
+                    c.addSimplex(fs=self.faces(s), id=s, attr=self[s])
+        c.setIndex(indf)
+        return c
 
     def snap(self, c: SimplicialComplex = None) -> 'Filtration':
         '''Return a snapshot of the complex at the current index. This returns a single
@@ -127,7 +131,7 @@ class Filtration(SimplicialComplex):
 
         :param c: (optional) the complex to copy to (defaults to a new complex)
         :returns: a complex built from the filtration at this index'''
-        return super(Filtration, self).copy(c)
+        return super().copy(c)
 
     def complexes(self) -> FiltrationIterator:
         '''Return an iterator over the complexes forming this filtration,
@@ -146,7 +150,7 @@ class Filtration(SimplicialComplex):
         :returns: the index'''
         return self._index
 
-    def indices(self, reverse:bool = False) -> Iterable[int]:
+    def indices(self, reverse: bool = False) -> Iterable[int]:
         '''Return an enumeration of the indices of the filtration,
         in ascending order by default.
 
