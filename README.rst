@@ -8,7 +8,7 @@ simplicial: Simplicial topology in Python
     :target: https://simplicial.readthedocs.io/en/latest/index.html
 
 .. image:: https://github.com/simoninireland/simplicial/actions/workflows/ci.yaml/badge.svg
-    :target: https://github.com/simoninireland/cimplicial/actions/workflows/ci.yaml
+    :target: https://github.com/simoninireland/simplicial/actions/workflows/ci.yaml
 
 .. image:: https://www.gnu.org/graphics/gplv3-88x31.png
     :target: https://www.gnu.org/licenses/gpl-3.0.en.html
