@@ -796,7 +796,7 @@ class SimplicialComplex:
 
     # ---------- Inclusion of complexes ----------
 
-    def isSubComplexOf(self, c: 'SimpliciialComplex') -> bool:
+    def isSubComplexOf(self, c: 'SimplicialComplex') -> bool:
         '''True if this complex is a (possibly equal) sub-complex of c. This
         is defined as all the simplices in this complex appear in c, with
         the same topological relationships.
