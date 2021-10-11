@@ -5,4 +5,6 @@
 
 .. autoclass:: EulerIntegrator
 
-:ref:`Curry et al. <CGR14>`.
+For more details see Curry *et alia* :cite:`EulerCalculus`. See
+Baryshnikov and Ghrist :cite:`BaryshnikovGhristEulerIntegrals` for  a
+detailed application.
