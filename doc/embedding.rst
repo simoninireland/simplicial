@@ -2,8 +2,13 @@
 ============================================================
 
 .. currentmodule:: simplicial
-   
+
 .. autoclass:: Embedding
+
+.. important::
+
+   Embeddings are also used to support ``simplicial``'s
+   :ref:`drawing routines <drawing>`.
 
 
 Basic properties of the embedding space
@@ -20,10 +25,10 @@ spaces.)
 .. automethod:: Embedding.complex
 
 The locations give rise to a notion of distance between positions.
-		
+
 .. automethod:: Embedding.distance
 
-		
+
 Positioning simplices
 ---------------------
 
@@ -45,13 +50,13 @@ directly. This ensures that explicit positions are returned correctly
 and cached.)
 
 .. automethod:: Embedding.positionSimplex
-		
+
 .. automethod:: Embedding.computePositionOf
-		
+
 .. automethod:: Embedding.positionOf
-		
+
 .. automethod:: Embedding.positionsOf
-		
+
 .. automethod:: Embedding.clearPositions
 
 
@@ -78,10 +83,6 @@ information and create a topological structure from it, where the
 topological structure encodes useful information. Typically this
 depends on a notion of distance between the located 0-simplices.
 The distance metric can then provide a way of constructing
-higher-dimensional simplices. 
+higher-dimensional simplices.
 
 .. automethod:: Embedding.vietorisRipsComplex
-		
-
-
-
