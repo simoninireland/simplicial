@@ -18,7 +18,6 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import math
-import itertools
 from typing import List, Dict, Optional, Set
 from simplicial import SimplicialComplex, Simplex
 

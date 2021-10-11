@@ -1,7 +1,7 @@
 # Read and write simplicial complexes as JSON objects
 #
 # Copyright (C) 2017--2019 Simon Dobson
-# 
+#
 # This file is part of simplicial, simplicial topology in Python.
 #
 # Simplicial is free software: you can redistribute it and/or modify
@@ -17,14 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-from simplicial import *
 import json
+from typing import Any, Dict
+from simplicial import SimplicialComplex, Simplex
 
 json_simplicial_version = 0.1
 
 
 class JSONSimplicialComplexEncoder(json.JSONEncoder):
-    
+
     """JSON is a portable format for exchanging simplicial complexes. The
     encoding represents the complex as a JSON object consistting of three
     top-level fields:
@@ -43,25 +44,25 @@ class JSONSimplicialComplexEncoder(json.JSONEncoder):
     * "id": the unique identifier of the simplex
     * "faces": a list of the names of the faces of the simplex
     * "attributes": a JSON object reprsenting the attributes hash
-    of the simplex
-    
+      of the simplex
+
     Note that because of the restrictions of JSON the encoding of attributes
     may not preserve their (Python) types. In particular, Python tuples will
     become JSON arrays, and will be reconstructed as such when the complex
     is read back in.
     """
-    
-    def json_simplex( self, c, s ):
+
+    def json_simplex(self, c: SimplicialComplex, s: Simplex):
         """Return a simplex as an object suitable for writing out as JSON.
 
         :param c: the complex
         :param s: the simplex
         :returns: an object that can be stored as JSON"""
-        return dict(id = s,
-                    faces = list(c.faces(s)),
-                    attributes = c[s])
+        return dict(id=s,
+                    faces=list(c.faces(s)),
+                    attributes=c[s])
 
-    def default( self, o ):
+    def default(self, o: SimplicialComplex):
         """Encode a simplicial complex.
 
         :param o: the object to encode
@@ -79,7 +80,7 @@ class JSONSimplicialComplexEncoder(json.JSONEncoder):
             rep['__simplicialcomplex__'] = True
             rep['__version__'] = json_simplicial_version
             rep['simplices'] = json_simplices
-            
+
             # return the wrapper as the encoding for the complex
             return rep
         else:
@@ -87,21 +88,22 @@ class JSONSimplicialComplexEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, o)
 
 
-def as_json( c ):
+def as_json(c: SimplicialComplex):
     """Return a JSON string representation of a simplicial complex.
 
     :param c: the complex
     :returns: a JSON representation of the complex"""
     return json.dumps(c,
-                      indent = 4,
-                      cls = JSONSimplicialComplexEncoder)
+                      indent=4,
+                      cls=JSONSimplicialComplexEncoder)
 
-def as_simplicial_complex( o ):
+
+def as_simplicial_complex(o: Any):
     """Decode a given dict as a simplicial complex. The most common usage
     for this function is as an object hook in the :meth:`json.loads` and
     :meth:`json.load` methods, for example:
 
-    `json.load(fp, object_hook = simplicial.as_simplicial_complex)`
+    `json.load(fp, object_hook=simplicial.as_simplicial_complex)`
 
     :param o: the dict
     :returns: a simplicial complex"""
@@ -109,12 +111,12 @@ def as_simplicial_complex( o ):
         ('__version__' in o.keys()) and
         (o['__version__'] == json_simplicial_version)):
         c = SimplicialComplex()
-        
+
         # import all the simplices into the complex
         for s in o['simplices']:
-            c.addSimplex(id = s['id'],
-                         fs = s['faces'],
-                         attr = s['attributes'])
+            c.addSimplex(id=s['id'],
+                         fs=s['faces'],
+                         attr=s['attributes'])
 
         # return the complex
         return c
@@ -123,7 +125,7 @@ def as_simplicial_complex( o ):
         return o
 
 
-def write_json( c, path ):
+def write_json(c: SimplicialComplex, path: str):
     """Write a complex in JSON format to the named file.
 
     :param c: the complex
@@ -131,12 +133,13 @@ def write_json( c, path ):
 
     with open(path, 'w') as f:
         f.write(as_json(c))
-             
-def read_json( path ):
+
+
+def read_json(path: str):
     """Read a complex in JSON format from the name file.
 
     :param path: the file to read
     :returns: a complex"""
     with open(path, 'r') as f:
-        c = json.load(f, object_hook = as_simplicial_complex)
+        c = json.load(f, object_hook=as_simplicial_complex)
     return c
