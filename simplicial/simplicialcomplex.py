@@ -672,22 +672,12 @@ class SimplicialComplex:
     def simplices(self, reverse: bool = False) -> List[Simplex]:
         """Return all the simplices in the complex. The simplices are
         returned in order of their orders, 0-simplices first unless the
-        reverse paarneter is True, in which case 0-simplices will be last.
+        reverse parameter is True, in which case 0-simplices will be last.
 
         :param reverse: (optional) reverse the sort order if True
         :returns: a list of simplices"""
-        ss = []
-        maxk = self.maxOrder()
-        if maxk is not None:
-            if reverse:
-                ks = range(maxk, -1, -1)
-            else:
-                ks = range(maxk + 1)
-            for k in ks:
-                # extract all the simplices of the given order and
-                # add them in their canonical order
-                ss.extend(self._indices[k])
-        return ss
+        return [face_val for face in self._indices[
+                                     ::(-1) ** reverse] for face_val in face]
 
     def simplicesOfOrder(self, k: int) -> List[Simplex]:
         """Return all the simplices of the given order. This will
@@ -744,7 +734,6 @@ class SimplicialComplex:
         else:
             return None
 
-    # sd: this needs optimising
     def simplexWithFaces(self, fs: List[Simplex]) -> Simplex:
         """Return the simplex that has the given simplices as faces.
 
@@ -760,21 +749,15 @@ class SimplicialComplex:
             raise Exception('Need at least 1 face')
         else:
             # check all faces are of order (k - 1)
-            for f in fs:
-                if self.orderOf(f) != k - 1:
-                    raise Exception('Simplex of order {k} has faces of order {kmo}, not {fo}'.format(k = k,
-                                                                                                     kmo = k - 1,
-                                                                                                     fo = self.orderOf(f)))
+            if {self.orderOf(face) for face in fs} != {k - 1}:
+                raise ValueError('Faces provided vary in order.')
 
         # search for simplex
-        ffs = set(fs)
-        for s in self.simplicesOfOrder(k):
-            sfs = self.faces(s)
-            if sfs == ffs:
-                return s
+        face_set = set(fs)
+        matches = list(filter(lambda simplex: self.faces(simplex) == face_set,
+                              self.simplicesOfOrder(k)))
 
-        # if we get here, we didn't find a simplex with the right faces
-        return None
+        return matches.pop() if matches else None
 
     def allSimplices(self, p: Callable[[Simplex], bool], reverse: bool = False) -> List[Simplex]:
         """Return all the simplices that match the given predicate, which should
