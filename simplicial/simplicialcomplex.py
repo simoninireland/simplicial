@@ -381,6 +381,23 @@ class SimplicialComplex:
             ns.append(id)
         return ns
 
+    def barycentricSubdivide(self, simplex):
+        """Performs Barycentric subdivision on a simplex.
+
+        @param simplex: the simplex to subdivide, must be included in this
+            complex
+        @return: None
+        """
+        assert self.containsSimplex(
+            simplex), 'Error: Simplex is not in this complex'
+
+        mid_pt = self.addSimplex()
+        points = list(self.basisOf(simplex))
+        self.deleteSimplex(simplex)
+
+        for idx in range(len(points)):
+            self.addSimplexWithBasis(points[:idx] + points[idx + 1:] + [mid_pt])
+
 
     # ---------- Relabelling ----------
 

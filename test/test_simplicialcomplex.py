@@ -253,6 +253,22 @@ class SimplicialComplexTests(unittest.TestCase):
                                 12, 13, 23, 45, 46, 56,
                                 123, 456 ])
 
+    def testBarycentric( self ):
+        """Test barycentric subdivision of a 3-simplex.."""
+        cplx = SimplicialComplex()
+        top_deg_simplex = cplx.addSimplexWithBasis(list(range(4)))
+        self.assertEqual(
+            cplx.simplices(),
+            [0, 1, 2, 3, '1d2', '1d3', '1d4', '1d6', '1d7', '1d9', '2d5',
+             '2d8', '2d10', '2d11', '3d1'])
+        cplx.barycentricSubdivide(simplex=top_deg_simplex)
+        self.assertEqual(
+            cplx.simplices(),
+            [0, 1, 2, 3, '0d12', '1d2', '1d3', '1d4', '1d6', '1d7', '1d9',
+             '1d14', '1d15', '1d17', '1d21', '2d5', '2d8', '2d10', '2d11',
+             '2d16', '2d18', '2d19', '2d22', '2d23', '2d25', '3d13', '3d20',
+             '3d24', '3d26'])
+
     def testCopyRenameCollision( self ):
         """Test that we fail if we try to re-use a simplex name when copying."""
         c = SimplicialComplex()
