@@ -10,6 +10,8 @@ sphinxcontrib-bibtex
 doc8
 twine
 black
+jedi
+jedi-language-server
 pylint
 flake8
 rope
