@@ -253,21 +253,48 @@ class SimplicialComplexTests(unittest.TestCase):
                                 12, 13, 23, 45, 46, 56,
                                 123, 456 ])
 
-    def testBarycentric( self ):
-        """Test barycentric subdivision of a 3-simplex.."""
+    def testBarycentric3( self ):
+        """Test barycentric subdivision of a 3-simplex."""
         cplx = SimplicialComplex()
         top_deg_simplex = cplx.addSimplexWithBasis(list(range(4)))
-        self.assertEqual(
-            cplx.simplices(),
-            [0, 1, 2, 3, '1d2', '1d3', '1d4', '1d6', '1d7', '1d9', '2d5',
-             '2d8', '2d10', '2d11', '3d1'])
-        cplx.barycentricSubdivide(simplex=top_deg_simplex)
-        self.assertEqual(
-            cplx.simplices(),
-            [0, 1, 2, 3, '0d12', '1d2', '1d3', '1d4', '1d6', '1d7', '1d9',
-             '1d14', '1d15', '1d17', '1d21', '2d5', '2d8', '2d10', '2d11',
-             '2d16', '2d18', '2d19', '2d22', '2d23', '2d25', '3d13', '3d20',
-             '3d24', '3d26'])
+        b = cplx.barycentricSubdivide(simplex=top_deg_simplex)
+        ns = cplx.numberOfSimplicesOfOrder()
+        self.assertEqual(ns[0], 5)
+        self.assertEqual(ns[3], 4)
+        for s in cplx.simplicesOfOrder(3):
+            self.assertIn(b, cplx.basisOf(s))
+
+    def testBarycentreNoSimplex(self):
+        '''Test we can't divide a non-existent simplex.'''
+        c = SimplicialComplex()
+        with self.assertRaises(Exception):
+            c.barycentricSubdivide(1)
+        c.addSimplex(id=1)
+        c.addSimplex(id=2)
+        c.addSimplex(id=3)
+        c.addSimplex(id=23, fs=[2, 3])
+        with self.assertRaises(Exception):
+            c.barycentricSubdivide(12)
+
+    def testBarycentric0(self):
+        '''Test we can't divide an 0-simplex.'''
+        c = SimplicialComplex()
+        c.addSimplex(id=1)
+        with self.assertRaises(Exception):
+            c.barycentricSubdivide(1)
+
+    def testBarycentric1(self):
+        '''Test we can divide a 1-simplex.'''
+        c = SimplicialComplex()
+        c.addSimplex(id=2)
+        c.addSimplex(id=3)
+        c.addSimplex(id=23, fs=[2, 3])
+        b = c.barycentricSubdivide(23)
+        ns = c.numberOfSimplicesOfOrder()
+        self.assertEqual(ns[0], 3)
+        self.assertEqual(ns[1], 2)
+        for s in c.simplicesOfOrder(1):
+            self.assertIn(b, c.basisOf(s))
 
     def testCopyRenameCollision( self ):
         """Test that we fail if we try to re-use a simplex name when copying."""
