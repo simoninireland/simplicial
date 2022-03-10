@@ -964,7 +964,7 @@ class SimplicialComplex:
 
         In some of the topology literature this operation is called the star.
 
-        This method is essentially the dual of :meth:`parclosureOf`, looking
+        This method is essentially the dual of :meth:`closureOf`, looking
         up the simplex orders rather than down.
 
         :param s: the simplex
