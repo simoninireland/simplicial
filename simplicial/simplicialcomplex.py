@@ -120,7 +120,7 @@ class SimplicialComplex:
         # work out the order of the new simplex
         k = max(len(fs) - 1, 0)
         if k == 0 and len(fs) != 0:
-            raise Exception("0-simplices do not have faces")
+            raise ValueError("0-simplices do not have faces")
 
         # fill in defaults
         if id is None:
@@ -129,7 +129,7 @@ class SimplicialComplex:
         else:
             # check we've got a new id
             if id in self:
-                raise Exception(f'Duplicate simplex {id}')
+                raise KeyError(f'Duplicate simplex {id}')
         if attr is None:
             # no attributes, use an empty dict
             attr = dict()
@@ -140,7 +140,7 @@ class SimplicialComplex:
             seen = set()
             for f in fs:
                 if f in fs:
-                    raise Exception(f'Duplicate face {f}')
+                    raise KeyError(f'Duplicate face {f}')
                 else:
                     seen.add(f)
 
@@ -149,13 +149,13 @@ class SimplicialComplex:
         if k > self.maxOrder():
             if k > self._maxOrder + 1:
                 # simplex can't have any faces, must be an error
-                raise Exception(f'Can\'t add simplex of order {k}')
+                raise ValueError(f'Can\'t add simplex of order {k}')
             else:
                 # add empty structures
                 #print "created structures for order {k}".format(k = k)
-                self._indices.append([])                                                                      # empty indices
+                self._indices.append([])                                                                  # empty indices
                 self._boundaries.append(numpy.zeros([len(self._indices[k - 1]), 0], dtype=numpy.int8))    # null boundary operator
-                self._bases.append(numpy.zeros([len(self._indices[0]), 0], dtype = numpy.int8))             # no simplex bases
+                self._bases.append(numpy.zeros([len(self._indices[0]), 0], dtype = numpy.int8))           # no simplex bases
                 self._maxOrder = k
         else:
             # check we don't already have a simplex of this order with
@@ -163,7 +163,7 @@ class SimplicialComplex:
             if k > 0:
                 swf = self.simplexWithFaces(fs)
                 if swf is not None:
-                    raise Exception(f'Already have simplex {swf} with faces {fs}')
+                    raise KeyError(f'Already have simplex {swf} with faces {fs}')
 
         # if we have simplices in the order above this one, extend that order's boundary operator
         # for that order
@@ -214,9 +214,9 @@ class SimplicialComplex:
                         # add the face's basis to the simplex' basis
                         bs.update(self.basisOf(f))
                     else:
-                        raise Exception(f'Simplex {f} has wrong order ({fo}) to be a face of a simplex of order {k}')
+                        raise ValueError(f'Simplex {f} has wrong order ({fo}) to be a face of a simplex of order {k}')
                 else:
-                    raise Exception(f'Unknown simplex {f}')
+                    raise KeyError(f'Unknown simplex {f}')
             #print("boundary of {id} is {b}".format(id = id, b = bk))
 
             # add simplex
@@ -249,7 +249,7 @@ class SimplicialComplex:
                     # simplex isn't an 0-simplex, so not a basis
                     if fatal:
                         # we treat this as a fatal event
-                        raise Exception("Higher-order simplex {s} in basis set".format(s = b))
+                        raise ValueError(f'Higher-order simplex {b} in basis set')
                     else:
                         # non-fatal
                         return False
@@ -257,7 +257,7 @@ class SimplicialComplex:
                 # simplex not present in complex
                 if fatal:
                     # we treat this as a fatal event
-                    raise Exception("Simplex {s} not found".format(s = b))
+                    raise KeyError("Simplex {b} not found")
                 else:
                     # non-fatal
                     return False
@@ -274,7 +274,7 @@ class SimplicialComplex:
             if b in self:
                 if self.orderOf(b) != 0:
                     # simplex isn't an 0-simplex, so not a basis
-                    raise Exception("Higher-order simplex {s} in basis set".format(s = b))
+                    raise ValueError("Higher-order simplex {b} in basis set")
             else:
                 # simplex not present in complex
                 self.addSimplex(id=b, attr=attr)
@@ -332,7 +332,7 @@ class SimplicialComplex:
         # check we don't already have a simplex with this basis
         eid = self.simplexWithBasis(bs)
         if eid is not None:
-            raise Exception(f'Simplex {eid} already exists with basis {bs}')
+            raise KeyError(f'Simplex {eid} already exists with basis {bs}')
 
         # if we're creating an 0-simplex, we're equivalent to addSimplex
         if k == 0:
@@ -374,7 +374,7 @@ class SimplicialComplex:
         for s in c.simplices():
             t = f(s)
             if s != t and t in self._simplices.keys():
-                raise Exception(f'Copying attempting to re-write {s} to the name of an existing simplex {t}')
+                raise ValueError(f'Copying attempting to re-write {s} to the name of an existing simplex {t}')
             id = self.addSimplex(id=t,
                                  fs=list(map(f, c.faces(s))),
                                  attr=c[s])
@@ -391,9 +391,9 @@ class SimplicialComplex:
 
         """
         if not self.containsSimplex(simplex):
-            raise Exception(f'No simplex {simplex} in complex')
+            raise KeyError(f'No simplex {simplex} in complex')
         if self.orderOf(simplex) == 0:
-            raise Exception(f'Can\'t create barycentre of 0-simplex {simplex}')
+            raise ValueError(f'Can\'t create barycentre of 0-simplex {simplex}')
 
         mid_pt = self.addSimplex()
         points = list(self.basisOf(simplex))
@@ -462,7 +462,7 @@ class SimplicialComplex:
             if s != sprime:
                 # check it's not in use already
                 if sprime in self:
-                    raise Exception(f'Relabeling attempting to re-write {s} to existing simplex {sprime}')
+                    raise ValueError(f'Relabeling attempting to re-write {s} to existing simplex {sprime}')
 
                 # change the entry in the simplex dict
                 (k, i) = self._simplices[s]
@@ -628,7 +628,7 @@ class SimplicialComplex:
             (k, _) = self._simplices[s]
             return k
         else:
-            raise Exception('No simplex {s} in complex'.format(s = s))
+            raise KeyError(f'No simplex {s} in complex')
 
     def indexOf(self, s: Simplex) -> int:
         """Return the unique-within-its-order index of the given simplex.
@@ -645,7 +645,7 @@ class SimplicialComplex:
             (_, i) = self._simplices[s]
             return i
         else:
-            raise Exception('No simplex {s} in complex'.format(s = s))
+            raise KeyError(f'No simplex {s} in complex')
 
     def maxOrder(self) -> int:
         """Return the largest order of simplices in the complex, that is
@@ -719,7 +719,7 @@ class SimplicialComplex:
         # if the order is greater than the maximum, we can't have such a simplex
         if k > self.maxOrder():
             if fatal:
-                raise Exception(f'Complex does not have any simplices of order {k}')
+                raise KeyError(f'Complex does not have any simplices of order {k}')
             else:
                 return None
 
@@ -741,7 +741,7 @@ class SimplicialComplex:
 
         # if we get here, there was no such simplex
         if fatal:
-            raise Exception(f'Complex does not have a simplex with basis {bs}')
+            raise KeyError(f'Complex does not have a simplex with basis {bs}')
         else:
             return None
 
@@ -760,8 +760,11 @@ class SimplicialComplex:
             raise Exception('Need at least 1 face')
         else:
             # check all faces are of order (k - 1)
-            if {self.orderOf(face) for face in fs} != {k - 1}:
-                raise ValueError('Faces provided vary in order.')
+            orders = {self.orderOf(face) for face in fs}
+            if orders != {k - 1}:
+                raise ValueError('Faces have wrong order')
+            if len(orders) > 1:
+                raise ValueError('Faces have varying orders')
 
         # search for simplex
         face_set = set(fs)
@@ -1095,7 +1098,7 @@ class SimplicialComplex:
             # check the simplex exists
             if s not in self:
                 if fatal:
-                    raise Exception(f'{p}-chain contains non-existent simplex {s}')
+                    raise ValueError(f'{p}-chain contains non-existent simplex {s}')
                 else:
                     return False
 
@@ -1103,7 +1106,7 @@ class SimplicialComplex:
             sk = self.orderOf(s)
             if sk != p:
                 if fatal:
-                    raise Exception(f'{p}-chain contains simplex {s} of order {sk}')
+                    raise ValueError(f'{p}-chain contains simplex {s} of order {sk}')
                 else:
                     return False
         return True
