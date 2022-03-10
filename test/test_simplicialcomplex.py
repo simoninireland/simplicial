@@ -59,6 +59,15 @@ class SimplicialComplexTests(unittest.TestCase):
                         raise Exception('Simplex {s} is part of {p} but not a face of it'.format(s = s,
                                                                                                  p = p))
 
+        # check sizes of boundary and basis matrices
+        ns = c.numberOfSimplicesOfOrder()
+        for k in range(len(ns)):
+            self.assertEqual(c._bases[k].shape, (ns[0], ns[k]))
+            if k > 0:
+                self.assertEqual(c._boundaries[k].shape, (ns[k - 1], ns[k]))
+
+
+    #---------- Construction ----------
 
     def test0simplex( self ):
         """Test the creation of a single 0-simplex complex."""
@@ -227,6 +236,9 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertIn(n, c.simplices())
         self.assertEqual(len(c.simplices()), 1)
 
+
+    # ---------- Copying ----------
+
     def testCopy( self ):
         """Test copying simplices from one complex to another."""
         c = SimplicialComplex()
@@ -253,48 +265,8 @@ class SimplicialComplexTests(unittest.TestCase):
                                 12, 13, 23, 45, 46, 56,
                                 123, 456 ])
 
-    def testBarycentric3( self ):
-        """Test barycentric subdivision of a 3-simplex."""
-        cplx = SimplicialComplex()
-        top_deg_simplex = cplx.addSimplexWithBasis(list(range(4)))
-        b = cplx.barycentricSubdivide(simplex=top_deg_simplex)
-        ns = cplx.numberOfSimplicesOfOrder()
-        self.assertEqual(ns[0], 5)
-        self.assertEqual(ns[3], 4)
-        for s in cplx.simplicesOfOrder(3):
-            self.assertIn(b, cplx.basisOf(s))
 
-    def testBarycentreNoSimplex(self):
-        '''Test we can't divide a non-existent simplex.'''
-        c = SimplicialComplex()
-        with self.assertRaises(Exception):
-            c.barycentricSubdivide(1)
-        c.addSimplex(id=1)
-        c.addSimplex(id=2)
-        c.addSimplex(id=3)
-        c.addSimplex(id=23, fs=[2, 3])
-        with self.assertRaises(Exception):
-            c.barycentricSubdivide(12)
-
-    def testBarycentric0(self):
-        '''Test we can't divide an 0-simplex.'''
-        c = SimplicialComplex()
-        c.addSimplex(id=1)
-        with self.assertRaises(Exception):
-            c.barycentricSubdivide(1)
-
-    def testBarycentric1(self):
-        '''Test we can divide a 1-simplex.'''
-        c = SimplicialComplex()
-        c.addSimplex(id=2)
-        c.addSimplex(id=3)
-        c.addSimplex(id=23, fs=[2, 3])
-        b = c.barycentricSubdivide(23)
-        ns = c.numberOfSimplicesOfOrder()
-        self.assertEqual(ns[0], 3)
-        self.assertEqual(ns[1], 2)
-        for s in c.simplicesOfOrder(1):
-            self.assertIn(b, c.basisOf(s))
+    # ---------- Relabelling ----------
 
     def testCopyRenameCollision( self ):
         """Test that we fail if we try to re-use a simplex name when copying."""
@@ -430,350 +402,6 @@ class SimplicialComplexTests(unittest.TestCase):
 
         ss = c.relabel(self.makeUniques(100))
         self.assertCountEqual(ss, [ 101, 102, 103, 104, 105, 106, 107 ])
-
-    def testIsBasis( self ):
-        """Test we can correctly test for a basis."""
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.addSimplex(id = 13, fs = [ 1, 3 ])
-        c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
-        self.assertTrue(c.isBasis([]))
-        self.assertTrue(c.isBasis([ 3 ]))
-        self.assertTrue(c.isBasis([ 1, 2, 3 ]))
-        self.assertFalse(c.isBasis([ 1, 23, 3 ]))
-        with self.assertRaises(Exception):
-            c.isBasis([ 123 ], fatal = True)
-        self.assertFalse(c.isBasis([ 1, 2, 3, 4 ]))
-        with self.assertRaises(Exception):
-            c.isBasis([ 1, 2, 3, 4 ], fatal = True)
-
-    def testEnsureBasis( self ):
-        """Test we can correctly identify what is and isn't a basis."""
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.ensureBasis([ 1, 2, 3 ])
-        c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.ensureBasis([ 1, 2, 3 ])
-        with self.assertRaises(Exception):
-            c.ensureBasis([ 1, 2, 12, 3 ])
-
-    def testEnsureBasisAddSuccess( self ):
-        """Test we can correctly create only the new simplices we need."""
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.ensureBasis([ 1, 4 ])
-        self.assertCountEqual(c.simplices(), [ 1, 2, 3, 4 ])
-
-    def testEnsureBasisAddWithAttributes( self ):
-        """Test we add the same attributes to created simplices."""
-        c = SimplicialComplex()
-        c.addSimplex(id = 1, attr = dict(a = 1))
-        c.addSimplex(id = 2, attr = dict(a = 2))
-        c.addSimplex(id = 3, attr = dict(a = 3))
-        c.ensureBasis([ 1, 4, 5 ], attr = dict(a = 10))
-        self.assertCountEqual(c.simplices(), [ 1, 2, 3, 4, 5 ])
-        self.assertEqual(c[1]['a'], 1)
-        self.assertEqual(c[2]['a'], 2)
-        self.assertEqual(c[3]['a'], 3)
-        self.assertEqual(c[4]['a'], 10)
-        self.assertEqual(c[5]['a'], 10)
-
-    def testAddWithBasis0New( self ):
-        """Check adding a 0-simplex."""
-        c = SimplicialComplex()
-        c.addSimplexWithBasis([ 1 ])
-        self.assertEqual(len(c.simplicesOfOrder(0)), 1)
-
-    def testAddWithBasis1AllExist( self ):
-        """Check adding a 1-simplex by its basis, where all the basis simplices exist."""
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplexWithBasis([ 1, 2 ])
-
-    def testAddWithBasis1NoneExist( self ):
-        """Check adding a 1-simplex by its basis, where none of the basis simplices exist."""
-        c = SimplicialComplex()
-        c.addSimplexWithBasis([ 1, 2 ])
-        self.assertCountEqual(c.simplicesOfOrder(0), [ 1, 2 ])
-        self.assertEqual(len(c.simplicesOfOrder(1)), 1)
-
-    def testAddWithBasis1AllExistNamed( self ):
-        """Check adding a named 1-simplex by its basis, where all the basis simplices exist."""
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplexWithBasis([ 1, 2 ], id = 'line')
-        self.assertCountEqual(c.simplices(), [ 1, 2, 'line' ])
-
-    def testAddWithBasis2Exist( self ):
-        """Check adding a 2-simplex by its basis, where all the basis simplices exist."""
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.addSimplex(id = 13, fs = [ 1, 3 ])
-        c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplexWithBasis([ 1, 2, 3])
-        self.assertCountEqual(c.simplicesOfOrder(0), [ 1, 2, 3 ])
-        self.assertCountEqual(c.simplicesOfOrder(1), [ 12, 13, 23 ])
-        self.assertEqual(len(c.simplicesOfOrder(2)), 1)
-
-    def testAddWithBasis4( self ):
-        """Check adding a 3-simplex to an empty complex"""
-        c = SimplicialComplex()
-        c.addSimplexWithBasis([ 1, 2, 3, 4 ])
-
-        nos = c.numberOfSimplicesOfOrder()
-        self.assertEqual(nos[0], 4)
-        self.assertEqual(nos[1], 6)
-        self.assertEqual(nos[2], 4)
-        self.assertEqual(nos[3], 1)
-
-        tri = c.simplicesOfOrder(3).pop()
-        self.assertCountEqual(c.basisOf(tri), [ 1, 2, 3, 4 ])
-
-    def testAddWithBasis2Exists( self ):
-        """Check adding a named 2-simplex by its basis when it already exists."""
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.addSimplex(id = 13, fs = [ 1, 3 ])
-        c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
-        with self.assertRaises(Exception):
-            c.addSimplexWithBasis([ 1, 2, 3])
-
-    def testSimplexWithFacesSuccess( self ):
-        """Test we can retrieve a simplex from its faces."""
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplex(id = 31, fs = [ 3, 1 ])
-        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
-        self.assertEqual(c.simplexWithFaces([ 1, 2 ]), 12)
-        self.assertEqual(c.simplexWithFaces([ 12, 31, 23 ]), 123)
-        with self.assertRaises(Exception):
-            self.assertEqual(c.simplexWithFaces([1, 2, 3]))
-
-    def testSimplexWithFacesNoSimplex( self ):
-        """Test we don't retrieve a simplex that isn't there."""
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.addSimplex(id = 4)
-        c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplex(id = 31, fs = [ 3, 1 ])
-        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
-        self.assertEqual(c.simplexWithFaces([ 3, 4 ]), None)
-
-    def testSimplicesInOrder(self):
-        """Test we retrieve simplices in order of their order."""
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.addSimplex(id = 4)
-        c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplex(id = 31, fs = [ 3, 1 ])
-        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
-
-        k = -1
-        for s in c.simplices():
-            sk = c.orderOf(s)
-            if sk == k:
-                # another one of the same order
-                pass
-            else:
-                if sk == k + 1:
-                    # order has increased, record the new order
-                    k = sk
-                else:
-                    self.fail("Simplices not in order order")
-
-    def testSimplicesInReverseOrder(self):
-        """Test we retrieve simplices in reverse order of their order."""
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.addSimplex(id = 4)
-        c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplex(id = 31, fs = [ 3, 1 ])
-        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
-
-        k = c.maxOrder() + 1
-        for s in c.simplices(reverse = True):
-            sk = c.orderOf(s)
-            if sk == k:
-                # another one of the same order
-                pass
-            else:
-                if sk == k - 1:
-                    # order has increased, record the new order
-                    k = sk
-                else:
-                    self.fail("Simplices not in reverse-order order")
-
-    def testContains(self):
-        """Test we can check containment correctly."""
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.addSimplex(id = 4)
-        c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplex(id = 31, fs = [ 3, 1 ])
-        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
-        for s in c.simplices():
-            self.assertTrue(c.containsSimplex(s))
-        self.assertFalse(c.containsSimplex(5))
-
-    def testContainsBasis(self):
-        """Test we can check containment of a basis correctly."""
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.addSimplex(id = 4)
-        c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplex(id = 31, fs = [ 3, 1 ])
-        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
-        self.assertTrue(c.containsSimplexWithBasis([ 1, 2 ]))
-        self.assertFalse(c.containsSimplexWithBasis([1, 4]))
-
-    def testSize(self):
-        '''Test we can determine the size of a complex.'''
-        c = SimplicialComplex()
-        self.assertEqual(len(c), 0)
-        c.addSimplex(id = 1)
-        self.assertEqual(len(c), 1)
-        c.addSimplex(id = 2)
-        self.assertEqual(len(c), 2)
-        c.addSimplex(id = 12, fs = [ 1, 2 ])
-        self.assertEqual(len(c), 3)
-        c.deleteSimplex(12)
-        self.assertEqual(len(c), 2)
-
-    def testInclusion(self):
-        '''Test the inclusion of one complex into another.'''
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.addSimplex(id = 4)
-        c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplex(id = 31, fs = [ 3, 1 ])
-        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
-
-        d = SimplicialComplex()
-        d.addSimplex(id = 1)
-        self.assertTrue(d < c)
-        self.assertTrue(d <= c)
-        self.assertTrue(c > d)
-        self.assertTrue(c >= d)
-        self.assertFalse(c < d)
-        d.addSimplex(id = 2)
-        d.addSimplex(id = 12, fs = [ 1, 2 ])
-        self.assertTrue(d < c)
-
-        d.addSimplex(id = 3)
-        d.addSimplex(id = 4)
-        d.addSimplex(id = 23, fs = [ 2, 3 ])
-        d.addSimplex(id = 31, fs = [ 3, 1 ])
-        d.addSimplex(id = 123, fs = [ 12, 23, 31 ])
-        self.assertFalse(d < c)
-        self.assertTrue(d <= c)
-
-    def testDeepCopy(self):
-        '''Test that copying is deep enough.'''
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.addSimplex(id = 4)
-        c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplex(id = 31, fs = [ 3, 1 ])
-        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
-        c[2] = 'hello'
-
-        d = c.copy()
-        d.deleteSimplex(123)
-        self.assertTrue(123 in c)
-        d[2] = 'goodbye'
-        self.assertEqual(c[2], 'hello')
-
-    def testAttributesIgnoredInInclusion(self):
-        '''Test that attributes don;t affect inclusion or equality.'''
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.addSimplex(id = 4)
-        c[2] = 'hello'
-
-        d = SimplicialComplex()
-        d.addSimplex(id = 1)
-        d.addSimplex(id = 2)
-        d.addSimplex(id = 3)
-        d.addSimplex(id = 4)
-        d[2] = 'goodbye'
-
-        self.assertTrue(c == d)
-
-    def testInclusionCopy(self):
-        '''Test copies of complexes are included.'''
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.addSimplex(id = 4)
-        c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplex(id = 31, fs = [ 3, 1 ])
-        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
-        d = c.copy()
-        self.assertTrue(d <= c)
-        self.assertTrue(c <= d)
-        self.assertTrue(c == d)
-        self.assertFalse(c != d)
-
-    def testInclusionMissingSimplex(self):
-        c = SimplicialComplex()
-        c.addSimplex(id = 1)
-        c.addSimplex(id = 2)
-        c.addSimplex(id = 3)
-        c.addSimplex(id = 4)
-        c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplex(id = 31, fs = [ 3, 1 ])
-        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
-        d = c.copy()
-        d.deleteSimplex(123)
-        self.assertTrue(d < c)
-        self.assertFalse(d == c)
 
     def testRelabelFunction( self ):
         """Test relabelling with a function."""
@@ -936,6 +564,398 @@ class SimplicialComplexTests(unittest.TestCase):
         with self.assertRaises(Exception):
             c.simplexWithBasis([ 1, 2, 3, 4 ], fatal = True)
 
+
+    # ---------- Subdivision----------
+
+    def testBarycentric3( self ):
+        """Test barycentric subdivision of a 3-simplex."""
+        cplx = SimplicialComplex()
+        top_deg_simplex = cplx.addSimplexWithBasis(list(range(4)))
+        b = cplx.barycentricSubdivide(simplex=top_deg_simplex)
+        ns = cplx.numberOfSimplicesOfOrder()
+        self.assertEqual(ns[0], 5)
+        self.assertEqual(ns[3], 4)
+        for s in cplx.simplicesOfOrder(3):
+            self.assertIn(b, cplx.basisOf(s))
+
+    def testBarycentreNoSimplex(self):
+        '''Test we can't divide a non-existent simplex.'''
+        c = SimplicialComplex()
+        with self.assertRaises(Exception):
+            c.barycentricSubdivide(1)
+        c.addSimplex(id=1)
+        c.addSimplex(id=2)
+        c.addSimplex(id=3)
+        c.addSimplex(id=23, fs=[2, 3])
+        with self.assertRaises(Exception):
+            c.barycentricSubdivide(12)
+
+    def testBarycentric0(self):
+        '''Test we can't divide an 0-simplex.'''
+        c = SimplicialComplex()
+        c.addSimplex(id=1)
+        with self.assertRaises(Exception):
+            c.barycentricSubdivide(1)
+
+    def testBarycentric1(self):
+        '''Test we can divide a 1-simplex.'''
+        c = SimplicialComplex()
+        c.addSimplex(id=2)
+        c.addSimplex(id=3)
+        c.addSimplex(id=23, fs=[2, 3])
+        b = c.barycentricSubdivide(23)
+        ns = c.numberOfSimplicesOfOrder()
+        self.assertEqual(ns[0], 3)
+        self.assertEqual(ns[1], 2)
+        for s in c.simplicesOfOrder(1):
+            self.assertIn(b, c.basisOf(s))
+
+
+    # ---------- Bases ----------
+
+    def testIsBasis( self ):
+        """Test we can correctly test for a basis."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        self.assertTrue(c.isBasis([]))
+        self.assertTrue(c.isBasis([ 3 ]))
+        self.assertTrue(c.isBasis([ 1, 2, 3 ]))
+        self.assertFalse(c.isBasis([ 1, 23, 3 ]))
+        with self.assertRaises(Exception):
+            c.isBasis([ 123 ], fatal = True)
+        self.assertFalse(c.isBasis([ 1, 2, 3, 4 ]))
+        with self.assertRaises(Exception):
+            c.isBasis([ 1, 2, 3, 4 ], fatal = True)
+
+    def testEnsureBasis( self ):
+        """Test we can correctly identify what is and isn't a basis."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.ensureBasis([ 1, 2, 3 ])
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.ensureBasis([ 1, 2, 3 ])
+        with self.assertRaises(Exception):
+            c.ensureBasis([ 1, 2, 12, 3 ])
+
+    def testEnsureBasisAddSuccess( self ):
+        """Test we can correctly create only the new simplices we need."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.ensureBasis([ 1, 4 ])
+        self.assertCountEqual(c.simplices(), [ 1, 2, 3, 4 ])
+
+    def testEnsureBasisAddWithAttributes( self ):
+        """Test we add the same attributes to created simplices."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1, attr = dict(a = 1))
+        c.addSimplex(id = 2, attr = dict(a = 2))
+        c.addSimplex(id = 3, attr = dict(a = 3))
+        c.ensureBasis([ 1, 4, 5 ], attr = dict(a = 10))
+        self.assertCountEqual(c.simplices(), [ 1, 2, 3, 4, 5 ])
+        self.assertEqual(c[1]['a'], 1)
+        self.assertEqual(c[2]['a'], 2)
+        self.assertEqual(c[3]['a'], 3)
+        self.assertEqual(c[4]['a'], 10)
+        self.assertEqual(c[5]['a'], 10)
+
+    def testAddWithBasis0New( self ):
+        """Check adding a 0-simplex."""
+        c = SimplicialComplex()
+        c.addSimplexWithBasis([ 1 ])
+        self.assertEqual(len(c.simplicesOfOrder(0)), 1)
+
+    def testAddWithBasis1AllExist( self ):
+        """Check adding a 1-simplex by its basis, where all the basis simplices exist."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplexWithBasis([ 1, 2 ])
+
+    def testAddWithBasis1NoneExist( self ):
+        """Check adding a 1-simplex by its basis, where none of the basis simplices exist."""
+        c = SimplicialComplex()
+        c.addSimplexWithBasis([ 1, 2 ])
+        self.assertCountEqual(c.simplicesOfOrder(0), [ 1, 2 ])
+        self.assertEqual(len(c.simplicesOfOrder(1)), 1)
+
+    def testAddWithBasis1AllExistNamed( self ):
+        """Check adding a named 1-simplex by its basis, where all the basis simplices exist."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplexWithBasis([ 1, 2 ], id = 'line')
+        self.assertCountEqual(c.simplices(), [ 1, 2, 'line' ])
+
+    def testAddWithBasis2Exist( self ):
+        """Check adding a 2-simplex by its basis, where all the basis simplices exist."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplexWithBasis([ 1, 2, 3])
+        self.assertCountEqual(c.simplicesOfOrder(0), [ 1, 2, 3 ])
+        self.assertCountEqual(c.simplicesOfOrder(1), [ 12, 13, 23 ])
+        self.assertEqual(len(c.simplicesOfOrder(2)), 1)
+
+    def testAddWithBasis4( self ):
+        """Check adding a 3-simplex to an empty complex"""
+        c = SimplicialComplex()
+        c.addSimplexWithBasis([ 1, 2, 3, 4 ])
+
+        nos = c.numberOfSimplicesOfOrder()
+        self.assertEqual(nos[0], 4)
+        self.assertEqual(nos[1], 6)
+        self.assertEqual(nos[2], 4)
+        self.assertEqual(nos[3], 1)
+
+        tri = c.simplicesOfOrder(3).pop()
+        self.assertCountEqual(c.basisOf(tri), [ 1, 2, 3, 4 ])
+
+    def testAddWithBasis2Exists( self ):
+        """Check adding a named 2-simplex by its basis when it already exists."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        with self.assertRaises(Exception):
+            c.addSimplexWithBasis([ 1, 2, 3])
+
+    def testBasis( self ):
+        """Test that we correctly form the basis of various simplices"""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        self.assertCountEqual(c.basisOf(123), [ 1, 2, 3 ])
+        self.assertCountEqual(c.basisOf(12), [ 1, 2 ])
+        self.assertCountEqual(c.basisOf(13), [ 1, 3 ])
+        self.assertCountEqual(c.basisOf(23), [ 2, 3 ])
+        self.assertCountEqual(c.basisOf(1), [ 1 ])
+        self.assertCountEqual(c.basisOf(2), [ 2 ])
+        self.assertCountEqual(c.basisOf(3), [ 3 ])
+
+    def testRestrictBasis( self ):
+        """Test that we correctly restrict the basis of a complex to the right sub-space."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        cprime = copy.deepcopy(c)
+        cprime.restrictBasisTo([ 1 ])
+        self.assertCountEqual(cprime.simplices(), [ 1 ])
+
+        cprime = copy.deepcopy(c)
+        cprime.restrictBasisTo([ 1, 2 ])
+        self.assertCountEqual(cprime.simplices(), [ 1, 2, 12 ])
+
+        cprime = copy.deepcopy(c)
+        cprime.restrictBasisTo([ 1, 2, 3 ])
+        self.assertCountEqual(cprime.simplices(), c.simplices())
+
+    def testRestrictBasisIsBasis( self ):
+        """Test that we correctly require a basis to be 0-simplices."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        cprime = copy.deepcopy(c)
+        with self.assertRaises(Exception):
+            cprime.restrictBasisTo([ 12 ])
+
+    def testSimplexWithFacesSuccess( self ):
+        """Test we can retrieve a simplex from its faces."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        self.assertEqual(c.simplexWithFaces([ 1, 2 ]), 12)
+        self.assertEqual(c.simplexWithFaces([ 12, 31, 23 ]), 123)
+        with self.assertRaises(Exception):
+            self.assertEqual(c.simplexWithFaces([1, 2, 3]))
+
+
+    # ---------- Containment and inclusion ----------
+
+    def testContains(self):
+        """Test we can check containment correctly."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        for s in c.simplices():
+            self.assertTrue(c.containsSimplex(s))
+        self.assertFalse(c.containsSimplex(5))
+
+    def testContainsBasis(self):
+        """Test we can check containment of a basis correctly."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        self.assertTrue(c.containsSimplexWithBasis([ 1, 2 ]))
+        self.assertFalse(c.containsSimplexWithBasis([1, 4]))
+
+    def testSize(self):
+        '''Test we can determine the size of a complex.'''
+        c = SimplicialComplex()
+        self.assertEqual(len(c), 0)
+        c.addSimplex(id = 1)
+        self.assertEqual(len(c), 1)
+        c.addSimplex(id = 2)
+        self.assertEqual(len(c), 2)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        self.assertEqual(len(c), 3)
+        c.deleteSimplex(12)
+        self.assertEqual(len(c), 2)
+
+    def testInclusion(self):
+        '''Test the inclusion of one complex into another.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+
+        d = SimplicialComplex()
+        d.addSimplex(id = 1)
+        self.assertTrue(d < c)
+        self.assertTrue(d <= c)
+        self.assertTrue(c > d)
+        self.assertTrue(c >= d)
+        self.assertFalse(c < d)
+        d.addSimplex(id = 2)
+        d.addSimplex(id = 12, fs = [ 1, 2 ])
+        self.assertTrue(d < c)
+
+        d.addSimplex(id = 3)
+        d.addSimplex(id = 4)
+        d.addSimplex(id = 23, fs = [ 2, 3 ])
+        d.addSimplex(id = 31, fs = [ 3, 1 ])
+        d.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        self.assertFalse(d < c)
+        self.assertTrue(d <= c)
+
+    def testDeepCopy(self):
+        '''Test that copying is deep enough.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        c[2] = 'hello'
+
+        d = c.copy()
+        d.deleteSimplex(123)
+        self.assertTrue(123 in c)
+        d[2] = 'goodbye'
+        self.assertEqual(c[2], 'hello')
+
+    def testAttributesIgnoredInInclusion(self):
+        '''Test that attributes don;t affect inclusion or equality.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c[2] = 'hello'
+
+        d = SimplicialComplex()
+        d.addSimplex(id = 1)
+        d.addSimplex(id = 2)
+        d.addSimplex(id = 3)
+        d.addSimplex(id = 4)
+        d[2] = 'goodbye'
+
+        self.assertTrue(c == d)
+
+    def testInclusionCopy(self):
+        '''Test copies of complexes are included.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        d = c.copy()
+        self.assertTrue(d <= c)
+        self.assertTrue(c <= d)
+        self.assertTrue(c == d)
+        self.assertFalse(c != d)
+
+    def testInclusionMissingSimplex(self):
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        d = c.copy()
+        d.deleteSimplex(123)
+        self.assertTrue(d < c)
+        self.assertFalse(d == c)
+
+
+    # ---------- Structure ----------
+
     def testClosure( self ):
         """Test that we correctly form the closures of various simplices"""
         c = SimplicialComplex()
@@ -1061,61 +1081,71 @@ class SimplicialComplexTests(unittest.TestCase):
         fs = c.partOf(1)
         self.assertCountEqual(fs, set(fs))
 
-    def testBasis( self ):
-        """Test that we correctly form the basis of various simplices"""
+    def testSimplexWithFacesNoSimplex( self ):
+        """Test we don't retrieve a simplex that isn't there."""
         c = SimplicialComplex()
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
         c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
         c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.addSimplex(id = 13, fs = [ 1, 3 ])
         c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
-        self.assertCountEqual(c.basisOf(123), [ 1, 2, 3 ])
-        self.assertCountEqual(c.basisOf(12), [ 1, 2 ])
-        self.assertCountEqual(c.basisOf(13), [ 1, 3 ])
-        self.assertCountEqual(c.basisOf(23), [ 2, 3 ])
-        self.assertCountEqual(c.basisOf(1), [ 1 ])
-        self.assertCountEqual(c.basisOf(2), [ 2 ])
-        self.assertCountEqual(c.basisOf(3), [ 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        self.assertEqual(c.simplexWithFaces([ 3, 4 ]), None)
 
-    def testRestrictBasis( self ):
-        """Test that we correctly restrict the basis of a complex to the right sub-space."""
+    def testSimplicesInOrder(self):
+        """Test we retrieve simplices in order of their order."""
         c = SimplicialComplex()
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
         c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
         c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.addSimplex(id = 13, fs = [ 1, 3 ])
         c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
 
-        cprime = copy.deepcopy(c)
-        cprime.restrictBasisTo([ 1 ])
-        self.assertCountEqual(cprime.simplices(), [ 1 ])
+        k = -1
+        for s in c.simplices():
+            sk = c.orderOf(s)
+            if sk == k:
+                # another one of the same order
+                pass
+            else:
+                if sk == k + 1:
+                    # order has increased, record the new order
+                    k = sk
+                else:
+                    self.fail("Simplices not in order order")
 
-        cprime = copy.deepcopy(c)
-        cprime.restrictBasisTo([ 1, 2 ])
-        self.assertCountEqual(cprime.simplices(), [ 1, 2, 12 ])
-
-        cprime = copy.deepcopy(c)
-        cprime.restrictBasisTo([ 1, 2, 3 ])
-        self.assertCountEqual(cprime.simplices(), c.simplices())
-
-    def testRestrictBasisIsBasis( self ):
-        """Test that we correctly require a basis to be 0-simplices."""
+    def testSimplicesInReverseOrder(self):
+        """Test we retrieve simplices in reverse order of their order."""
         c = SimplicialComplex()
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
         c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
         c.addSimplex(id = 12, fs = [ 1, 2 ])
-        c.addSimplex(id = 13, fs = [ 1, 3 ])
         c.addSimplex(id = 23, fs = [ 2, 3 ])
-        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
 
-        cprime = copy.deepcopy(c)
-        with self.assertRaises(Exception):
-            cprime.restrictBasisTo([ 12 ])
+        k = c.maxOrder() + 1
+        for s in c.simplices(reverse = True):
+            sk = c.orderOf(s)
+            if sk == k:
+                # another one of the same order
+                pass
+            else:
+                if sk == k - 1:
+                    # order has increased, record the new order
+                    k = sk
+                else:
+                    self.fail("Simplices not in reverse-order order")
+
+
+    # ---------- Deletion----------
 
     def testDelete1( self ):
         """Test that we correctly delete a single simplex."""
@@ -1238,6 +1268,27 @@ class SimplicialComplexTests(unittest.TestCase):
         c.deleteSimplex(12)
         self.assertCountEqual(c.partOf(1), [ 1, 13 ])
         self._checkIntegrity(c)
+
+    def testDeleteBasis(self):
+        '''Test we can delete a basis point.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        c.deleteSimplex(1)
+        self.assertEqual(len(c.simplicesOfOrder(0)), 2)
+        self.assertEqual(len(c.simplicesOfOrder(1)), 1)
+        self.assertEqual(len(c.simplicesOfOrder(2)), 0)
+        self.assertCountEqual(c.basisOf(2), [2])
+        self.assertCountEqual(c.basisOf(23), [2, 3])
+        self._checkIntegrity(c)
+
+
+    # ---------- Euler characteristic ----------
 
     def testEuler1hole( self ):
         """Test that the Euler characteristic for a simplex with an unfilled triangle."""
