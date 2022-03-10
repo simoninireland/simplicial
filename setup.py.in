@@ -38,6 +38,7 @@ setup(name='simplicial',
                    'Programming Language :: Python :: 2.7',
                    'Programming Language :: Python :: 3.7',
                    'Programming Language :: Python :: 3.9',
+                   'Programming Language :: Python :: 3.10',
                    'Topic :: Scientific/Engineering :: Mathematics',
                    'Topic :: Scientific/Engineering :: Physics'
                    ],
