@@ -1,6 +1,6 @@
 # Base class for simplicial complexes
 #
-# Copyright (C) 2017--2021 Simon Dobson
+# Copyright (C) 2017--2022 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -26,7 +26,7 @@ from typing import Dict, Any, List, Union, Callable, Set, Tuple, Optional
 # Helper types
 Simplex = Any                 #: A simplex in a complex, which may be any object.
 Attributes = Dict[str, Any]   #: Attributes of a simplex, mapping strings to values.
-Renaming = Union[Dict[Simplex, Simplex], Callable[[Simplex], Simplex]] #: A renaming of simplices, either a dic or a function.
+Renaming = Union[Dict[Simplex, Simplex], Callable[[Simplex], Simplex]] #: A renaming of simplices, either a dict or a function.
 
 
 class SimplicialComplex:
@@ -51,9 +51,9 @@ class SimplicialComplex:
     # ---------- Initialisation and helpers ----------
 
     def __init__(self):
-        self._sequence: int = 1                  # sequence number for generating simplex names
-        self._maxOrder: int = -1                 # order of largest simplex in the complex
-        self._simplices: Dict[Any, int] = dict()                 # dict mapping simplex names to their order and index
+        self._sequence: int = 1                                  # sequence number for generating simplex names
+        self._maxOrder: int = -1                                 # order of largest simplex in the complex
+        self._simplices: Dict[Any, Tuple[int, int]] = dict()     # dict mapping simplex names to their order and index
         self._indices: List[List[Simplex]] = []                  # array of arrays of simplices in canonical order
         self._boundaries: List[numpy.ndarray] = []               # array of boundary matrices
         self._bases: List[numpy.ndarray] = []                    # array of basis matrices
@@ -496,17 +496,22 @@ class SimplicialComplex:
 
         # find the index and order of the simplex
         (k, i) = self._simplices[s]
+        #print(f'delete {s} {i} (order {k})')
 
-        # for higher-order simplices, delete from boundary and basis matrices
+        # delete from the basis matrices
+        self._bases[k] = numpy.delete(self._bases[k], i, axis = 1)
+        if k == 0:
+            # for 0-simplices, delete rows from all higher orders
+            for j in range(self._maxOrder + 1):
+                #print(f'delete {s} from order {j}')
+                self._bases[j] = numpy.delete(self._bases[j], i, axis = 0)
+
+        # delete from boundary matrices
         #print('delete {s} {i} (order {k})'.format(s = s, i = i, k = k))
         if k > 0:
             # delete column from order-k boundary
             #print('delete col {i} from {k}-boundary'.format(i = i, k = k))
             self._boundaries[k] = numpy.delete(self._boundaries[k], i, axis = 1)
-
-            # delete from the basis matrix
-            self._bases[k] = numpy.delete(self._bases[k], i, axis = 1)
-
         if k < self._maxOrder:
             # delete row from order-(k + 1) boundary
             #print('delete row {i} from ({k} + 1)-boundary'.format(i = i, k = k))
@@ -992,7 +997,7 @@ class SimplicialComplex:
 
     def basisOf(self,  s: Simplex) -> Set[Simplex]:
         """Return the basis of a simplex, the set of 0-simplices that
-        define it.
+        define it. Is s is an 0-simplex then it is its own basis
 
         :param s: the simplex
         :returns: the set of 0-simplices that form the basis of s"""
