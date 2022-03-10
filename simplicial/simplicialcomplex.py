@@ -381,15 +381,19 @@ class SimplicialComplex:
             ns.append(id)
         return ns
 
-    def barycentricSubdivide(self, simplex):
-        """Performs Barycentric subdivision on a simplex.
+    def barycentricSubdivide(self, simplex) -> Simplex:
+        """Performs Barycentric subdivision on a simplex. This deletes the
+        :math:`k`-simplex, introduces a new 0-simplex, and creates :math:`(k + 1)`
+        new :math:`k`-simplices from the original basis and the new base point.
 
-        @param simplex: the simplex to subdivide, must be included in this
-            complex
-        @return: None
+        :param simplex: the simplex to subdivide
+        :returns: the new basis point
+
         """
-        assert self.containsSimplex(
-            simplex), 'Error: Simplex is not in this complex'
+        if not self.containsSimplex(simplex):
+            raise Exception(f'No simplex {simplex} in complex')
+        if self.orderOf(simplex) == 0:
+            raise Exception(f'Can\'t create barycentre of 0-simplex {simplex}')
 
         mid_pt = self.addSimplex()
         points = list(self.basisOf(simplex))
@@ -397,6 +401,8 @@ class SimplicialComplex:
 
         for idx in range(len(points)):
             self.addSimplexWithBasis(points[:idx] + points[idx + 1:] + [mid_pt])
+
+        return mid_pt
 
 
     # ---------- Relabelling ----------
