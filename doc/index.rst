@@ -59,6 +59,7 @@ Current features
   Euler characteristic integration, and other interesting operations
 * Annotated with ``typing`` type annotations
 
+
 .. toctree::
    :hidden:
 
@@ -69,3 +70,4 @@ Current features
    glossary
    zbibliography
    acknowledgements
+   contributing
