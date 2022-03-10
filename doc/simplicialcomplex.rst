@@ -2,10 +2,10 @@
 =========================================================
 
 .. currentmodule:: simplicial
-   
+
 .. autoclass:: SimplicialComplex
 
-	       
+
 Adding simplices
 ----------------
 
@@ -23,7 +23,11 @@ for higher-order simplices.
 .. automethod:: SimplicialComplex.ensureBasis
 
 .. automethod:: SimplicialComplex.addSimplexWithBasis
-		
+
+There are some operations that create new simplices from old.
+
+.. automethod:: SimplicialComplex.barycentricSubdivide
+
 Finally, it is also possible to copy simplices from one complex to
 another. This will cause problems if the two complexes share simplices
 with common names (since names must be unique), in which case  a
@@ -61,7 +65,7 @@ They can also be tested for equality.
 
 .. automethod:: SimplicialComplex.__ne__
 
-(See later for other comparison operators relating to sub-complexes.) 
+(See later for other comparison operators relating to sub-complexes.)
 
 
 Querying the structure of the complex
@@ -159,7 +163,7 @@ structure at various dimensions. Unlike the Euler characteristic,
 homology is able to differentiate between a triangulated portion of
 the plane and two triangulated "islands" one of which contains a hole.
 The Euler characteristic of both these structures is 1, but they have
-different homology groups and therefore different Betti numbers. 
+different homology groups and therefore different Betti numbers.
 
 In ``simplicial`` we implement the simplest possible version of
 simplicial homology in which simplices are treated as un-oriented, which
@@ -179,7 +183,7 @@ simplifies both the calculations and the explanations.
 .. automethod:: SimplicialComplex.bettiNumbers
 
 .. automethod:: SimplicialComplex.Z
-		
+
 
 Deriving new complexes
 ----------------------
