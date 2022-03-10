@@ -1,6 +1,6 @@
 # Tests of simplicial complex class
 #
-# Copyright (C) 2017--2020 Simon Dobson
+# Copyright (C) 2017--2022 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -46,16 +46,16 @@ class SimplicialComplexTests(unittest.TestCase):
                         raise Exception('Simplex {s} has a face {f} that isn\'t in the complex'.format(s = s,
                                                                                                         f = f))
 
-        # run up simplices from lowest order up, checking parts membership
+        # run up simplices from lowest order up, checking faces membership
         for k in range(kmax + 1):
             ss = c.simplicesOfOrder(k)
             for s in ss:
-                # extract all the simplices we're part of
-                ps = c.partOf(s, exclude_self = True)
+                # extract all the simplices we're a face of
+                ps = c.faceOf(s)
                 for p in ps:
-                    # make sure we're a a face of every simplx we're part of
+                    # make sure we're a a face of every simplex we're a face of
                     if s not in c.faces(p):
-                        # we're part of something we're not a face of
+                        # we're a face of something we're not a face of
                         raise Exception('Simplex {s} is part of {p} but not a face of it'.format(s = s,
                                                                                                  p = p))
 
@@ -577,6 +577,7 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertEqual(ns[3], 4)
         for s in cplx.simplicesOfOrder(3):
             self.assertIn(b, cplx.basisOf(s))
+        self._checkIntegrity(cplx)
 
     def testBarycentreNoSimplex(self):
         '''Test we can't divide a non-existent simplex.'''
@@ -609,6 +610,7 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertEqual(ns[1], 2)
         for s in c.simplicesOfOrder(1):
             self.assertIn(b, c.basisOf(s))
+        self._checkIntegrity(c)
 
 
     # ---------- Bases ----------
