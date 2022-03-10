@@ -203,3 +203,13 @@ after creating new simplices.
 .. automethod:: SimplicialComplex.flagComplex
 
 .. automethod:: SimplicialComplex.growFlagComplex
+
+
+Use of exceptions
+-----------------
+
+:class:`SimplicialComplex` does not define any new exceptions. It
+raises ``KeyError`` if a simplex if referenced that is not present, or
+if a basis is used to retrieve a simplex that isn't defined for it. It
+raises ``ValueError`` for problems with the orders of simplices and
+other structure errors.

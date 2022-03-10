@@ -139,7 +139,7 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 2)
         c.addSimplex(id = 3)
         c.addSimplex(id = 12, fs = [ 1, 2 ])
-        with self.assertRaises(Exception):
+        with self.assertRaises(KeyError):
             c.addSimplex(id = 33, fs = [ 3, 3 ])
 
     def testSimplexOutOfOrder(self):
@@ -148,7 +148,7 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
         c.addSimplex(id = 3)
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             c.addSimplex(fs = [ 1, 2, 3 ])
 
     def testOrder(self):
@@ -164,7 +164,7 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertEqual(c.orderOf(1), 0)
         self.assertEqual(c.orderOf(12), 1)
         self.assertEqual(c.orderOf(123), 2)
-        with self.assertRaises(Exception):
+        with self.assertRaises(KeyError):
             c.orderOf(4)
 
     def testIndex(self):
@@ -184,7 +184,7 @@ class SimplicialComplexTests(unittest.TestCase):
             for s in ss:
                 iis.add(c.indexOf(s))
             self.assertEqual(len(iis), len(ss))
-        with self.assertRaises(Exception):
+        with self.assertRaises(KeyError):
             c.indexOf(4)
 
     def testAttributes(self):
@@ -211,7 +211,7 @@ class SimplicialComplexTests(unittest.TestCase):
         """Test that we fail if we try to ad a simplex with a single face."""
         c = SimplicialComplex()
         c.addSimplex(id = 1)
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             c.addSimplex(id = 2, fs = [ 1 ])
 
     def testDuplicateBasis( self ):
@@ -220,7 +220,7 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
         c.addSimplex(id = 12, fs = [ 1, 2 ])
-        with self.assertRaises(Exception):
+        with self.assertRaises(KeyError):
             c.addSimplex(id = 21, fs = [ 1, 2 ])
 
     def testName( self ):
@@ -288,7 +288,7 @@ class SimplicialComplexTests(unittest.TestCase):
         d.addSimplex(id = 56, fs = [ 5, 6 ])
         d.addSimplex(id = 156, fs = [ 15, 16, 56 ])
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(KeyError):
             c.addSimplicesFrom(d)
 
     def testCopyRenameFunction( self ):
@@ -376,11 +376,10 @@ class SimplicialComplexTests(unittest.TestCase):
         for i in range(1, 8):
             r[i] = i + 1000
         r[4] = 1
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             c.addSimplicesFrom(d, rename = r)
 
-    # sd: this wiuld be cleaner as a closure, but they're hard
-    # # to do portably between Python 2.7 and 3
+    # sd: this would be cleaner as a closure
     _unique = 0
     def makeUniques(self, iu):
         self._unique = iu
@@ -498,7 +497,7 @@ class SimplicialComplexTests(unittest.TestCase):
         for i in c.simplices():
             rename[i] = i + 1000
         rename[1] = 2
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             ns = c.relabel(rename)
 
     def testOrderViolation( self ):
@@ -510,21 +509,21 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 12, fs = [ 1, 2 ])
         c.addSimplex(id = 13, fs = [ 1, 3 ])
         c.addSimplex(id = 23, fs = [ 2, 3 ])
-        with self.assertRaises(Exception):
-            c.addSimplex(id = bad1, fs = [ 2, 13 ])
-        with self.assertRaises(Exception):
-            c.addSimplex(id = bad2, fs = [ 13 ])
-        with self.assertRaises(Exception):
-            c.addSimplex(id = bad3, fs = [ 1, 2, 3 ])
+        with self.assertRaises(ValueError):
+            c.addSimplex(id = 'bad1', fs = [ 2, 13 ])
+        with self.assertRaises(ValueError):
+            c.addSimplex(id = 'bad2', fs = [ 13 ])
+        with self.assertRaises(ValueError):
+            c.addSimplex(id = 'bad3', fs = [ 1, 2, 3 ])
 
     def testDuplicateSimplices( self ):
         """Test that we fail if we try to add a duplicate simplex."""
         c = SimplicialComplex()
         c.addSimplex(id = 1)
         c.addSimplex(id = 2)
-        with self.assertRaises(Exception):
+        with self.assertRaises(KeyError):
             c.addSimplex(id = 1)
-        with self.assertRaises(Exception):
+        with self.assertRaises(KeyError):
             c.addSimplex(id = 1, fs = [ 1, 2 ])
 
     def testCanonical( self ):
@@ -557,11 +556,11 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertEqual(c.simplexWithBasis([ 4, 2 ]), 24)
         self.assertEqual(c.simplexWithBasis([ 4 ]), 4)
         self.assertEqual(c.simplexWithBasis([ 1, 2, 3, 4 ]), None)
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             c.simplexWithBasis([ 1, 2, 12 ], fatal = True)
-        with self.assertRaises(Exception):
+        with self.assertRaises(KeyError):
             c.simplexWithBasis([ 1, 2, 4 ], fatal = True)
-        with self.assertRaises(Exception):
+        with self.assertRaises(KeyError):
             c.simplexWithBasis([ 1, 2, 3, 4 ], fatal = True)
 
 
@@ -582,20 +581,20 @@ class SimplicialComplexTests(unittest.TestCase):
     def testBarycentreNoSimplex(self):
         '''Test we can't divide a non-existent simplex.'''
         c = SimplicialComplex()
-        with self.assertRaises(Exception):
+        with self.assertRaises(KeyError):
             c.barycentricSubdivide(1)
         c.addSimplex(id=1)
         c.addSimplex(id=2)
         c.addSimplex(id=3)
         c.addSimplex(id=23, fs=[2, 3])
-        with self.assertRaises(Exception):
+        with self.assertRaises(KeyError):
             c.barycentricSubdivide(12)
 
     def testBarycentric0(self):
         '''Test we can't divide an 0-simplex.'''
         c = SimplicialComplex()
         c.addSimplex(id=1)
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             c.barycentricSubdivide(1)
 
     def testBarycentric1(self):
@@ -629,10 +628,10 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertTrue(c.isBasis([ 3 ]))
         self.assertTrue(c.isBasis([ 1, 2, 3 ]))
         self.assertFalse(c.isBasis([ 1, 23, 3 ]))
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             c.isBasis([ 123 ], fatal = True)
         self.assertFalse(c.isBasis([ 1, 2, 3, 4 ]))
-        with self.assertRaises(Exception):
+        with self.assertRaises(KeyError):
             c.isBasis([ 1, 2, 3, 4 ], fatal = True)
 
     def testEnsureBasis( self ):
@@ -644,7 +643,7 @@ class SimplicialComplexTests(unittest.TestCase):
         c.ensureBasis([ 1, 2, 3 ])
         c.addSimplex(id = 12, fs = [ 1, 2 ])
         c.ensureBasis([ 1, 2, 3 ])
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             c.ensureBasis([ 1, 2, 12, 3 ])
 
     def testEnsureBasisAddSuccess( self ):
@@ -736,7 +735,7 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 13, fs = [ 1, 3 ])
         c.addSimplex(id = 23, fs = [ 2, 3 ])
         c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
-        with self.assertRaises(Exception):
+        with self.assertRaises(KeyError):
             c.addSimplexWithBasis([ 1, 2, 3])
 
     def testBasis( self ):
@@ -792,7 +791,7 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
 
         cprime = copy.deepcopy(c)
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             cprime.restrictBasisTo([ 12 ])
 
     def testSimplexWithFacesSuccess( self ):
@@ -807,8 +806,10 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
         self.assertEqual(c.simplexWithFaces([ 1, 2 ]), 12)
         self.assertEqual(c.simplexWithFaces([ 12, 31, 23 ]), 123)
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             self.assertEqual(c.simplexWithFaces([1, 2, 3]))
+        with self.assertRaises(ValueError):
+            self.assertEqual(c.simplexWithFaces([1, 12, 3]))
 
 
     # ---------- Containment and inclusion ----------
