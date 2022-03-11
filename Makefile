@@ -113,6 +113,7 @@ TOX = tox
 COVERAGE = coverage
 TWINE = twine
 GPG = gpg
+GIT = git
 VIRTUALENV = $(PYTHON) -m venv
 ACTIVATE = . $(VENV)/bin/activate
 TR = tr
@@ -125,6 +126,10 @@ CHDIR = cd
 ZIP = zip -r
 PASTE = paste
 
+# Files that are locally changed vs the remote repo
+# (See https://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script)
+GIT_DIRTY = $(shell $(GIT) status --untracked-files=no --porcelain)
+
 # Root directory
 ROOT = $(shell pwd)
 
@@ -132,7 +137,6 @@ ROOT = $(shell pwd)
 VENV = venv3
 REQUIREMENTS = requirements.txt
 DEV_REQUIREMENTS = dev-requirements.txt
-PY_REQUIREMENTS = $(shell $(CAT) $(REQUIREMENTS) | $(SED) 's/.*/"&"/g' | $(PASTE) -s -d, -)
 
 # Constructed commands
 RUN_TESTS = $(TOX)
@@ -181,9 +185,19 @@ sdist: $(SOURCES_SDIST)
 wheel: $(SOURCES_WHEEL)
 
 # Upload a source distribution to PyPi
-upload: sdist wheel
+upload: commit sdist wheel
 	$(GPG) --detach-sign -a dist/$(PACKAGENAME)-$(VERSION).tar.gz
 	$(ACTIVATE) && $(RUN_TWINE)
+
+# Update the remote repos on release
+commit: check-local-repo-clean
+	$(GIT) push origin master
+	$(GIT) tag -a v$(VERSION) -m "Version $(VERSION)"
+	$(GIT) push origin v$(VERSION)
+
+.SILENT: check-local-repo-clean
+check-local-repo-clean:
+	if [ "$(GIT_DIRTY)" ]; then echo "Uncommitted files: $(GIT_DIRTY)"; exit 1; fi
 
 # Clean up the distribution build
 clean:
