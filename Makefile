@@ -1,6 +1,6 @@
 # Makefile for simplicial
 #
-# Copyright (C) 2017--2020 Simon Dobson
+# Copyright (C) 2017--2022 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -76,6 +76,7 @@ SOURCES_DOCUMENTATION = \
 	doc/file.rst \
 	doc/installation.rst \
 	doc/glossary.rst \
+	doc/contributing.rst \
 	doc/acknowledgements.rst \
 	doc/zbibliography.rst \
 	doc/tutorial.rst \
