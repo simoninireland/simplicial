@@ -21,11 +21,7 @@
 PACKAGENAME = simplicial
 
 # The version we're building
-<<<<<<< HEAD
-VERSION = 0.7.1
-=======
-VERSION = 0.7.2
->>>>>>> master
+VERSION = 0.8.1
 
 
 # ----- Sources -----
