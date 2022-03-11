@@ -120,9 +120,8 @@ html_sidebars = {
     '**': [
         'about.html',
         'navigation.html',
-        'relations.html',  # needs 'show_related': True theme option to display
+        'relations.html',
         'searchbox.html',
-        'donate.html',
     ]
 }
 
