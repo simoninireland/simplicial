@@ -21,7 +21,7 @@
 PACKAGENAME = simplicial
 
 # The version we're building
-VERSION = 0.7.1
+VERSION = 0.7.2
 
 
 # ----- Sources -----
@@ -137,6 +137,10 @@ ROOT = $(shell pwd)
 VENV = venv3
 REQUIREMENTS = requirements.txt
 DEV_REQUIREMENTS = dev-requirements.txt
+
+# Requirements for setup.py
+# Note we elide dependencies to do with backporting the type-checking
+PY_REQUIREMENTS = $(shell $(SED) -e '/^typing_extensions/d' -e 's/^\(.*\)/"\1",/g' $(REQUIREMENTS) | $(TR) '\n' ' ')
 
 # Constructed commands
 RUN_TESTS = $(TOX)

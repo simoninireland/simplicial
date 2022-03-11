@@ -1,5 +1,14 @@
-Version 0.7.1
+Version 0.7.2 (11Mar2022)
 
+   - Fixed broken setup.py
+
+Version 0.7.1 (11Mar2022)
+
+   - Integrated barycentric decomposition contribution
+   - Added Python10 compatability and testing. Removed Python2.7 compatability
+   - Fixed issue with deleting 0-simplices corrupting the basis matrices
+   - Improved integrity checks in tests
+   - Refined exceptions raised
 
 Version 0.6.2 (15Mar2020)
 
