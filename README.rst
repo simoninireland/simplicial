@@ -49,6 +49,6 @@ The `API documentation <https://simplicial.readthedocs.io/en/stable/>`_ is hoste
 Author and license
 ------------------
 
-Copyright (c) 2017--2021, Simon Dobson <simoninireland@gmail.com>
+Copyright (c) 2017--2022, Simon Dobson <simoninireland@gmail.com>
 
 Licensed under the `GNU General Public Licence v.3.0 <https://www.gnu.org/licenses/gpl-3.0.en.html>`_.
