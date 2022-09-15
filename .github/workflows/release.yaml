@@ -1,0 +1,26 @@
+name: Create release
+
+on:
+  push:
+    tags:
+      - 'v*'    # all version-style tags, i.e., v1.10.1
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check-out code
+        uses: actions/checkout@v3
+        with:
+          clean: false
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref }}
+          release: Release ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            See HISTORY for release changes
+          draft: false
+          prerelease: false
