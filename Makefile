@@ -114,6 +114,8 @@ COVERAGE = coverage
 TWINE = twine
 GPG = gpg
 GIT = git
+FLAKE8 = flake8
+MYPY = mypy
 VIRTUALENV = $(PYTHON) -m venv
 ACTIVATE = . $(VENV)/bin/activate
 TR = tr
@@ -161,12 +163,16 @@ tags:
 	$(ETAGS) -o TAGS $(SOURCES_CODE) $(SOURCES_TESTS)
 
 # Run tests for all versions of Python we're interested in
-test: env setup.py
+test: env Makefile setup.py
 	$(ACTIVATE) && $(RUN_TESTS)
 
 # Run coverage checks over the test suite
 coverage: env
 	$(ACTIVATE) && $(RUN_COVERAGE)
+
+# Run lint checks
+lint: env
+	$(ACTIVATE) && $(FLAKE8) $(SOURCES_CODE) --count --statistics --ignore=E501,E303,E301,E302,E261,E741,E265,E402
 
 # Build the API documentation using Sphinx
 .PHONY: doc
@@ -180,7 +186,11 @@ env: $(VENV)
 $(VENV):
 	$(VIRTUALENV) $(VENV)
 	$(CAT) $(REQUIREMENTS) $(DEV_REQUIREMENTS) >$(VENV)/requirements.txt
-	$(ACTIVATE) && $(CHDIR) $(VENV) && $(PIP) install -U pip wheel && $(PIP) install -r requirements.txt
+	$(ACTIVATE) && $(PIP) install -U pip wheel && $(CHDIR) $(VENV) && $(PIP) install -r requirements.txt
+	$(ACTIVATE) && $(MYPY) --install-types --non-interactive
+
+# Make a new release
+release: $(SOURCES_GENERATED) master-only lint commit sdist wheel upload
 
 # Build a source distribution
 sdist: $(SOURCES_SDIST)
@@ -192,6 +202,10 @@ wheel: $(SOURCES_WHEEL)
 upload: commit sdist wheel
 	$(GPG) --detach-sign -a dist/$(PACKAGENAME)-$(VERSION).tar.gz
 	$(ACTIVATE) && $(RUN_TWINE)
+
+# Check we're on the master branch before uploading
+master-only:
+	if [ "$(GIT_BRANCH)" != "master" ]; then echo "Can only release from master branch"; exit 1; fi
 
 # Update the remote repos on release
 commit: check-local-repo-clean
@@ -235,11 +249,12 @@ $(SOURCES_WHEEL): $(SOURCES_GENERATED) $(SOURCES_CODE) Makefile
 define HELP_MESSAGE
 Available targets:
    make test         run the test suite
-   make tags         build the TAGS file
    make env          create a known-good development virtual environment
-   make sdist        create a source distribution
-   make wheel	     create binary (wheel) distribution
-   make upload       upload distribution to PyPi
+   make tags         build the TAGS file
+   make coverage     run coverage checks of the test suite
+   make lint         run lint style checks
+   make doc          build the API documentation using Sphinx
+   make release      make a release and upload to PyPi
    make clean        clean-up the build
    make reallyclean  clean up build and development venv
 
