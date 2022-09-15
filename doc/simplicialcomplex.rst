@@ -116,6 +116,8 @@ simplex order (low-order simplices first by default).
 
 .. automethod:: SimplicialComplex.allSimplices
 
+.. automethod:: SimplicialComplex.anySimplex
+
 .. automethod:: SimplicialComplex.simplexWithBasis
 
 .. automethod:: SimplicialComplex.containsSimplex
@@ -123,6 +125,8 @@ simplex order (low-order simplices first by default).
 .. automethod:: SimplicialComplex.containsSimplexWithBasis
 
 .. automethod:: SimplicialComplex.faces
+
+.. automethod:: SimplicialComplex.cofaces
 
 .. automethod:: SimplicialComplex.faceOf
 

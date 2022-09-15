@@ -842,15 +842,31 @@ class SimplicialComplex:
 
         return matches.pop() if matches else None
 
-    def allSimplices(self, p: Callable[[Simplex], bool], reverse: bool = False) -> List[Simplex]:
+    def allSimplices(self, p: Callable[['SimplicialComplex', Simplex], bool],
+                     reverse: bool = False) -> List[Simplex]:
         """Return all the simplices that match the given predicate, which should
         be a function from a complex and a simplex to a boolean. The simplices are
-        sorted according to their orders.
+        sorted according to their orders, but with no guarantees of ordering
+        between simplices of the same order.
 
         :param p: a predicate
         :param reverse: (optional) reverse the order
         :returns: the set of simplices satisfying the predicate"""
         return [s for s in self.simplices(reverse) if p(self, s)]
+
+    def anySimplex(self, p: Callable[['SimplicialComplex', Simplex], bool]) -> Optional[Simplex]:
+        '''Return some simplex for which the predicate is true. The
+        predicate should be a function from a complex and a simplex
+        to a boolean. There are no guarantees as to what simplex, of
+        what order, will be simplex chosen, just that it matches the
+        predicate.
+
+        :param p: a predicate
+        :returns: a simplex matching the predicate, or None'''
+        for s in self.simplices():
+            if p(self, s):
+                 return s
+        return None
 
 
     # ---------- Testing for simplices ----------
@@ -995,6 +1011,14 @@ class SimplicialComplex:
                 #print("add index {i} = {id}".format(i = i, id = (self._indices[k - 1])[i]))
                 fs.add((self._indices[k - 1])[i])
         return fs
+
+    def cofaces(self, s: Simplex) -> Set[Simplex]:
+        '''Return the simplices the given simnplex is a face of. A synonym
+        for :meth:`facesOf`.
+
+        :param s: the simplex
+        :returns: a list of simplices'''
+        return self.faceOf(s)
 
     def faceOf(self, s: Simplex) -> Set[Simplex]:
         """Return the simplices that the given simplex is a face of. This

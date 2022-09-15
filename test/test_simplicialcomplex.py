@@ -1346,6 +1346,51 @@ class SimplicialComplexTests(unittest.TestCase):
         self._checkIntegrity(c)
 
 
+    # ---------- Predicates ----------
+
+    def testAllSimplices(self):
+        '''Test we can extract all simplices matching a predicate.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 24, fs = [ 2, 4 ])
+        c.addSimplex(id = 34, fs = [ 3, 4 ])
+
+        sids = c.allSimplices(lambda c, s: s > 10)
+        self.assertCountEqual(sids, set([12, 13, 23, 123, 24, 34]))
+        self.assertEqual(sids[-1], 123)  # highest order last
+
+        sids = c.allSimplices(lambda c, s: s > 10, reverse=True)
+        self.assertCountEqual(sids, set([12, 13, 23, 123, 24, 34]))
+        self.assertEqual(sids[0], 123)  # highest order first
+
+    def testAnySimplex(self):
+        '''Test we can extract all simplices matching a predicate.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 24, fs = [ 2, 4 ])
+        c.addSimplex(id = 34, fs = [ 3, 4 ])
+
+        s = c.anySimplex(lambda c, s: s > 10)
+        self.assertIn(s, set([12, 13, 23, 123, 24, 34]))
+
+        s = c.anySimplex(lambda c, s: s > 100)
+        self.assertEqual(s, 123)
+
+
     # ---------- Euler characteristic ----------
 
     def testEuler1hole( self ):
