@@ -77,6 +77,17 @@ class GeneratorTests(unittest.TestCase):
         self.assertTrue(ns[1], 6)
         self.assertTrue(ns[2], 4)
 
+    def testTwoVoids(self):
+        '''Test we can create two voids.'''
+        c = SimplicialComplex()
+        c0 = k_simplex(4, c=c)
+        c1 = k_void(2, c=c)
+        c2 = k_void(2, c=c)
+
+        self.assertEqual(c, c0)
+        self.assertEqual(c, c1)
+        self.assertEqual(c, c1)
+
     def testRing(self):
         '''Test the construction of a ring.'''
         c = ring(10)
