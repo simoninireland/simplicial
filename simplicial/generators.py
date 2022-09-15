@@ -87,9 +87,13 @@ def k_simplex(k: int, id: Any = None,
 
 
 def k_void(k: int, c: SimplicialComplex = None) -> SimplicialComplex:
-    '''Create a (k + 1)-dimensional void with a k-dimensional boundary -- or
+    '''Create a (k + 1)-dimensional void or hole with a k-dimensional boundary -- or
     in other words all the faces of a (k + 1)-simplex without filling in the
     (k + 1) simplex itself.
+
+    The numbering of holes is a bit confusing, but a cycle of edges
+    (1-simplices) creates what is referred to as a 1-hole, even though
+    it's a 2-dimensional structure.
 
     :param k: the order of simplex to create
     :param c: (optional) the complex to create into
@@ -97,7 +101,7 @@ def k_void(k: int, c: SimplicialComplex = None) -> SimplicialComplex:
 
     # this probably isn't the optimal way to do this, but it
     # maximises code reuse from the rest of the code base
-    d = k_simplex(k + 1, c)
+    d = k_simplex(k + 1, c=c)
     sos = list(d.simplicesOfOrder(k + 1))
     d.deleteSimplex(sos[0])
     return d
