@@ -37,7 +37,7 @@ class EulerIntegrator:
     metrics.
 
      The metric should be a non-negative number. The metric assignment
-     has tro be monotone with respect to simplex order: the metric
+     has to be monotone with respect to simplex order: the metric
      associated with a simplex `s` should be greater than or equal to
      the values associated with all simplices in the closure of `s`,
      i.e., all faces of `s`, or faces of those faces, and so
@@ -94,7 +94,8 @@ class EulerIntegrator:
         :param c: the complex
         :returns: the value of the integral"""
 
-        # the initial level set is the whole complex
+        # the initial level set is the whole complex, and we take a copy
+        # because levelSet() is destructive
         levelSet = copy.deepcopy(c)
 
         # compute maximum "height"
