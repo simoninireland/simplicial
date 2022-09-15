@@ -288,18 +288,8 @@ class ComposeTests(unittest.TestCase):
 
         # first ring
         r1 = ring(10)
-
-        # unique relabelling function
-        def makeLabelling(s):
-
-            def relabel(l):
-                return f'{s}-{l}'
-
-            return relabel
-
-        # second ring, unique labels
         r2 = ring(15)
-        r2.relabel(makeLabelling(20))
+        r2.relabelDisjointFrom(r1)
 
         # give two nodes the same label
         s = list(r1.simplicesOfOrder(0))[0]
