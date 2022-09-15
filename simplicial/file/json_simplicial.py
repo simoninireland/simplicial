@@ -18,7 +18,7 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import json
-from typing import Any
+from typing import Any, Union
 from simplicial import SimplicialComplex, Simplex
 
 json_simplicial_version = 0.1
@@ -88,7 +88,7 @@ class JSONSimplicialComplexEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, o)
 
 
-def as_json(c: SimplicialComplex):
+def as_json(c: SimplicialComplex) -> str:
     """Return a JSON string representation of a simplicial complex.
 
     :param c: the complex
@@ -98,12 +98,14 @@ def as_json(c: SimplicialComplex):
                       cls=JSONSimplicialComplexEncoder)
 
 
-def as_simplicial_complex(o: Any):
+def as_simplicial_complex(o: Any) -> Union[SimplicialComplex, Any]:
     """Decode a given dict as a simplicial complex. The most common usage
     for this function is as an object hook in the :meth:`json.loads` and
     :meth:`json.load` methods, for example:
 
-    `json.load(fp, object_hook=simplicial.as_simplicial_complex)`
+    .. code-block:: python
+
+       json.load(fp, object_hook=simplicial.as_simplicial_complex)
 
     :param o: the dict
     :returns: a simplicial complex"""
@@ -137,7 +139,7 @@ def write_json(c: SimplicialComplex, path: str):
         f.write(as_json(c))
 
 
-def read_json(path: str):
+def read_json(path: str) -> Union[SimplicialComplex, Any]:
     """Read a complex in JSON format from the name file.
 
     :param path: the file to read
