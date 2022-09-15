@@ -39,7 +39,7 @@ class TriangularLattice(SimplicialComplex):
         for i in range(r):
             for j in range(c):
                 #print(self._indexOfVertex(i, j))
-                self.addSimplex(id = self._indexOfVertex(i, j))
+                self.addSimplex(id=self._indexOfVertex(i, j))
 
         # add NS edges, jumping adjacent rows
         for i in range(0, r - 2):
@@ -52,7 +52,7 @@ class TriangularLattice(SimplicialComplex):
         for i in range(0, r - 1):
             for j in range(c):
                 # add SW edge except for column 0 of even-numbered rows
-                if not(j == 0 and (i % 2) == 0):
+                if not (j == 0 and (i % 2) == 0):
                     if i % 2 == 0:
                         swj = j - 1
                     else:
@@ -62,7 +62,7 @@ class TriangularLattice(SimplicialComplex):
                                               self._indexOfVertex(i + 1, swj)])
 
                 # add SE edge except for column (c - 1) of odd-numbered rows
-                if not(j == c - 1 and (i % 2) == 1):
+                if not (j == c - 1 and (i % 2) == 1):
                     if i % 2 == 0:
                         sej = j
                     else:
@@ -75,7 +75,7 @@ class TriangularLattice(SimplicialComplex):
         for i in range(0, r - 2):
             for j in range(c):
                 # add SW triangle for all except column 0 of even-numbered rows
-                if not(j == 0 and (i % 2) == 0):
+                if not (j == 0 and (i % 2) == 0):
                     if i % 2 == 0:
                         swj = j - 1
                     else:
@@ -83,10 +83,10 @@ class TriangularLattice(SimplicialComplex):
                     #print('3SW', self._indexOfVertex(i, j), self._indexOfVertex(i + 1, swj),  self._indexOfVertex(i + 2, j))
                     self.addSimplexWithBasis([self._indexOfVertex(i, j),
                                               self._indexOfVertex(i + 1, swj),
-                                              self._indexOfVertex(i + 2, j) ])
+                                              self._indexOfVertex(i + 2, j)])
 
                 # add SE triangle for all except column (c - 1) of odd-numbered rows
-                if not(j == c - 1 and (i % 2) == 1):
+                if not (j == c - 1 and (i % 2) == 1):
                     if i % 2 == 0:
                         sej = j
                     else:

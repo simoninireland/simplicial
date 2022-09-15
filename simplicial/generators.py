@@ -24,7 +24,7 @@ from simplicial import SimplicialComplex, Attributes
 
 # ---------- Basic structures ----------
 
-def k_skeleton(k, c: Optional[SimplicialComplex] = None) -> SimplicialComplex:
+def k_skeleton(k: int, c: Optional[SimplicialComplex] = None) -> SimplicialComplex:
     '''Create the skeleton of a k-simplex, consisting
     of (k + 1) 0-simplices for the basis and k(k - 1)/2 1-simplices
     for the skeleton. Note that this doesn't create the k-simplex
@@ -52,7 +52,9 @@ def k_skeleton(k, c: Optional[SimplicialComplex] = None) -> SimplicialComplex:
     return c
 
 
-def k_simplex(k: int, id: Any = None, attr: Attributes = None, c: SimplicialComplex = None) -> SimplicialComplex:
+def k_simplex(k: int, id: Any = None,
+              attr: Optional[Attributes] = None,
+              c: Optional[SimplicialComplex] = None) -> SimplicialComplex:
     '''Create a k-simplex. If no complex is provided, a new one is created.
     The top-level simplex can be named and given attributes; its faces
     will be "anonymous" and have names created for them.
@@ -61,7 +63,7 @@ def k_simplex(k: int, id: Any = None, attr: Attributes = None, c: SimplicialComp
     :param id: (optional) the name of the simplex created
     :param attr: (optional) attributes ot the top-level simplex
     :param c: (optional) the complex to create into
-    :returns: a complex containing the skeleton'''
+    :returns: the complex containing the new simplex'''
 
     # fill in defaults
     if c is None:
@@ -91,7 +93,7 @@ def k_void(k: int, c: SimplicialComplex = None) -> SimplicialComplex:
 
     :param k: the order of simplex to create
     :param c: (optional) the complex to create into
-    :returns: a complex containing the skeleton'''
+    :returns: the complex containing the skeleton'''
 
     # this probably isn't the optimal way to do this, but it
     # maximises code reuse from the rest of the code base
@@ -103,15 +105,15 @@ def k_void(k: int, c: SimplicialComplex = None) -> SimplicialComplex:
 
 # ---------- Larger example structures ----------
 
-def ring(n: int, c: SimplicialComplex = None) -> SimplicialComplex:
+def ring(n: int, c: Optional[SimplicialComplex] = None) -> SimplicialComplex:
     '''Create a closed ring of n lines (1-simplices), where
     n is strictly greater than 2.
 
     :param n: the number of lines in the ring
     :param c: (optional) the complex to create into
-    :returns: a complex containing the skeleton'''
+    :returns: the complex containing the skeleton'''
     if n <= 2:
-        raise Exception(f'Can\'t create a ring of {n} <= 2 lines')
+        raise ValueError(f'Can\'t create a ring of {n} <= 2 lines')
 
     # fill in defaults
     if c is None:
@@ -124,8 +126,8 @@ def ring(n: int, c: SimplicialComplex = None) -> SimplicialComplex:
 
     # construct the 1-simplices
     for i in range(n - 1):
-        c.addSimplex(fs = [ss[i], ss[i + 1]])
-    c.addSimplex(fs = [ss[n - 1], ss[0]])
+        c.addSimplex(fs=[ss[i], ss[i + 1]])
+    c.addSimplex(fs=[ss[n - 1], ss[0]])
 
     # return the complex we added into
     return c

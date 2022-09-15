@@ -18,7 +18,7 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import json
-from typing import Any, Dict
+from typing import Any
 from simplicial import SimplicialComplex, Simplex
 
 json_simplicial_version = 0.1
@@ -110,6 +110,8 @@ def as_simplicial_complex(o: Any):
     if (('__simplicialcomplex__' in o.keys()) and
         ('__version__' in o.keys()) and
         (o['__version__'] == json_simplicial_version)):
+
+        # create a new complex
         c = SimplicialComplex()
 
         # import all the simplices into the complex

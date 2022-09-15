@@ -81,8 +81,7 @@ class EulerIntegrator:
 
         # extract all the basis simplices whose associated metric
         # is greater than l
-        bs = c.allSimplices(lambda c, s: c.orderOf(s) == 0 and
-                                         self.metric(c, s) > l)
+        bs = c.allSimplices(lambda c, s: c.orderOf(s) == 0 and self.metric(c, s) > l)
 
         # create a sub-complex at this level
         return c.restrictBasisTo(bs)

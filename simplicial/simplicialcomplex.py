@@ -93,10 +93,10 @@ class SimplicialComplex:
         for s in self.simplices():
             if self.orderOf(s) == 0:
                 # 0-simplex, just add it
-                c.addSimplex(id = s, attr = copy.copy(self[s]))
+                c.addSimplex(id=s, attr=copy.copy(self[s]))
             else:
                 # higher simplex, add the faces
-                c.addSimplex(fs = self.faces(s), id = s, attr = copy.copy(self[s]))
+                c.addSimplex(fs=self.faces(s), id=s, attr=copy.copy(self[s]))
         return c
 
 
@@ -154,8 +154,10 @@ class SimplicialComplex:
                 # add empty structures
                 #print "created structures for order {k}".format(k = k)
                 self._indices.append([])                                                                  # empty indices
-                self._boundaries.append(numpy.zeros([len(self._indices[k - 1]), 0], dtype=numpy.int8))    # null boundary operator
-                self._bases.append(numpy.zeros([len(self._indices[0]), 0], dtype = numpy.int8))           # no simplex bases
+                self._boundaries.append(numpy.zeros([len(self._indices[k - 1]), 0],
+                                                    dtype=numpy.int8))    # null boundary operator
+                self._bases.append(numpy.zeros([len(self._indices[0]), 0],
+                                               dtype=numpy.int8))           # no simplex bases
                 self._maxOrder = k
         else:
             # check we don't already have a simplex of this order with
@@ -170,7 +172,9 @@ class SimplicialComplex:
         if self._maxOrder > k:
             # we have a higher order of simplices, add a row of zeros to its boundary operator
             #print("extended structures for order {kp}".format(kp = k + 1))
-            self._boundaries[k + 1] = numpy.r_[self._boundaries[k + 1], numpy.zeros([1, len(self._indices[k + 1])], dtype=numpy.int8)]
+            self._boundaries[k + 1] = numpy.r_[self._boundaries[k + 1],
+                                               numpy.zeros([1, len(self._indices[k + 1])],
+                                                           dtype=numpy.int8)]
 
         # perform the addition
         if k == 0:
@@ -183,24 +187,31 @@ class SimplicialComplex:
             # extend all the basis matrices with this new simplex
             if self._maxOrder > 0:
                 for i in range(1, self._maxOrder + 1):
-                    self._bases[i] = numpy.r_[self._bases[i], numpy.zeros([ 1, len(self._indices[i]) ], dtype = numpy.int8)]
+                    self._bases[i] = numpy.r_[self._bases[i],
+                                              numpy.zeros([1, len(self._indices[i])],
+                                                          dtype=numpy.int8)]
 
             # mark the simplex as its own basis
             if len(self._bases[0]) == 0:
                 # first 0-simplex, create the basis matrix
-                self._bases[0] = numpy.ones([ 1, 1 ])
+                self._bases[0] = numpy.ones([1, 1])
                 #print "after {b}".format(b = self._bases[0])
             else:
                 # later 0-simplices, add a row and column for the new 0-simplex
                 #print("before {b}".format(b = self._bases[0]))
-                self._bases[0] = numpy.c_[self._bases[0], numpy.zeros([ si, 1 ], dtype = numpy.int8)]
+                self._bases[0] = numpy.c_[self._bases[0],
+                                          numpy.zeros([si, 1],
+                                                      dtype=numpy.int8)]
                 #print("during {b}".format(b = self._bases[0]))
-                self._bases[0] = numpy.r_[self._bases[0], numpy.zeros([ 1, si + 1 ], dtype = numpy.int8)]
+                self._bases[0] = numpy.r_[self._bases[0],
+                                          numpy.zeros([1, si + 1],
+                                                      dtype=numpy.int8)]
                 (self._bases[0])[si, si] = 1
                 #print("after {b}".format(b = self._bases[0]))
         else:
             # build the boundary operator for the new higher simplex
-            bk = numpy.zeros([ len(self._indices[k - 1]), 1 ], dtype = numpy.int8)
+            bk = numpy.zeros([len(self._indices[k - 1]), 1],
+                             dtype=numpy.int8)
             bs = set()
             for f in fs:
                 if f in self:
@@ -225,7 +236,9 @@ class SimplicialComplex:
             self._simplices[id] = (k, si)                              # map simplex to its order and index
             self._boundaries[k] = numpy.c_[self._boundaries[k], bk]    # append boundary operator column
             self._attributes[id] = attr                                # store the attributes of the new simplex
-            self._bases[k] = numpy.c_[self._bases[k], numpy.zeros([len(self._indices[0]), 1 ], dtype = numpy.int8)]
+            self._bases[k] = numpy.c_[self._bases[k],
+                                      numpy.zeros([len(self._indices[0]), 1],
+                                                  dtype=numpy.int8)]
             for b in bs:
                 (_, bi) = self._simplices[b]
                 (self._bases[k])[bi, si] = 1                           # mark the 0-simplex in the basis
@@ -422,10 +435,12 @@ class SimplicialComplex:
             else:
                 lookup = rename
             newNames = dict()
+
             def newName(s):
                 if s not in newNames.keys():
                     newNames[s] = lookup(s)
                 return newNames[s]
+
             return newName
 
     def relabel(self, rename: Renaming) -> List[Simplex]:
@@ -499,23 +514,23 @@ class SimplicialComplex:
         #print(f'delete {s} {i} (order {k})')
 
         # delete from the basis matrices
-        self._bases[k] = numpy.delete(self._bases[k], i, axis = 1)
+        self._bases[k] = numpy.delete(self._bases[k], i, axis=1)
         if k == 0:
             # for 0-simplices, delete rows from all higher orders
             for j in range(self._maxOrder + 1):
                 #print(f'delete {s} from order {j}')
-                self._bases[j] = numpy.delete(self._bases[j], i, axis = 0)
+                self._bases[j] = numpy.delete(self._bases[j], i, axis=0)
 
         # delete from boundary matrices
         #print('delete {s} {i} (order {k})'.format(s = s, i = i, k = k))
         if k > 0:
             # delete column from order-k boundary
             #print('delete col {i} from {k}-boundary'.format(i = i, k = k))
-            self._boundaries[k] = numpy.delete(self._boundaries[k], i, axis = 1)
+            self._boundaries[k] = numpy.delete(self._boundaries[k], i, axis=1)
         if k < self._maxOrder:
             # delete row from order-(k + 1) boundary
             #print('delete row {i} from ({k} + 1)-boundary'.format(i = i, k = k))
-            self._boundaries[k + 1] = numpy.delete(self._boundaries[k + 1], i, axis = 0)
+            self._boundaries[k + 1] = numpy.delete(self._boundaries[k + 1], i, axis=0)
 
         # delete from the attributes dict
         del self._attributes[s]
@@ -583,7 +598,7 @@ class SimplicialComplex:
         # form a column vector with 1s in the rows corresponding to each element
         # in the basis
         sizeOfBasis = len(self._indices[0])
-        basisMask = numpy.zeros([ sizeOfBasis ], dtype = numpy.int8)
+        basisMask = numpy.zeros([sizeOfBasis], dtype=numpy.int8)
         for b in bs:
             (_, i) = self._simplices[b]
             basisMask[i] = 1
@@ -687,8 +702,7 @@ class SimplicialComplex:
 
         :param reverse: (optional) reverse the sort order if True
         :returns: a list of simplices"""
-        return [face_val for face in self._indices[
-                                     ::(-1) ** reverse] for face_val in face]
+        return [face_val for face in self._indices[::(-1) ** reverse] for face_val in face]
 
     def simplicesOfOrder(self, k: int) -> List[Simplex]:
         """Return all the simplices of the given order. This will
@@ -701,7 +715,7 @@ class SimplicialComplex:
         else:
             return set()
 
-    def simplexWithBasis(self, bs: List[Simplex], fatal:bool = False) -> Simplex:
+    def simplexWithBasis(self, bs: List[Simplex], fatal: bool = False) -> Simplex:
         """Return the simplex with the given basis, if it exists
         in the complex. If no such simplex exists, or if the given
         set is not a basis, then None is returned; if fatal is True, then
@@ -728,7 +742,7 @@ class SimplicialComplex:
             return (list(bs))[0]
 
         # form the basis column for this basis
-        bc = numpy.zeros([ len(self._indices[0]) ])
+        bc = numpy.zeros([len(self._indices[0])])
         for b in bs:
             (_, bi) = self._simplices[b]
             bc[bi] = 1
@@ -821,7 +835,7 @@ class SimplicialComplex:
             ks = self.simplicesOfOrder(k)
             for i in ks:
                 # check simplex exists
-                if not i in c:
+                if i not in c:
                     return False
 
                 # check simplex has the right order
@@ -980,7 +994,7 @@ class SimplicialComplex:
         psos = self._partOf(s, k)
 
         # order the simplices
-        spsos = sorted(psos, key = (lambda ka: ka[0]), reverse=reverse)
+        spsos = sorted(psos, key=(lambda ka: ka[0]), reverse=reverse)
 
         # extract just the simplices
         sps = list(map((lambda ka: ka[1]), spsos))
@@ -998,7 +1012,7 @@ class SimplicialComplex:
         # return the list
         return sps
 
-    def basisOf(self,  s: Simplex) -> Set[Simplex]:
+    def basisOf(self, s: Simplex) -> Set[Simplex]:
         """Return the basis of a simplex, the set of 0-simplices that
         define it. Is s is an 0-simplex then it is its own basis
 
@@ -1014,7 +1028,7 @@ class SimplicialComplex:
         #print("basis {bs}".format(bs = bs))
         return bs
 
-    def closureOf(self, s: Simplex, reverse:bool = False, exclude_self:bool = False) -> Set[Simplex]:
+    def closureOf(self, s: Simplex, reverse: bool = False, exclude_self: bool = False) -> Set[Simplex]:
         """Return the closure of a simplex. The closure is defined
         as the simplex plus all its faces, transitively down to its basis.
         If exclude_self is True, the closure excludes the simplex itself.
@@ -1138,18 +1152,21 @@ class SimplicialComplex:
         return bs
 
     def boundaryOperator(self, k: int) -> numpy.ndarray:
-        """Return the :term:`boundary operator` of the k-simplices in the
-        complex (usually denoted :math:`\partial_k`) as a `numpy` matrix. The columns correspond to
-        simplices of order k while rows correspond to simplices
-        of order (k - 1). The matrix has a 1 when a (k - 1) simplex
-        is a face of the corresponding k-simplex, and 0 otherwise.
+        """Return the :term:`boundary operator` of the k-simplices in
+        the complex (usually denoted :math:`\\partial_k`) as a `numpy`
+        matrix. The columns correspond to simplices of order k while
+        rows correspond to simplices of order (k - 1). The matrix has
+        a 1 when a (k - 1) simplex is a face of the corresponding
+        k-simplex, and 0 otherwise.
 
         The boundary of the 0-simplices is a matrix with one row,
         all zeros. The boundary of an order greater than the maximum
         order of the complex is a 0x0 matrix.
 
         :param k: the order of simplices
-        :returns: the boundary matrix"""
+        :returns: the boundary matrix
+
+        """
         if k == 0:
             # return a row of zeros
             return numpy.zeros([1, len(self._indices[0])])
@@ -1202,7 +1219,7 @@ class SimplicialComplex:
             (snfB, _, _) = self._reduceBoundaries(self.boundaryOperator(k).copy(), rls, cls)
         return snfB
 
-    def bettiNumbers(self, ks: Optional[List[int]] = None ) -> List[int]:
+    def bettiNumbers(self, ks: Optional[List[int]] = None) -> List[int]:
         """Return a dict of Betti numbers for the different dimensions
         of the complex.
 
@@ -1246,7 +1263,7 @@ class SimplicialComplex:
         :param ks: (optional) dimensions of holes (defaults to all)
         :returns: a dict of lists of p-chains'''
 
-         # fill in the default
+        # fill in the default
         if ks is None:
             ks = range(1, self.maxOrder() + 1)
 
@@ -1345,7 +1362,7 @@ class SimplicialComplex:
         :returns: True if the faces form a closed k-simplex"""
 
         # extract and sum columns
-        s = numpy.sum(boundary[:, fs], axis = 1) % 2
+        s = numpy.sum(boundary[:, fs], axis=1) % 2
 
         # check we only have 2 or 0 in all positions
         return numpy.all(numpy.logical_or(s == 2, s == 0))
@@ -1367,7 +1384,7 @@ class SimplicialComplex:
                 # no new simplices to form faces of any new simplices at this order
                 continue
             if k not in nss.keys():
-                 # create a new set into which to add created simplex indices
+                # create a new set into which to add created simplex indices
                 nss[k] = set()
 
             # grab the boundary matrix of the faces
@@ -1385,7 +1402,7 @@ class SimplicialComplex:
                         # sd: this could be a lot more optimised
                         cfs = [self._indices[k - 1][i] for i in fs]
                         if self.simplexWithFaces(cfs) is None:
-                            s = self.addSimplex(fs = cfs)
+                            s = self.addSimplex(fs=cfs)
                             (_, i) = self._simplices[s]
                             nss[k].add(i)
                             maxk = k
@@ -1428,7 +1445,7 @@ class SimplicialComplex:
         for s in newSimplices:
             (k, i) = self._simplices[s]
             if k not in nss.keys():
-                nss[k] = set([ i ])
+                nss[k] = set([i])
             else:
                 nss[k].add(i)
 

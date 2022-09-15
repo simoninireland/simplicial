@@ -72,7 +72,7 @@ class Embedding:
         """Return the position of the origin of the embedding space.
 
         :returns: the origin as a list of zero co-ordinates"""
-        return [ 0.0 ] * self.dimension()
+        return [0.0] * self.dimension()
 
     def complex(self) -> SimplicialComplex:
         """Return the underlying simplicial complex.
@@ -208,7 +208,7 @@ class Embedding:
         vr = SimplicialComplex()
         ss = list(c.simplicesOfOrder(0))
         for s in ss:
-            vr.addSimplex(id = s)
+            vr.addSimplex(id=s)
 
         # work out all pairs of 0-simplices within eps, adding a
         # 1-simplex between them

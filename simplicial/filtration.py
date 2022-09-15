@@ -68,7 +68,7 @@ class Filtration(SimplicialComplex):
     by a single index (typically a number) and ordered by
     inclusion. For two values of the index :math:`p_1` and :math:`p_2`
     with corresponding complexes :math:`C_1` and :math:`C_2`,
-    :math:`p_1 < p_2 \implies C_1 < C_2`: all the simplices in
+    :math:`p_1 < p_2 \\implies C_1 < C_2`: all the simplices in
     :math:`C_1` are contained in :math:`C_2`, with both being legal
     simplicial complexes.
 
@@ -87,7 +87,7 @@ class Filtration(SimplicialComplex):
 
     # ---------- Initialisation and helpers ----------
 
-    def __init__(self,  ind: int = 0):
+    def __init__(self, ind: int = 0):
         super().__init__()
         self._index = ind           # index
         self._appears = dict()      # mapping from simplex to the index value it appears at
@@ -117,7 +117,7 @@ class Filtration(SimplicialComplex):
             for s in self.simplicesAddedAtIndex(ind):
                 if self.orderOf(s) == 0:
                     # 0-simplex, just add it
-                    c.addSimplex(id = s, attr = self[s])
+                    c.addSimplex(id=s, attr=self[s])
                 else:
                     # higher simplex, add the faces
                     c.addSimplex(fs=self.faces(s), id=s, attr=self[s])
@@ -168,7 +168,7 @@ class Filtration(SimplicialComplex):
             return True
         else:
             if fatal:
-                raise Exception('{i} is not an index in the filtration'.format(i = ind))
+                raise ValueError('{i} is not an index in the filtration'.format(i=ind))
             else:
                 return False
 
@@ -291,7 +291,7 @@ class Filtration(SimplicialComplex):
         :returns: the order of the simplex'''
         try:
             return super(Filtration, self).orderOf(s)
-        except(Exception):
+        except Exception:
             # change to a slightly more informative error message
             raise Exception('No simplex {s} in filtration at index {ind}'.format(s=s, ind=self.getIndex()))
 
@@ -303,7 +303,7 @@ class Filtration(SimplicialComplex):
         :returns: the index of the simplex within its order'''
         try:
             return super(Filtration, self).indexOf(s)
-        except(Exception):
+        except Exception:
             # change to a slightly more informative error message
             raise Exception('No simplex {s} in filtration at index {ind}'.format(s=s, ind=self.getIndex()))
 
@@ -340,7 +340,7 @@ class Filtration(SimplicialComplex):
         # filter out any simplices not defined at the current index
         empty = set()
         for k in range(len(nsos)):
-            nsos[k] = len([ s for s in nsos[k] if k in self ])
+            nsos[k] = len([s for s in nsos[k] if k in self])
             if nsos[k] == 0:
                 empty.add(k)
 
@@ -362,7 +362,7 @@ class Filtration(SimplicialComplex):
         :returns: the simplices'''
 
         # make sure the index exists
-        self.isIndex(ind, fatal = True)
+        self.isIndex(ind, fatal=True)
 
         # retrieve the list of simplices that appeared at this index
         ss = self._includes[ind].copy()
