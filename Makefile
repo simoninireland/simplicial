@@ -30,22 +30,23 @@ VERSION = 0.8.1
 SOURCES_SETUP_IN = setup.py.in
 SOURCES_SDIST = dist/$(PACKAGENAME)-$(VERSION).tar.gz
 SOURCES_WHEEL = dist/$(PACKAGENAME)-$(VERSION)-py2-py3-none-any.whl
-SOURCES_CODE = \
+SOURCES_CODE_INIT = \
 	simplicial/__init__.py \
+	simplicial/drawing/__init__.py \
+	simplicial/file/__init__.py
+SOURCES_CODE = \
 	simplicial/simplicialcomplex.py \
 	simplicial/generators.py \
 	simplicial/filtration.py \
 	simplicial/eulerintegrator.py \
 	simplicial/triangularlattice.py \
 	simplicial/embedding.py \
-	simplicial/drawing/__init__.py \
 	simplicial/drawing/drawing.py \
-	simplicial/file/__init__.py \
 	simplicial/file/json_simplicial.py
 
 # Test suite
+SOURCES_TESTS_INIT = test/__init__.py
 SOURCES_TESTS = \
-	test/__init__.py \
 	test/test_simplicialcomplex.py \
 	test/test_filtration.py \
 	test/test_eulerintegrator.py \
@@ -172,7 +173,7 @@ coverage: env
 
 # Run lint checks
 lint: env
-	$(ACTIVATE) && $(FLAKE8) $(SOURCES_CODE) --count --statistics --ignore=E501,E303,E301,E302,E261,E741,E265,E402
+	$(ACTIVATE) && $(FLAKE8) $(SOURCES_CODE) --count --statistics --ignore=E501,E303,E301,E302,E261,E741,E265,E402,E731,E129,W504
 
 # Build the API documentation using Sphinx
 .PHONY: doc
