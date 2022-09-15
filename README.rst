@@ -10,6 +10,9 @@ simplicial: Simplicial topology in Python
 .. image:: https://github.com/simoninireland/simplicial/actions/workflows/ci.yaml/badge.svg
     :target: https://github.com/simoninireland/simplicial/actions/workflows/ci.yaml
 
+.. image:: https://pepy.tech/badge/simplicial
+    :target: https://pepy.tech/project/simplicial
+
 .. image:: https://www.gnu.org/graphics/gplv3-88x31.png
     :target: https://www.gnu.org/licenses/gpl-3.0.en.html
 
