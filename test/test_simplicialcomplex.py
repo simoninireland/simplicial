@@ -416,7 +416,7 @@ class SimplicialComplexTests(unittest.TestCase):
         ns = c.relabel(lambda s: s + 1000)
         self.assertCountEqual(ns.values(), [ 1001, 1002, 1003,
                                              1012, 1013, 1023,
-                                             1123 ])
+                                             1123 ])  # not 1 or 123, as they're not re-written
         self.assertCountEqual(ns.values(), c.simplices())
         self.assertCountEqual(c.faces(1123), [ 1012, 1013, 1023 ])
         self.assertCountEqual(c.faces(1012), [ 1001, 1002 ])
