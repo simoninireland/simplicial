@@ -1436,7 +1436,7 @@ class SimplicialComplex:
         The set of new simplices can contain simplices of any order,
         although 0-simplices will have no effect. For a lot of applications
         (for example for building a :term:`Vietoris-Rips complex`) the new
-        simplices willm all be 1-simplices (edges).
+        simplices will all be 1-simplices (edges).
 
         :param newSimplices: a collection of new simplices"""
 
