@@ -34,7 +34,7 @@ class SimplicialComplex:
 
     A simplicial :term:`complex` is a generalisation of a network in
     which vertices (0-simplices) and edges (1-simplices) can be
-    composed into triangles (2-simplices), tetrahedrons (3-simplices)
+    composed into triangles (2-simplices), tetrahedra (3-simplices)
     and so forth. This class actually implements closed simplicial
     complexes that contain every simplex, every :term:`face` of that
     simplex, every face of those simplices, and so forth. Operations
@@ -82,14 +82,23 @@ class SimplicialComplex:
         '''Return a copy of this complex. The two complexes have the
         same simplices, attributes, and topology, and can be modified independently.
 
+        If the copy is put into an existing complex, there must not be any
+        simplex names in common. To deal withg the case of two complexes with
+        simplices that should be fused on the basis of their labels,
+        use :meth:`compose`.
+
         :param c: (optional) the complex to copy to (defaults to a new complex)
         :returns: a copy of this complex'''
 
         # use an instance of SimplicialComplex by default
         if c is None:
             c = SimplicialComplex()
+        else:
+            # if one is passed in, make sure we won't get collisions
+            if len(set(self.simplices()).intersection(set(c.simplices()))) > 0:
+                raise ValueError('Overlapping simplices with copy target')
 
-        # copy all simplices and attributes across to new complex
+        # copy all simplices and attributes across to target complex
         for s in self.simplices():
             if self.orderOf(s) == 0:
                 # 0-simplex, just add it
@@ -1504,7 +1513,9 @@ class SimplicialComplex:
     def compose(self, c: 'SimplicialComplex') -> 'SimplicialComplex':
         '''Compose the complex c with us, generating a new complex.
         The complex labels need not be disjoint: if two k-simplices
-        have the same label and basis, they will be unified.
+        have the same label and basis, they will be unified. If
+        the simplex names are all disjoint, then this is equivalent
+        to :meth:`copy`.
 
         If two simplices are merged their attributes are also merged,
         with those of the simplex in c overwriting those in us.

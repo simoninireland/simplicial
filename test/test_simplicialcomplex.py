@@ -263,7 +263,55 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertCountEqual(c.simplices(),
                               [ 1, 2, 3, 4, 5, 6,
                                 12, 13, 23, 45, 46, 56,
+
                                 123, 456 ])
+
+    def testCopyInto(self):
+        '''Test we can copy one complex into another.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        d = SimplicialComplex()
+        d.addSimplex(id = 4)
+        d.addSimplex(id = 5)
+        d.addSimplex(id = 6)
+        d.addSimplex(id = 45, fs = [ 4, 5 ])
+        d.addSimplex(id = 46, fs = [ 4, 6 ])
+        d.addSimplex(id = 56, fs = [ 5, 6 ])
+        d.addSimplex(id = 456, fs = [ 45, 46, 56 ])
+
+        d.copy(c)
+        self.assertCountEqual(c.simplices(),
+                              [ 1, 2, 3, 4, 5, 6,
+                                12, 13, 23, 45, 46, 56,
+                                123, 456 ])
+
+    def testFailCopyInto(self):
+        '''Test we can't copy one complex into another if there are overlaps.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        d = SimplicialComplex()
+        d.addSimplex(id = 1)
+        d.addSimplex(id = 5)
+
+        with self.assertRaises(Exception):
+            d.copy(c)
+
+        # check c hasn't been changed
+        self.assertNotIn(5, c.simplices())
 
 
     # ---------- Relabelling ----------
