@@ -494,6 +494,38 @@ class SimplicialComplex:
         # return the new names of all the simplices
         return self.simplices()
 
+    def _createDisjointRenaming(self, c: 'SimplicialComplex') -> Renaming:
+        '''Construct the renaming for simplices in c, disjoint from those
+        in this complex.
+
+        :param c: the other complex
+        :returns: a renaming'''
+        rename = dict()
+        for k in range(c.maxOrder() + 1):
+            for s in c.simplicesOfOrder(k):
+                if s in self:
+                    # simplex exists in us, generate a new label
+                    # not present in us
+                    u = 1
+                    while True:
+                        q = f'{k}d{l}->{u}'
+                        if q not in self:
+                            rename[s] = q
+                            break
+                        u += 1
+
+        return rename
+
+    def relabelDisjointFrom(self, c: 'SimplicialComplex') -> List[Simplex]:
+        '''Relabel this complex to have no labels in common with
+        the complex given. This ensures that, if the two complexes are
+        composed using :meth:`compose`, they will not have any simplices
+        merged.
+
+        :param c: a complex
+        :returns: a list of new simplex names'''
+        return self.relabel(self._createDisjointRenaming(c))
+
 
     # ---------- Deleting simplices ----------
 
@@ -1451,3 +1483,58 @@ class SimplicialComplex:
 
         # extend the complex
         self._completePotentialSimplices(nss)
+
+
+    # ---------- Composing complexes ----------
+
+    def compose(self, c: 'SimplicialComplex') -> 'SimplicialComplex':
+        '''Compose the complex c with us, generating a new complex.
+        The complex labels need not be disjoint: if two k-simplices
+        have the same label and basis, they will be unified.
+
+        If two simplices are merged their attributes are also merged,
+        with those of the simplex in c overwriting those in us.
+
+        :param c: the other complex
+        :returns: a new complex
+
+        '''
+
+        # create a new copy of ourselves
+        d = self.copy()
+
+        # add simplices from other complex
+        for k in range(c.maxOrder() + 1):
+            ck = self.simplicesOfOrder(k)
+            for s in c.simplicesOfOrder(k):
+                sb = c.basisOf(s)
+                q = self.simplexWithBasis(sb)
+
+                # is there already a simplex with this label?
+                if s in self:
+                    # yes, does it have the same basis?
+                    if q is None:
+                        # a simplex with a different basis, fail
+                        raise ValueError(f'Simplex {s} exists but with a different basis')
+                    else:
+                        # simplex exists, check its label
+                        if s == q:
+                            # same label and same basis, merge attributes
+                            #print(f'merge {s}')
+                            for k, v in c[s].items():
+                                #print(f'{k} = {v}')
+                                d[s][k] = v
+                        else:
+                            # different label, fail
+                            raise ValueError(f'Simplices {s} and {q} have the same basis')
+                else:
+                    # no such simplex, do we have one with the same basis?
+                    if q is not None:
+                        # yes, fail
+                        raise ValueError(f'Simplices {s} and {q} have the same basis')
+                    else:
+                        # no create one
+                        #print(f'create {s}')
+                        q = d.addSimplex(fs=c.faces(s), id=s, attr=c[s])
+
+        return d

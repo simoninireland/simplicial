@@ -52,6 +52,21 @@ to delete all the simplices of which the to-be-deleted simplex is a part
 .. automethod:: SimplicialComplex.deleteSimplexWithBasis
 
 
+.. _relabelling-complexes:
+
+Relabelling simplices
+---------------------
+
+Simplex labels are often meaningful -- but not always. They can be
+relabelled using either functions or dicts, or simply to make them
+all unique relative to another complex. This is handy when
+:ref:`composing complexes <composing-complexes>`.
+
+.. automethod:: SimplicialComplex.relabel
+
+.. automethod:: SimplicialComplex.relabelDisjointFrom
+
+
 Copying and equality
 --------------------
 
@@ -203,6 +218,19 @@ after creating new simplices.
 .. automethod:: SimplicialComplex.flagComplex
 
 .. automethod:: SimplicialComplex.growFlagComplex
+
+
+.. _composing-complexes:
+
+Composing complexes
+-------------------
+
+Complexes can be combined to form larger complexes. The basic
+operation works by fusing two complexes on the basis of simplex
+labels: use :ref:`relabelling <relabelling-complexes>` to make
+disjoint complexes, and then set the corresponding simplices.
+
+.. automethod:: SimplicialComplex.compose
 
 
 Use of exceptions
