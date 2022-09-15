@@ -443,7 +443,7 @@ class SimplicialComplex:
 
             return newName
 
-    def relabel(self, rename: Renaming) -> List[Simplex]:
+    def relabel(self, rename: Renaming) -> Dict[Simplex, Simplex]:
         """Re-label simplices using the given relabeling, which may be a
         dict from old names to new names or a function taking a name
         and returning a new name.
@@ -464,13 +464,18 @@ class SimplicialComplex:
         value of which is the name of another simplex, then renaming
         will destroy the connection and lead to problems.)
 
+        The dict returned maps old simplex names to new ones for only
+        those simp[lices whose names were actually changed. All other
+        simplices will have their names left alone.
+
         :param rename: the relabeling, a dict or function
-        :returns: a list of simplices with their new names"""
+        :returns: a mapping from old to new simplex names, for those that changed"""
 
         # force the map to be a function
         f = self._createRelabelling(rename)
 
         # perform the renaming
+        mapping = dict()
         ss = list(self._simplices.keys())   # grab so we can change the structure
         for s in ss:
             sprime = f(s)
@@ -491,8 +496,11 @@ class SimplicialComplex:
                 self._attributes[sprime] = self._attributes[s]
                 del self._attributes[s]
 
-        # return the new names of all the simplices
-        return self.simplices()
+                # record the change
+                mapping[s] = sprime
+
+        # return the mapping of changed simplices
+        return mapping
 
     def _createDisjointRenaming(self, c: 'SimplicialComplex') -> Renaming:
         '''Construct the renaming for simplices in c, disjoint from those
@@ -508,7 +516,7 @@ class SimplicialComplex:
                     # not present in us
                     u = 1
                     while True:
-                        q = f'{k}d{l}->{u}'
+                        q = f'{s}->{k}d{u}'
                         if q not in self:
                             rename[s] = q
                             break
@@ -516,14 +524,20 @@ class SimplicialComplex:
 
         return rename
 
-    def relabelDisjointFrom(self, c: 'SimplicialComplex') -> List[Simplex]:
+    def relabelDisjointFrom(self, c: 'SimplicialComplex') -> Dict[Simplex, Simplex]:
         '''Relabel this complex to have no labels in common with
         the complex given. This ensures that, if the two complexes are
         composed using :meth:`compose`, they will not have any simplices
         merged.
 
+        The labels really will be meaningless, but the dict returned is
+        a mapping from original to new names for thjose simplices whose
+        names were actually changed: others are left as they were. The change
+        set should be minimal, changing only those names that need to be changed
+        to avoid collisions.
+
         :param c: a complex
-        :returns: a list of new simplex names'''
+        :returns: a mapping of old to new simplex names, for those that actually changed'''
         return self.relabel(self._createDisjointRenaming(c))
 
 

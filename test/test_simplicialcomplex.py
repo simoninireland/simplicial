@@ -400,7 +400,7 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
 
         ss = c.relabel(self.makeUniques(100))
-        self.assertCountEqual(ss, [ 101, 102, 103, 104, 105, 106, 107 ])
+        self.assertCountEqual(ss.values(), [ 101, 102, 103, 104, 105, 106, 107 ])
 
     def testRelabelFunction( self ):
         """Test relabelling with a function."""
@@ -414,10 +414,10 @@ class SimplicialComplexTests(unittest.TestCase):
         c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
 
         ns = c.relabel(lambda s: s + 1000)
-        self.assertCountEqual(ns, [ 1001, 1002, 1003,
-                                    1012, 1013, 1023,
-                                    1123 ])
-        self.assertCountEqual(ns, c.simplices())
+        self.assertCountEqual(ns.values(), [ 1001, 1002, 1003,
+                                             1012, 1013, 1023,
+                                             1123 ])
+        self.assertCountEqual(ns.values(), c.simplices())
         self.assertCountEqual(c.faces(1123), [ 1012, 1013, 1023 ])
         self.assertCountEqual(c.faces(1012), [ 1001, 1002 ])
         self.assertCountEqual(c.faces(1013), [ 1001, 1003 ])
@@ -441,10 +441,10 @@ class SimplicialComplexTests(unittest.TestCase):
         for i in c.simplices():
             rename[i] = i + 1000
         ns = c.relabel(rename)
-        self.assertCountEqual(ns, [ 1001, 1002, 1003,
-                                    1012, 1013, 1023,
-                                    1123 ])
-        self.assertCountEqual(ns, c.simplices())
+        self.assertCountEqual(ns.values(), [ 1001, 1002, 1003,
+                                             1012, 1013, 1023,
+                                             1123 ])
+        self.assertCountEqual(ns.values(), c.simplices())
         self.assertCountEqual(c.faces(1123), [ 1012, 1013, 1023 ])
         self.assertCountEqual(c.faces(1012), [ 1001, 1002 ])
         self.assertCountEqual(c.faces(1013), [ 1001, 1003 ])
@@ -470,10 +470,8 @@ class SimplicialComplexTests(unittest.TestCase):
         del rename[1]
         del rename[123]
         ns = c.relabel(rename)
-        self.assertCountEqual(ns, [ 1, 1002, 1003,
-                                    1012, 1013, 1023,
-                                    123 ])
-        self.assertCountEqual(ns, c.simplices())
+        self.assertCountEqual(ns.values(), [ 1002, 1003,
+                                             1012, 1013, 1023 ])
         self.assertCountEqual(c.faces(123), [ 1012, 1013, 1023 ])
         self.assertCountEqual(c.faces(1012), [ 1, 1002 ])
         self.assertCountEqual(c.faces(1013), [ 1, 1003 ])
