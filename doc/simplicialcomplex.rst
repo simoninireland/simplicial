@@ -36,6 +36,20 @@ renaming mapping can be applied automatically during the copy process.
 .. automethod:: SimplicialComplex.addSimplicesFrom
 
 
+Simplex attributes
+------------------
+
+Each simplex can have a dict of attributes associated with it.
+
+.. automethod:: SimplicialComplex.getAttributes
+
+.. automethod:: SimplicialComplex.setAttributes
+
+.. automethod:: SimplicialComplex.__getitem__
+
+.. automethod:: SimplicialComplex.__setitem__
+
+
 Deleting simplices
 ------------------
 
@@ -61,6 +75,8 @@ Simplex labels are often meaningful -- but not always. They can be
 relabelled using either functions or dicts, or simply to make them
 all unique relative to another complex. This is handy when
 :ref:`composing complexes <composing-complexes>`.
+
+.. automethod:: SimplicialComplex.relabelSimplex
 
 .. automethod:: SimplicialComplex.relabel
 

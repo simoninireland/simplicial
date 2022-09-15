@@ -452,6 +452,30 @@ class SimplicialComplex:
 
             return newName
 
+    def relabelSimplex(self, s: Simplex, q: Simplex):
+        '''Relabel a simplex. This is a simple form of :meth:`relabel`
+        working on individual simplices. The simplex q mustn't exist in
+        the complex.
+
+        :param s: the simplex to rename
+        :param q: the new name'''
+
+        # check new name is not in use already
+        if q in self:
+            raise ValueError(f'Relabeling attempting to re-write {s} to existing simplex {q}')
+
+        # change the entry in the simplex dict
+        (k, i) = self._simplices[s]
+        self._simplices[q] = (k, i)
+        del self._simplices[s]
+
+        # change the entry in the appropriate indices array
+        (self._indices[k])[i] = q
+
+        # change the entry in the attributes dict
+        self._attributes[q] = self._attributes[s]
+        del self._attributes[s]
+
     def relabel(self, rename: Renaming) -> Dict[Simplex, Simplex]:
         """Re-label simplices using the given relabeling, which may be a
         dict from old names to new names or a function taking a name
@@ -485,25 +509,12 @@ class SimplicialComplex:
 
         # perform the renaming
         mapping = dict()
-        ss = list(self._simplices.keys())   # grab so we can change the structure
+        ss = list(self.simplices())   # grab so we can change the structure
         for s in ss:
             sprime = f(s)
             if s != sprime:
-                # check it's not in use already
-                if sprime in self:
-                    raise ValueError(f'Relabeling attempting to re-write {s} to existing simplex {sprime}')
-
-                # change the entry in the simplex dict
-                (k, i) = self._simplices[s]
-                self._simplices[sprime] = (k, i)
-                del self._simplices[s]
-
-                # change the entry in the appropriate indices array
-                (self._indices[k])[i] = sprime
-
-                # change the entry in the attributes dict
-                self._attributes[sprime] = self._attributes[s]
-                del self._attributes[s]
+                # relabel the simplex
+                self.relabelSimplex(s, sprime)
 
                 # record the change
                 mapping[s] = sprime
@@ -972,19 +983,35 @@ class SimplicialComplex:
 
     # ---------- Attributes ----------
 
-    def __getitem__(self, s: Simplex) -> Attributes:
+    def getAttributes(self, s: Simplex) -> Attributes:
         """Return the attributes associated with the given simplex.
 
         :param s: the simplex
         :returns: a dict of attributes"""
         return self._attributes[s]
 
-    def __setitem__(self, s: Simplex, attr: Attributes):
+    def setAttributes(self, s: Simplex, attr: Attributes):
         """Set the attributes associated with a simplex.
 
         :param s: the simplex
         :param attr: a dict of attributes"""
         self._attributes[s] = attr
+
+    def __getitem__(self, s: Simplex) -> Attributes:
+        """Return the attributes associated with the given simplex.
+        Equivalent to :meth:`getAttributes`.
+
+        :param s: the simplex
+        :returns: a dict of attributes"""
+        return self.getAttributes(s)
+
+    def __setitem__(self, s: Simplex, attr: Attributes):
+        """Set the attributes associated with a simplex.
+        Equivalent to :meth:`setAttributes`.
+
+        :param s: the simplex
+        :param attr: a dict of attributes"""
+        self.setAttributes(s, attr)
 
 
     # ---------- Structure of complex, per-simplex level ----------
@@ -1013,21 +1040,15 @@ class SimplicialComplex:
         return fs
 
     def cofaces(self, s: Simplex) -> Set[Simplex]:
-        '''Return the simplices the given simnplex is a face of. A synonym
-        for :meth:`facesOf`.
+        '''Return the simplices the given simnplex is a face of. This
+        is not transitive: all the simplices returned will be of an order
+        one greater than the given simplex.
+
+        This is a synonym for :meth:`faceOf`. The transitive closure of
+        :meth:`cofaces` is :meth:`partOf`.
 
         :param s: the simplex
         :returns: a list of simplices'''
-        return self.faceOf(s)
-
-    def faceOf(self, s: Simplex) -> Set[Simplex]:
-        """Return the simplices that the given simplex is a face of. This
-        is not transitive: all the simplices returned will be of an order
-        one greater than the given simplex. The transitive closure of
-        :meth:`faceOf` is :meth:`partOf`.
-
-        :param s: the simplex
-        :returns: a list of simplices"""
         (k, i) = self._simplices[s]
         if k == self.maxOrder():
             # simplex is of maximal order, so isn't a face or a larger simplex
@@ -1037,6 +1058,14 @@ class SimplicialComplex:
             ss = self._indices[k + 1]
             fs = numpy.compress((self._boundaries[k + 1])[i], ss)
             return list(fs)
+
+    def faceOf(self, s: Simplex) -> Set[Simplex]:
+        """Return the simplices that the given simplex is a face of.
+        A synonym of :meth:`cofaces`.
+
+        :param s: the simplex
+        :returns: a list of simplices"""
+        return self.cofaces(s)
 
     def _partOf(self, s: Simplex, k: int) -> Set[Simplex]:
         """Internal method to find the star of a simplex. The simplices
