@@ -500,6 +500,15 @@ class SimplicialComplexTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             ns = c.relabel(rename)
 
+    def testRelabelDisjoint(self):
+        '''Test we can relabel a complex entirely disjointly from another.'''
+        c1 = ring(10)
+        c2 = ring(10)
+        self.assertTrue(len(set(c1.simplices()).intersection(set(c2.simplices()))) > 0)
+
+        c2.relabelDisjointFrom(c1)
+        self.assertTrue(len(set(c1.simplices()).intersection(set(c2.simplices()))) == 0)
+
     def testOrderViolation( self ):
         """Test that we throw an exception if we try to add a face with the wrong order."""
         c = SimplicialComplex()
