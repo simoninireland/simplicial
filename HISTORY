@@ -1,3 +1,8 @@
+Version 1.0.1
+
+   - Fixed coding style to conform (largely) to Python Black
+   - Separated main interface from representation
+
 Version 0.7.2 (11Mar2022)
 
    - Fixed broken setup.py
@@ -9,7 +14,6 @@ Version 0.7.1 (11Mar2022)
    - Fixed issue with deleting 0-simplices corrupting the basis matrices
    - Improved integrity checks in tests
    - Refined exceptions raised
->>>>>>> master
 
 Version 0.6.2 (15Mar2020)
 
