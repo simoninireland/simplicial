@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-from typing import Iterable, Optional, Set, List
+from typing import Iterable, Optional, Set, List, Any
 from simplicial import SimplicialComplex, Simplex, Attributes
 
 
@@ -82,13 +82,13 @@ class Filtration(SimplicialComplex):
     groups of the sequence of complexes.
 
     :param ind: (optional) the initial index (defaults to 0)
-
+    :param rep: (optional) the representation being used
     '''
 
     # ---------- Initialisation and helpers ----------
 
-    def __init__(self, ind: int = 0):
-        super().__init__()
+    def __init__(self, ind: int = 0, rep: Any = None):
+        super().__init__(rep)
         self._index = ind           # index
         self._appears = dict()      # mapping from simplex to the index value it appears at
         self._includes = dict()     # the reverse mapping, from index to a set of simplices
@@ -106,9 +106,10 @@ class Filtration(SimplicialComplex):
         :returns: a copy of this filtration'''
         inds = self.indices()
 
-        # use an instance of Filtration by default
+        # use an instance of Filtration by default, with the same representation as us
         if c is None:
-            c = Filtration(inds[0])
+            rep = self.representation().__class__()
+            c = Filtration(inds[0], rep=rep)
 
         # copy all simplices and attributes across to new filtration
         indf = c.getIndex()
@@ -243,7 +244,7 @@ class Filtration(SimplicialComplex):
         :param id: (optional) name for the simplex
         :param attr: (optional) dict of attributes
         :returns: the name of the new simplex'''
-        nid = super(Filtration, self).addSimplex(fs, id, attr)
+        nid = super().addSimplex(fs, id, attr)
         ind = self.getIndex()
         self._appears[nid] = ind
         self._includes[ind].add(nid)
@@ -251,8 +252,6 @@ class Filtration(SimplicialComplex):
             self._maxOrders[ind] = self.maxOrder()
         return nid
 
-    # All other simplex addition methods use this one as their base
-    # sd: is that true? check the basis ones
 
     # ---------- Relabelling ----------
 
@@ -261,11 +260,11 @@ class Filtration(SimplicialComplex):
 
     # ---------- Deleting simplices ----------
 
-    def _deleteSimplex(self, s: Simplex):
+    def forceDeleteSimplex(self, s: Simplex):
         '''Delete a simplex.
 
         :param s: the simplex'''
-        super(Filtration, self)._deleteSimplex(s)
+        super().forceDeleteSimplex(s)
 
         # in addition to the normal complex, each simplex
         # appears in the appearance index dict and in the
@@ -290,7 +289,7 @@ class Filtration(SimplicialComplex):
         :param s: the simplex
         :returns: the order of the simplex'''
         try:
-            return super(Filtration, self).orderOf(s)
+            return super().orderOf(s)
         except Exception:
             # change to a slightly more informative error message
             raise Exception('No simplex {s} in filtration at index {ind}'.format(s=s, ind=self.getIndex()))
@@ -302,7 +301,7 @@ class Filtration(SimplicialComplex):
         :param s: the simplex
         :returns: the index of the simplex within its order'''
         try:
-            return super(Filtration, self).indexOf(s)
+            return super().indexOf(s)
         except Exception:
             # change to a slightly more informative error message
             raise Exception('No simplex {s} in filtration at index {ind}'.format(s=s, ind=self.getIndex()))
@@ -314,7 +313,7 @@ class Filtration(SimplicialComplex):
 
         :param reverse: (optional) reverse sort order (defaults to False)
         :returns: a list of simplices'''
-        return [s for s in super(Filtration, self).simplices(reverse) if s in self]
+        return [s for s in super().simplices(reverse) if s in self]
 
     def numberOfSimplices(self) -> int:
         '''Return the number of simplices in the filtration up to and including
@@ -335,7 +334,7 @@ class Filtration(SimplicialComplex):
         of that order in the filtratrion up to and including the current index.
 
         :returns: a list of number of simplices at each order'''
-        nsos = super(Filtration, self).numberOfSimplicesOfOrder()
+        nsos = super().numberOfSimplicesOfOrder()
 
         # filter out any simplices not defined at the current index
         empty = set()
@@ -391,7 +390,7 @@ class Filtration(SimplicialComplex):
         is the same or lessa than the current index.
 
         :returns: True if the simplex is in the filtration'''
-        return super(Filtration, self).containsSimplex(s) and self._appears[s] <= self.getIndex()
+        return super().containsSimplex(s) and self._appears[s] <= self.getIndex()
 
     def containsSimplexAtSomeIndex(self, s: Simplex) -> bool:
         '''Test whether the simplex exists in the filtration at some index, ignoring
@@ -400,7 +399,7 @@ class Filtration(SimplicialComplex):
 
         :param s: the simplex
         :returns: True if the simplex exists at some index within the filtration'''
-        return super(Filtration, self).containsSimplex(s)
+        return super().containsSimplex(s)
 
 
     # ---------- Inclusion of complexes ----------

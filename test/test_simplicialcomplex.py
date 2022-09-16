@@ -60,11 +60,12 @@ class SimplicialComplexTests(unittest.TestCase):
                                                                                                  p = p))
 
         # check sizes of boundary and basis matrices
+        # (assumes the default representation)
         ns = c.numberOfSimplicesOfOrder()
         for k in range(len(ns)):
-            self.assertEqual(c._bases[k].shape, (ns[0], ns[k]))
+            self.assertEqual(c._rep._bases[k].shape, (ns[0], ns[k]))
             if k > 0:
-                self.assertEqual(c._boundaries[k].shape, (ns[k - 1], ns[k]))
+                self.assertEqual(c._rep._boundaries[k].shape, (ns[k - 1], ns[k]))
 
 
     #---------- Construction ----------
@@ -291,6 +292,22 @@ class SimplicialComplexTests(unittest.TestCase):
                               [ 1, 2, 3, 4, 5, 6,
                                 12, 13, 23, 45, 46, 56,
                                 123, 456 ])
+
+    def testCopyIndependentAttributes(self):
+        '''Test that copying simplex attributes are independent.'''
+        c = SimplicialComplex()
+        c.addSimplex(id=1, attr=dict(a=1, b='hello'))
+
+        d = c.copy()
+        d[1]['a'] = 2
+        self.assertEqual(d[1]['a'], 2)
+        self.assertEqual(d[1]['b'], 'hello')
+        self.assertEqual(c[1]['a'], 1)
+        self.assertEqual(c[1]['b'], 'hello')
+
+        del d[1]['a']
+        self.assertEqual(c[1]['a'], 1)
+        self.assertNotIn('a', d[1])
 
     def testFailCopyInto(self):
         '''Test we can't copy one complex into another if there are overlaps.'''

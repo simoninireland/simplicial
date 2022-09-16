@@ -38,7 +38,10 @@ for visualisation (although this still needs a lot more work).
 '''
 
 # representation and computation
-from .simplicialcomplex import Simplex, Attributes, Renaming, SimplicialComplex
+from .types import Simplex, Attributes, Renaming
+from .rep import Representation
+from .simplicialcomplex import ReferenceRepresentation
+from .base import SimplicialComplex
 
 # generator functions for common complexes
 from .generators import k_simplex, k_skeleton, k_void, ring
