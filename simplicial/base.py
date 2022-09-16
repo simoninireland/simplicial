@@ -39,7 +39,7 @@ class SimplicialComplex:
 
     This class includes the entire interface for simplicial complexes,
     but defers the implementation to a representation class. By
-    default this is :class:`SimplicialComplexRepresentation`, but this
+    default this is :class:`ReferenceRepresentation`, but this
     can be changed to use alternate representations if required.
 
     :param rep: (optional) the representation to use for this complex
