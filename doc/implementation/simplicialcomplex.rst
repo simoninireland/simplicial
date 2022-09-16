@@ -29,9 +29,11 @@ We therefore split the functions across two classes.
 :class:`SimplicialComplex` provides all the main access methods for a
 complex, but delegates the sub-set of operations that manipulate the
 representation of a complex to a representation class.
+Representations all inherit from :class:`Representation`, which
+defines the interface and does some simple housekeeping.
 
 The reference implementation,
-:class:`SimplicialComplexRepresentation`, uses the approach of
+:class:`ReferenceRepresentation`, uses the approach of
 replicating information, despite its difficulties. This makes the
 representation code harder, but the client code easier to understand
 and often faster. The representation maintains several data structures
@@ -44,7 +46,7 @@ representing different aspects of the complex:
 * A list of basis matrices for efficient extraction of bases
 * A dict of simplex attributes
 
-The core operations of :class:`SimplicialComplexRepresentation` have
+The core operations of :class:`ReferenceRepresentation` have
 to do more work to maintain these parallel structures, and there is
 some repetition (one can extract the basis of a simplex by repeatedly
 traversing the boundary matrices, for example) in pursuit of
@@ -62,37 +64,37 @@ writing any class that supports the same interface.
 
 *Addition and removal of simplices*:
 
-* :meth:`AbstractSimplicialComplex.addSimplex` to perform basic addition of
+- :meth:`Representation.addSimplex` to perform basic addition of
   simplices
-* :meth:`AbstractSimplicialComplex.forceDeleteSimplex` to delete
+- :meth:`Representation.forceDeleteSimplex` to delete
   individual simplices regardless of consequences
-* :meth:`AbstractSimplicialComplex.relabelSimplex` to relabel individual
+- :meth:`Representation.relabelSimplex` to relabel individual
   simplices
 
 *Retrieving simplices*:
 
-* :meth:`AbstractSimplicialComplex.simplices` to enumerate simplices
-* :meth:`AbstractSimplicialComplex.simplicesOfOrder` to enumerate
+- :meth:`Representation.simplices` to enumerate simplices
+- :meth:`Representation.simplicesOfOrder` to enumerate
   simplices of a given order
-* :meth:`AbstractSimplicialComplex.containsSimplex` to test for membership
-* :meth:`AbstractSimplicialComplex.maxOrder` to return the order of the
+- :meth:`Representation.containsSimplex` to test for membership
+- :meth:`Representation.maxOrder` to return the order of the
   largest simplex
 
 *Accessing details of an individual simplex*:
 
-* :meth:`AbstractSimplicialComplex.orderOf` to return the order of a simplex
-* :meth:`AbstractSimplicialComplex.indexOf` to map a simplex to its index in
+- :meth:`Representation.orderOf` to return the order of a simplex
+- :meth:`Representation.indexOf` to map a simplex to its index in
   the appropriate boundary operator
-* :meth:`AbstractSimplicialComplex.getAttribujtes` and
-  :meth:`AbstractSimplicialComplex.setAttributes` to get and set the attributes
+- :meth:`Representation.getAttribujtes` and
+  :meth:`Representation.setAttributes` to get and set the attributes
   dict of a simplex
-* :meth:`AbstractSimplicialComplex.faces` to find the faces of a simplex
-* :meth:`AbstractSimplicialComplex.cofaces` to find the cofaces of a simplex
-* :meth:`AbstractSimplicialComplex.basisOf` to find the basis of a simplex
+- :meth:`Representation.faces` to find the faces of a simplex
+- :meth:`Representation.cofaces` to find the cofaces of a simplex
+- :meth:`Representation.basisOf` to find the basis of a simplex
 
 *Topological information*:
 
-* :meth:`AbstractSimplicialComplex.boundaryOperator` to compute the
+- :meth:`Representation.boundaryOperator` to compute the
   boundary operator matrix for a given order of simplices
 
 This is still quite a surface area, but significantly less than the
