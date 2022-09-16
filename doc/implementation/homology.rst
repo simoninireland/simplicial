@@ -1,5 +1,6 @@
-.. currentmodule:: simplicial
+.. _homology:
 
+.. currentmodule:: simplicial
 
 Computing homology
 ==================
@@ -74,7 +75,7 @@ it consists of a matrix that has 1 for some prefix of its diagonal and is zero
 elsewhere. The numbers of zero columns, and the number of non-zero rows, provide
 the sizes of the kernel and boundary groups needed to compute the Betti number.
 
-The reduction to Smith normal form uses an algorithm due to Herbert Edelsbrunner described 
+The reduction to Smith normal form uses an algorithm due to Herbert Edelsbrunner described
 `here <https://www.cs.duke.edu/courses/fall06/cps296.1/Lectures/sec-IV-3.pdf>`_.
 It is simpler than many others found in the literature because of our use
 of homology over :math:`\mathbb{Z}/2`. (A more general homology theory would have a Smith
@@ -106,4 +107,3 @@ reduced, the number of zero columns represents the degree of :math:`Z_k` (which 
 when computing the Betti numbers); the labels on these columns form a basis for :math:`Z_k`,
 which is to say that any cycle around a hole can be constructed as some combination of the
 basis elements.
-
