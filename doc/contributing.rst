@@ -77,7 +77,7 @@ The makefile has several targets that are needed for development:
   when developing and testing (specified in ``dev-requirements.txt``)
 - ``make test`` runs the test suite. This consists of a *lot* of
   tests, some of which do a lot of work, and so this may take some time
-- ``make clean`` delete s a lo of constructed files for a clean build
+- ``make clean`` deletes a lot of constructed files for a clean build
 - ``make reallyclean`` also deletes the venv
 
 Calling ``make`` on its own prints all the available targets.
