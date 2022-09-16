@@ -137,6 +137,9 @@ PASTE = paste
 # (See https://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script)
 GIT_DIRTY = $(shell $(GIT) status --untracked-files=no --porcelain)
 
+# The git branch we're currently working on
+GIT_BRANCH = $(shell $(GIT) rev-parse --abbrev-ref HEAD 2>/dev/null)
+
 # Root directory
 ROOT = $(shell pwd)
 
