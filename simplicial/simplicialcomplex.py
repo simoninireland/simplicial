@@ -18,17 +18,8 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import numpy
-import copy
-import itertools
-from typing import Dict, Any, List, Union, Callable, Set, Tuple, Optional
-from simplicial import Simplex, Attributes, Renaming, Representation
-
-# There is a circular import between SimplicialComplex and
-# SimplicialComplexRepresentation at the typing level (but not at the execution
-# level) (See https://www.stefaanlippens.net/circular-imports-type-hints-python.html)
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from simplicial import SimplicialComplex
+from typing import Dict, Any, List, Set, Tuple
+from simplicial import Simplex, Attributes, Representation
 
 
 class ReferenceRepresentation(Representation):

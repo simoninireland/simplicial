@@ -18,10 +18,8 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import numpy
-import copy
-import itertools
-from typing import Dict, Any, List, Union, Callable, Set, Tuple, Optional
-from simplicial import Simplex, Attributes, Renaming
+from typing import List, Set
+from simplicial import Simplex, Attributes
 
 # There is a circular import between SimplicialComplex and
 # SimplicialComplexRepresentation at the typing level (but not at the execution
@@ -50,7 +48,7 @@ class Representation:
         to make use of the complex's more flexible operations if required.
 
         :param c: the complex'''
-        self._complex= c
+        self._complex = c
 
 
     # ---------- Core interface ----------

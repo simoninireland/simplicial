@@ -20,7 +20,7 @@
 import numpy
 import copy
 import itertools
-from typing import Dict, Any, List, Union, Callable, Set, Tuple, Optional
+from typing import Dict, List, Callable, Set, Tuple, Optional
 from simplicial import Representation, ReferenceRepresentation, Simplex, Attributes, Renaming
 
 
@@ -577,7 +577,6 @@ class SimplicialComplex:
                 raise KeyError(f'Complex does not have any simplices of order {k}')
             else:
                 return None
-        ss = self.simplicesOfOrder(k)
 
         # check all the candidate simplices
         for s in self.simplicesOfOrder(k):
@@ -641,7 +640,7 @@ class SimplicialComplex:
         :returns: a simplex matching the predicate, or None'''
         for s in self.simplices():
             if p(self, s):
-                 return s
+                return s
         return None
 
 
@@ -1289,7 +1288,7 @@ class SimplicialComplex:
     # ---------- Composing complexes ----------
 
     def compose(self, c: 'SimplicialComplex',
-                d: Optional['SimplicialCompless'] = None) -> 'SimplicialComplex':
+                d: Optional['SimplicialComplex'] = None) -> 'SimplicialComplex':
         '''Compose the complex c with us, generating a new complex.
         The complex labels need not be disjoint: if two k-simplices
         have the same label and basis, they will be unified. If
@@ -1313,7 +1312,6 @@ class SimplicialComplex:
 
         # add simplices from other complex
         for k in range(c.maxOrder() + 1):
-            ck = self.simplicesOfOrder(k)
             for s in c.simplicesOfOrder(k):
                 sb = c.basisOf(s)
                 q = self.simplexWithBasis(sb)
