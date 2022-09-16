@@ -1,5 +1,5 @@
-:class:`Representation`: The reference implementation of complexes
-===================================================================================
+:class:`Representation`: The repreesentation of complexes
+==========================================================
 
 .. currentmodule:: simplicial
 
