@@ -9,7 +9,7 @@ Simplicial complexes
 .. toctree::
    :maxdepth: 2
 
-   simplicialcomplex
+   base
    filtration
    eulerintegrator
 
@@ -28,3 +28,11 @@ Embeddings
 
 :ref:`drawing`
 
+Representations
+---------------
+
+.. toctree::
+   :maxdepth: 2
+
+   rep
+   simplicialcomplex
