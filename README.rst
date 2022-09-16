@@ -13,8 +13,8 @@ simplicial: Simplicial topology in Python
 .. image:: https://pepy.tech/badge/simplicial
     :target: https://pepy.tech/project/simplicial
 
-.. image:: https://zenodo.org/badge/7086245.svg
-   :target: https://zenodo.org/badge/latestdoi/7086245
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.7086245.svg
+   :target: https://doi.org/10.5281/zenodo.7086245
 
 .. image:: https://www.gnu.org/graphics/gplv3-88x31.png
     :target: https://www.gnu.org/licenses/gpl-3.0.en.html

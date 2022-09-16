@@ -101,6 +101,7 @@ SOURCES_PAPER = \
 # Extras for the build and packaging system
 SOURCES_EXTRA = \
 	README.rst \
+	CITATION.cff \
 	LICENSE \
 	HISTORY
 SOURCES_GENERATED = \
