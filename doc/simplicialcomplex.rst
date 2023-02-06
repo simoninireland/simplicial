@@ -1,9 +1,10 @@
-:class:`ReferenceRepresentation`: The reference implementation of complexes
-===================================================================================
+:class:`ReferenceRepresentation`: In-memory simplicial complexes
+================================================================
 
 .. currentmodule:: simplicial
 
 .. autoclass:: ReferenceRepresentation
+
 
 .. important::
 
