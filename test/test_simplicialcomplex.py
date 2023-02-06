@@ -1451,5 +1451,68 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertEqual(c.eulerCharacteristic(), 1)
 
 
+    # ---------- Generalised degree ----------
+
+    def testDegree(self):
+        """Test the basics of generalised degree."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+
+        self.assertEqual(c.degreeOf(0, 12), 2)
+        self.assertEqual(c.degreeOf(0, 13), 2)
+        self.assertEqual(c.degreeOf(0, 23), 2)
+        self.assertEqual(c.degreeOf(1, 123), 3)
+        self.assertEqual(c.degreeOf(0, 123), 3)
+        self.assertEqual(c.degreeOf(2, 12), 1)
+        self.assertEqual(c.degreeOf(2, 13), 1)
+        self.assertEqual(c.degreeOf(2, 23), 1)
+        self.assertEqual(c.degreeOf(3, 123), 0)
+        with self.assertRaises(ValueError):
+            c.degreeOf(1, 12)
+
+    def testDegreeBat(self):
+        """Test the degree of a "bat wing" of two triangles joined along a common edge."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 24, fs = [ 2, 4 ])
+        c.addSimplex(id = 34, fs = [ 3, 4 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        c.addSimplex(id = 124, fs = [ 12, 24, 34 ])
+
+        self.assertEqual(c.degreeOf(2, 12), 2)
+
+    def testDegreeButterfly(self):
+        """Test the degree of a "butterfly" of two triangles joined a a point."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 5)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 13, fs = [ 1, 3 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 14, fs = [ 1, 4 ])
+        c.addSimplex(id = 15, fs = [ 1, 5 ])
+        c.addSimplex(id = 45, fs = [ 4, 5])
+        c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        c.addSimplex(id = 145, fs = [ 14, 15, 45 ])
+
+        self.assertEqual(c.degreeOf(2, 1), 2)
+        self.assertEqual(c.degreeOf(2, 15), 1)
+
+
 if __name__ == '__main__':
     unittest.main()

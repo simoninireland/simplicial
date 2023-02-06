@@ -1,5 +1,5 @@
-:class:`SimplicialComplex`: An abstract topological space
-=================================================================
+:class:`SimplicialComplex`: An abstract discrete topological space
+==================================================================
 
 .. currentmodule:: simplicial
 
@@ -105,6 +105,8 @@ Querying the structure of the complex
 .. automethod:: SimplicialComplex.orderOf
 
 .. automethod:: SimplicialComplex.indexOf
+
+.. automethod:: SimplicialComplex.degreeOf
 
 .. automethod:: SimplicialComplex.maxOrder
 
