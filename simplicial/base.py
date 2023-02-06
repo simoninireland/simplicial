@@ -1,6 +1,6 @@
 # Base class for simplicial complexes
 #
-# Copyright (C) 2017--2022 Simon Dobson
+# Copyright (C) 2017--2023 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -17,10 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-import numpy
 import copy
 import itertools
 from typing import Dict, List, Callable, Set, Tuple, Optional
+import numpy
+from scipy.special import comb
 from simplicial import Representation, ReferenceRepresentation, Simplex, Attributes, Renaming
 
 
@@ -47,7 +48,7 @@ class SimplicialComplex:
 
     # ---------- Initialisation and helpers ----------
 
-    def __init__(self, rep: Representation = None):
+    def __init__(self, rep: Optional[Representation] = None):
         if rep is None:
             rep = ReferenceRepresentation()
         self._rep = rep        # representation
@@ -908,6 +909,42 @@ class SimplicialComplex:
             for fk in range(0, topk + 1):
                 ss = ss + list(cs[fk])
         return ss
+
+
+    # ---------- Generalised degree ----------
+
+    def degreeOf(self, d: int, s: Simplex) -> int:
+        """Return the (generalised) degree of a simplex. If s is
+        an m-simplex, the d-degree is the number of simplices of order
+        d incident on s.
+
+        For d < m the generalised degree provides no information, as
+        the number of incident simplices is defined by the closure
+        property of the complex as :math:`\binom{m + 1}{d + 1}`.
+
+        Generalised degree is not defined for d = m and an exception
+        is raised.
+
+        For d > m the generalised degree reflects the degree to which
+        simplices are shared faces of higher-order simplices, for example
+        where a point is the meeting-point of two triangles, or an edge
+        is shared between two triangles.
+
+        The 1-degree of an 0-simplex is the sdame as the normal (network)
+        degree of the 1-skeleton of the complex.conjugate(
+        :param d: the degree
+        :param s: the simplex
+        :returns: the generalised d-degree of s"""
+        m = self.orderOf(s)
+
+        if d < m:
+            return comb(m + 1, d + 1)
+        elif d == m:
+            raise ValueError(f"Generalised degree {d} not defined for simplex {s} of order {m}")
+        elif d > self.maxOrder():
+            return 0
+        else:
+            return len([q for q in self.partOf(s) if self.orderOf(q) == d])
 
 
     # ---------- Euler characteristic ----------
