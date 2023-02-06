@@ -1,6 +1,6 @@
 # Makefile for simplicial
 #
-# Copyright (C) 2017--2022 Simon Dobson
+# Copyright (C) 2017--2023 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
