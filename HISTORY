@@ -2,6 +2,8 @@ Version 1.0.1
 
    - Fixed coding style to conform (largely) to Python Black
    - Separated main interface from representation
+   - Added abstract base class for new representations
+   - Adde generalised degree calculation
 
 Version 0.7.2 (11Mar2022)
 
