@@ -920,7 +920,7 @@ class SimplicialComplex:
 
         For d < m the generalised degree provides no information, as
         the number of incident simplices is defined by the closure
-        property of the complex as :math:`\binom{m + 1}{d + 1}`.
+        property of the complex as :math:`\\binom{m + 1}{d + 1}`.
 
         Generalised degree is not defined for d = m and an exception
         is raised.
@@ -931,7 +931,8 @@ class SimplicialComplex:
         is shared between two triangles.
 
         The 1-degree of an 0-simplex is the sdame as the normal (network)
-        degree of the 1-skeleton of the complex.conjugate(
+        degree of the 1-skeleton of the complex.
+
         :param d: the degree
         :param s: the simplex
         :returns: the generalised d-degree of s"""
