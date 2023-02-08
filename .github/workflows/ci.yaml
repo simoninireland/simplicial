@@ -9,12 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6.7, 3.7.15, 3.8.16, 3.9.16, 3.10.9]
+        python-version: [3.6.10, 3.7.15, 3.8.16, 3.9.16, 3.10.9]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@main
     - name: Test suite running on python-${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@main
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
