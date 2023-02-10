@@ -482,6 +482,28 @@ class SimplicialComplex:
         return self
 
 
+    # ---------- Skeletonising a complex ----------
+
+    def skeleton(self, d: int):
+        """Skeletonise the complex. This removes all simplices of order
+        greater than d.
+
+        The 1-skeleton of a complex contains only the nodes (0-simplices)
+        and edges (1-simplices) and throws away any higher-order structure,
+        resulting in a simple network.
+
+        In many ways this is the dual operation of :meth:`flagComplex`, which
+        adds structure implied by the existence of a higher-order simplex'
+        boundary faces.
+
+        :param d: the maximum order of simplex retained"""
+        m = self.maxOrder()
+        if m > d:
+            for i in range(m, d, -1):
+                ss = self.simplicesOfOrder(i)
+                self.deleteSimplices(ss)
+
+
     # ---------- Accessing simplices ----------
 
     def orderOf(self, s: Simplex) -> int:
@@ -1285,6 +1307,9 @@ class SimplicialComplex:
         with them as its faces. This may in turn allow a further
         3-simplex to be formed if the new 2-simplex closes a tetrahedron,
         and so forth.
+
+        The dual operation is :meth:`skeleton`, which removes structure above
+        a given order.
 
         :returns: the flag complex"""
 

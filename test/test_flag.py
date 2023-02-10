@@ -1,6 +1,6 @@
-# Tests of construction of flag complexes in simplicial complex class
+# Tests of construction of flag complexes and skeletons in simplicial complex class
 #
-# Copyright (C) 2017--2019 Simon Dobson
+# Copyright (C) 2017--2023 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -180,6 +180,49 @@ class FlagTests(unittest.TestCase):
         self.assertEqual(ss[1], 12)
         self.assertEqual(ss[2], 8)
         self.assertEqual(ss[3], 2)
+
+    def testSkeletonSimple(self):
+        """Test we can remove structure."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs=[1, 2])
+        c.addSimplex(id = 23, fs=[2, 3])
+        c.addSimplex(id = 13, fs=[1, 3])
+        c.addSimplex(id = 123, fs=[12, 23, 13])
+
+        c.skeleton(1)
+        self.assertEqual(c.maxOrder(), 1)
+        self.assertCountEqual(c.simplicesOfOrder(1), [12, 23, 13])
+        self.assertCountEqual(c.simplicesOfOrder(0), [1, 2, 3])
+
+    def testSkeletonTooSmall(self):
+        """Test nothing happens if we try to remove higher structure than we have."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs=[1, 2])
+        c.addSimplex(id = 23, fs=[2, 3])
+        c.addSimplex(id = 13, fs=[1, 3])
+
+        self.assertEqual(c.maxOrder(), 1)
+        c.skeleton(2)
+        self.assertEqual(c.maxOrder(), 1)
+        self.assertCountEqual(c.simplicesOfOrder(1), [12, 23, 13])
+        self.assertCountEqual(c.simplicesOfOrder(0), [1, 2, 3])
+
+    def testRemoveCascade(self):
+        """Test we remove all higher structure."""
+        c = SimplicialComplex()
+        k_simplex(3, c=c)
+
+        c.skeleton(1)
+        self.assertEqual(c.maxOrder(), 1)
+        ns = c.numberOfSimplicesOfOrder()
+        self.assertEqual(ns[1], 6)
+        self.assertEqual(ns[0], 4)
 
 
 if __name__ == '__main__':
