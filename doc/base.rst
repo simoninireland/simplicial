@@ -241,6 +241,11 @@ after creating new simplices.
 
 .. automethod:: SimplicialComplex.growFlagComplex
 
+The dual operation is to form the skeleton of a complex by discarding
+any higher-order structure.
+
+.. automethod:: SimplicialComplex.skeleton
+
 
 .. _composing-complexes:
 
