@@ -36,11 +36,11 @@ class GraphRepTests(unittest.TestCase):
         self.assertEqual(len(list(rep.simplices())), 0)
 
         # count the simplices of actual orders
-        self.assertEqual(len(rep.simplicesOfOrder(0)), 0)
-        self.assertEqual(len(rep.simplicesOfOrder(1)), 0)
+        self.assertEqual(len(list(rep.simplicesOfOrder(0))), 0)
+        self.assertEqual(len(list(rep.simplicesOfOrder(1))), 0)
 
         # check no extraneous orders
-        self.assertEqual(len(rep.simplicesOfOrder(2)), 0)
+        self.assertEqual(len(list(rep.simplicesOfOrder(2))), 0)
 
 
     def testSingletonGraph(self):
@@ -75,6 +75,36 @@ class GraphRepTests(unittest.TestCase):
         self.assertEqual(len(list(rep.simplicesOfOrder(0))), 2)
         self.assertEqual(len(list(rep.simplicesOfOrder(1))), 1)
         self.assertEqual(len(list(rep.simplices())), 3)
+
+
+    def testInitialGraphCopy(self):
+        '''Test we can create a complex from a graph.'''
+        g = Graph()
+        g.add_nodes_from([1, 2, 3])
+        g.add_edges_from([(1, 2), (2, 3), (3, 1)])
+        g.nodes[1]['a'] = 12
+        g.edges[2, 3]['b'] = 2
+
+        # we do this test through a "proper" complex (using the
+        # GraphRepresentation) so we can retrieve a simplex from its
+        # basis, since the edges we added have synthetic (and
+        # therefore unknown) simplex names
+
+        # check the simplices
+        c = SimplicialComplex(GraphRepresentation(g))
+        self.assertCountEqual(c.simplicesOfOrder(0), [1, 2, 3])
+        self.assertEqual(len(list(c.simplices())), 6)
+        self.assertEqual(len(list(c.simplicesOfOrder(1))), 3)
+
+        # check we copied attributes
+        self.assertEqual(c.getAttributes(1)['a'], 12)
+        e1 = c.simplexWithBasis([2, 3])
+        self.assertEqual(c.getAttributes(e1)['b'], 2)
+
+        # check the graph was ion fcact copied by adding a node and
+        # making sure it doesn't turn up as an 0-simplex
+        g.add_node(4)
+        self.assertCountEqual(c.simplicesOfOrder(0), [1, 2, 3])
 
 
     def testAddHigherSimplex(self):
@@ -140,6 +170,19 @@ class GraphRepTests(unittest.TestCase):
         self.assertEqual(rep.getAttributes(e2)['b'], 2)
 
 
+    def testContains(self):
+        '''Test we can check for the presence of simplices (positive and negative).'''
+        rep = GraphRepresentation()
+        n1 = rep.addSimplex()
+        n2 = rep.addSimplex()
+        e1 = rep.addSimplex(fs=[n1, n2])
+
+        self.assertTrue(rep.containsSimplex(n1))
+        self.assertTrue(rep.containsSimplex(n2))
+        self.assertTrue(rep.containsSimplex(e1))
+        self.assertFalse(rep.containsSimplex(1234))
+
+
     def testOrder(self):
         '''Test the orders of simplices.'''
         rep = GraphRepresentation()
@@ -198,7 +241,7 @@ class GraphRepTests(unittest.TestCase):
     def testDeleteNodeCascade(self):
         '''Test we can delete a node and the edges in its star.'''
 
-        # we do this test through a "proper" complex (suing the
+        # we do this test through a "proper" complex (using the
         # GraphRepresentation) so that the deletion semantics are
         # followed properly
 
