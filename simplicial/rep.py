@@ -51,16 +51,44 @@ class Representation:
         self._complex = c
 
 
+    # ---------- Core interface helpers ----------
+
+    def checkAllSimplicesAreUnique(self, fs: List[Simplex]):
+        '''Test that all the faces given are unique, and raise an
+        exception if not.
+
+        :param fs: the faces
+        '''
+        if fs is not None and len(fs) != len(set(fs)):
+            # find the duplicate, for reporting -- slow, but we're exiting anyway
+            seen = set()
+            for f in fs:
+                if f in fs:
+                    raise KeyError(f'Duplicate face {f}')
+                else:
+                    seen.add(f)
+
+    def checkAllSimplicesHaveOrder(self, fs: List[Simplex], d: int):
+        '''Test that all the faces have the same order, and raise an exception if not.
+
+        :param fs: the faces
+        :param d: the order'''
+        for s in fs:
+            sd = self.orderOf(s)
+            if sd != d:
+                raise ValueError(f'Simplex {s} has order {sd} (not {d} as required')
+
+
     # ---------- Core interface ----------
 
-    def newSimplex(self, d: int) -> str:
-        """Generate a new unique identifier for a simplex.
+    def newSimplex(self, fs: List[Simplex]) -> str:
+        """Generate a new unique identifier for a simplex with the given faces.
 
-        :param d: dimension of the simplex to be identified
+        :param fs: the faces
         :returns: an identifier not currently used in the complex"""
         raise NotImplementedError('newSimplex')
 
-    def addSimplex(self, fs: List[Simplex], id: Simplex, attr: Attributes):
+    def addSimplex(self, fs: List[Simplex] = None, id: Simplex = None, attr: Attributes = None) -> Simplex:
 
         """Add a simplex to the complex whose faces are the elements
         of fs.
@@ -74,6 +102,7 @@ class Representation:
         raise NotImplementedError('addSimplex')
 
     def relabelSimplex(self, s: Simplex, q: Simplex):
+
         '''Relabel a simplex.
 
         :param s: the simplex to rename
@@ -83,7 +112,14 @@ class Representation:
     def forceDeleteSimplex(self, s: Simplex):
         """Delete a simplex without sanity checks.
 
-        :param s: the simplex"""
+        This is a slight nmisnomer: it is called from
+        :meth:`SimplicialComplex.deleteSimplex` in descending order,
+        guartanteeing that any simplicaes of which this simplex is a
+        face have already been deleted.
+
+        :param s: the simplex
+
+        """
         raise NotImplementedError('forceDeleteSimplex')
 
     def orderOf(self, s: Simplex) -> int:
@@ -94,7 +130,7 @@ class Representation:
         raise NotImplementedError('orderOf')
 
     def indexOf(self, s: Simplex) -> int:
-        """Return the inmdex of a simplex.
+        """Return the index of a simplex.
 
         :param s: the simplex
         :returns: an index"""
