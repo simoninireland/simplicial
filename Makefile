@@ -21,7 +21,7 @@
 PACKAGENAME = simplicial
 
 # The version we're building
-VERSION = 1.0.1
+VERSION = 1.1.1
 
 
 # ----- Sources -----
@@ -35,8 +35,9 @@ SOURCES_CODE_INIT = \
 	simplicial/drawing/__init__.py \
 	simplicial/file/__init__.py
 SOURCES_CODE = \
-	simplicial/base.py \
+	simplicial/utils.py \
 	simplicial/rep.py \
+	simplicial/referencerep.py \
 	simplicial/simplicialcomplex.py \
 	simplicial/generators.py \
 	simplicial/filtration.py \
@@ -69,8 +70,8 @@ SOURCES_DOC_ZIP = $(PACKAGENAME)-doc-$(VERSION).zip
 SOURCES_DOCUMENTATION = \
 	doc/index.rst \
 	doc/reference.rst \
-	doc/base.rst \
 	doc/rep.rst \
+	doc/referencerep.rst \
 	doc/simplicialcomplex.rst \
 	doc/filtration.rst \
 	doc/eulerintegrator.rst \

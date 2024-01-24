@@ -1,6 +1,6 @@
 # Initialisation for simplicial package
 #
-# Copyright (C) 2017--2022 Simon Dobson
+# Copyright (C) 2017--2024 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -37,11 +37,15 @@ for visualisation (although this still needs a lot more work).
 
 '''
 
+# utilities
+from .utils  import Isomorphism
+
 # representation and computation
 from .types import Simplex, Attributes, Renaming
 from .rep import Representation
-from .simplicialcomplex import ReferenceRepresentation
-from .base import SimplicialComplex
+from .referencerep import ReferenceRepresentation
+from .graphrep import GraphRepresentation
+from .simplicialcomplex import SimplicialComplex
 
 # generator functions for common complexes
 from .generators import k_simplex, k_skeleton, k_void, ring
