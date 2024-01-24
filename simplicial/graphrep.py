@@ -1,4 +1,4 @@
-# Graphs as  simplicial complexes
+# Graphs as simplicial complexes
 #
 # Copyright (C) 2017--2024 Simon Dobson
 #
@@ -19,7 +19,7 @@
 
 import numpy
 from itertools import chain
-from typing import Dict, Any, List, Set, Tuple, Iterator
+from typing import List, Set, Tuple, Iterator
 from simplicial import Simplex, Attributes, Representation, Isomorphism
 from networkx import Graph
 
@@ -31,13 +31,13 @@ class GraphRepresentation(Representation):
     as possible, and this can be accessed to make use of the
     `networkx` operations This is significantly more efficient than
     :class:`ReferenceRepresentation` for a complex that doesn't have
-    higher simplices.
+    higher simplices, just nodes and edges.
 
     Any graph provided to construct the representation is copied by
-    default. This would be expensive for large graphs, so thhere is an
+    default. This would be expensive for large graphs, so there is an
     option to use the graph object as-is. However, it is important
     than any changes to the graph are made through the complex, *not*
-    directly on the graph.
+    directly on the graph: changing the graph directly will break things.
 
     :param g: (optional) the graph (defaults to an empty graph)
     :param copy: (optional) copy the provided graph (defaults to True)
@@ -49,19 +49,25 @@ class GraphRepresentation(Representation):
 
     def __init__(self, g: Graph = None, copy: bool = True):
         super().__init__()
+        self._sequence = 0
+        self._edges = Isomorphism[Simplex, Tuple[Simplex, Simplex]]()
+        self._edgeOrder: List[Simplex] = []
 
         # create, copy, or use any provided graph
         if g is None:
             self._graph = Graph()
         else:
+            # get the graph
             if copy:
                 self._graph = g.copy()
             else:
                 self._graph = g
 
-        self._sequence = 0
-        self._edges = Isomorphism[Simplex, Tuple[Simplex, Simplex]]()
-        self._edgeOrder: List[Simplex] = []
+            # grab its structure
+            for (l, r) in self._graph.edges:
+                id = self.newSimplex([l, r])
+                self._edges[id] = (l, r)
+                self._edgeOrder.append(id)
 
 
     # ---------- Core interface ----------
@@ -267,12 +273,12 @@ class GraphRepresentation(Representation):
         '''
         if k == 0:
             # return the nodes in networkx order
-            return self._graph.nodes
+            return iter(self._graph.nodes)
         elif k == 1:
             # return in the order we maintain
-            return self._edgeOrder
+            return iter(self._edgeOrder)
         else:
-            return []
+            return iter([])
 
 
     def containsSimplex(self, s: Simplex) -> bool:
