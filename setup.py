@@ -47,4 +47,4 @@ setup(name='simplicial',
                 'simplicial.drawing',
                 ],
       zip_safe=False,
-      install_requires=[ "numpy", "matplotlib",  ])
+      install_requires=[ "numpy", "scipy", "matplotlib",  ])
