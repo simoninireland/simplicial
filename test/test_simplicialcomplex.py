@@ -1,6 +1,6 @@
 # Tests of simplicial complex class
 #
-# Copyright (C) 2017--2022 Simon Dobson
+# Copyright (C) 2017--2024 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
