@@ -4,7 +4,7 @@ Glossary
 ========
 
 .. currentmodule:: simplicial
-		   
+
 .. glossary::
 
    basis
@@ -20,22 +20,31 @@ Glossary
 
    boundary
       The set of faces of a :term:`simplex`.
-      
+
    boundary operator
-      A linear operator taking k-simplices to the their (k - 1)-simplex
-      faces. The boundary operator extends this to a set (or :term:`p-chain`)
-      of k-simplices, where it returns all the (k - 1)-simplices
-      in the total boundary.
+      A linear operator (usually denoted :math:`\\delta_k`) taking
+      k-simplices to their (k - 1)-simplex faces. The boundary
+      operator extends this to a set (or :term:`p-chain`) of
+      k-simplices, where it returns all the (k - 1)-simplices in the
+      overall boundary.
 
    closure
       The closure of a simplex is the set consisting of the simplex
       and all its component faces, their faces, and so on to its
       :term:`basis`.
-	    
+
+   coboundary operator
+      A linear operator (usually denoted :math:`\\delta^k`) taking
+      k-simplices to the (k + 1)-simplices of which they are faces.
+      The coboundary operator extends this to a set (or :term:`p-chain`)
+      of k-simplices, where it returns all the (k + 1)-simplices in
+      the overall coboundary.
+
    complex
-      A collection of simplices. In ``simplicial``, complexes are
-      *closed*, in the sense that they contain every :term:`face` of
-      every :term:`simplex` contained in the complex.
+      A collection of simplices. In
+      ``simplicial``, complexes are *closed*, in the sense that they
+      contain every :term:`face` of every :term:`simplex` contained in
+      the complex.
 
    embedding
       A geometry imposed on a topological space. Typically an
@@ -46,20 +55,20 @@ Glossary
       locations of higher simplices being constructed linearly from
       their bases -- so a 1-simplex is a straight line between its
       endpoints, and so forth.
-      
+
    Euler characteristic
       A :term:`topological invariant` of a complex computed from the
       alternating sum of the numbers of simplices of different orders:
 
       .. math::
-   
-         \chi(S) = \sum_{k = 0}^{\infty} (-1)^k \, \#S_k.
+
+	 \chi(S) = \sum_{k = 0}^{\infty} (-1)^k \, \#S_k.
 
       The Euler characteristic is a sort of hole detector for simplicial
       complexes, in that "un-filled" spaces are counted. For a stronger
       and more sophisticated (but more computationally demanding) hole
       detector, use :term:`homology`.
-      
+
    face
       A :term:`simplex` that lies on the boundary of another
       simplex. By definition each face has is of :term:`order` one
@@ -71,8 +80,8 @@ Glossary
       with the constraint that whenever two indices :math:`i \le j` the
       complexes associated with them are related by inclusion
       :math:`C_i \le C_j`. We typically treat the index set as time and
-      the filtration as representing a complex that is built up 
-      progressively over time by adding more simplices. 
+      the filtration as representing a complex that is built up
+      progressively over time by adding more simplices.
 
       The canonical example of a filtration is the :term:`Vietoris-Rips complex`.
 
@@ -83,7 +92,7 @@ Glossary
       Another way to think of this is that all possible
       triangles of three edges are filled, as are all possible
       tetrahedra of four triangles, and so forth for higher orders.
-   
+
    homology
       A :term:`topological invariant` of a complex that has a
       subtle ability to measure holes of different dimensions in a
@@ -102,14 +111,14 @@ Glossary
    simplex
       A component of a :term:`complex`. A simplex has an
       :term:`order` that defines the number of 0-simplices in its
-      :term:`basis`. 
+      :term:`basis`.
 
    star
       The set of simplices of which a given :term:`simplex` is a part.
       The star is not necessarily a closed simplicial complex, but the
       star of the :term:`closure` (or indeed the :term:`closure` of the star)
       is (and they are generally different).
-      
+
    topology
       "The stratosphere of human thought! In the twenty-fourth
       century it might possibly be of use to someone..." (Alexander
@@ -118,7 +127,7 @@ Glossary
    topological invariant
       A property that isn't changed by smooth changes in a complex, or
       by the details of how a shape is approximated by a complex.
-      
+
    Vietoris-Rips complex
       A complex derived from an underlying distance metric. If
       0-simplices are given locations, then for a given distance eps
@@ -133,4 +142,4 @@ Glossary
 
       If we take a set of geometrically located 0-simplices allow
       :math:`\epsilon` to increase, the resulting sequence of complexes
-      forms a :term:`filtration`. 
+      forms a :term:`filtration`.
