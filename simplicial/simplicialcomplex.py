@@ -1,6 +1,6 @@
 # Base class for simplicial complexes
 #
-# Copyright (C) 2017--2023 Simon Dobson
+# Copyright (C) 2017--2024 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -53,6 +53,7 @@ class SimplicialComplex:
             rep = ReferenceRepresentation()
         self._rep = rep        # representation
         self._rep.setComplex(self)
+
 
     def representation(self) -> Representation:
         '''Returns the representation used by this complex,
@@ -141,6 +142,7 @@ class SimplicialComplex:
                     return False
         return True
 
+
     def ensureBasis(self, bs: List[Simplex], attr: Attributes = None):
         """For a given set of simplices, ensure they constitute a basis. This means
         that any simplices already present must be 0-simplices, and any missing
@@ -156,6 +158,7 @@ class SimplicialComplex:
             else:
                 # simplex not present in complex
                 self.addSimplex(id=b, attr=attr)
+
 
     def _addSimplexWithBasis(self, id: Simplex,
                              attr: Attributes,
@@ -185,6 +188,7 @@ class SimplicialComplex:
 
         # return the simplex
         return s
+
 
     def addSimplexWithBasis(self, bs: List[Simplex], id: Simplex = None,
                             attr: Attributes = None) -> Simplex:
@@ -225,6 +229,7 @@ class SimplicialComplex:
 
         return s
 
+
     def addSimplicesFrom(self, c: 'SimplicialComplex', rename: Optional[Renaming] = None) -> List[Simplex]:
         """Add simplices from the given complex. The rename parameter
         is an optional mapping of the names in c that can be provided
@@ -260,6 +265,7 @@ class SimplicialComplex:
             ns.append(id)
 
         return ns
+
 
     def barycentricSubdivide(self, simplex: Simplex) -> Simplex:
         """Performs Barycentric subdivision on a simplex. This deletes the
@@ -310,6 +316,7 @@ class SimplicialComplex:
 
             return newName
 
+
     def relabelSimplex(self, s: Simplex, q: Simplex):
         '''Relabel a simplex. This is a simple form of :meth:`relabel`
         working on individual simplices. The simplex q mustn't exist in
@@ -318,6 +325,7 @@ class SimplicialComplex:
         :param s: the simplex to rename
         :param q: the new name'''
         return self._rep.relabelSimplex(s, q)
+
 
     def relabel(self, rename: Renaming) -> Dict[Simplex, Simplex]:
         """Re-label simplices using the given relabeling, which may be a
@@ -365,6 +373,7 @@ class SimplicialComplex:
         # return the mapping of changed simplices
         return mapping
 
+
     def _createDisjointRenaming(self, c: 'SimplicialComplex') -> Renaming:
         '''Construct the renaming for simplices in c, disjoint from those
         in this complex.
@@ -386,6 +395,7 @@ class SimplicialComplex:
                         u += 1
 
         return rename
+
 
     def relabelDisjointFrom(self, c: 'SimplicialComplex') -> Dict[Simplex, Simplex]:
         '''Relabel this complex to have no labels in common with
@@ -414,6 +424,7 @@ class SimplicialComplex:
         :param s: the simplex"""
         self._rep.forceDeleteSimplex(s)
 
+
     def deleteSimplex(self, s: Simplex):
         """Delete a simplex and all simplices of which it is a part.
 
@@ -422,6 +433,7 @@ class SimplicialComplex:
             # delete in decreasing order, down to tjhis simplex
             self.forceDeleteSimplex(t)
 
+
     def __delitem__(self, s: Simplex):
         """Delete the simplex and all simplices of which it is a part.
         Equivalent to :meth:`deleteSimplex`.
@@ -429,11 +441,13 @@ class SimplicialComplex:
         :param s: the simplex"""
         self.deleteSimplex(s)
 
+
     def deleteSimplexWithBasis(self, bs: List[Simplex]):
         """Delete the simplex with the given basis.
 
         :param bs: the basis"""
         self.deleteSimplex(self.simplexWithBasis(bs))
+
 
     def deleteSimplices(self, ss: List[Simplex]):
         """Delete all simplices in the given list.
@@ -443,6 +457,7 @@ class SimplicialComplex:
             # protect against unfortunate cascades of deletions
             if self.containsSimplex(s):
                 self.deleteSimplex(s)
+
 
     def restrictBasisTo(self, bs: List[Simplex]) -> 'SimplicialComplex':
         """Restrict the complex to include only those simplices whose
@@ -511,6 +526,7 @@ class SimplicialComplex:
         :returns: the order of the simplex"""
         return self._rep.orderOf(s)
 
+
     def indexOf(self, s: Simplex) -> int:
         """Return the unique-within-its-order index of the given simplex.
         Indices form a dense sequence. The index isn't robust to changes
@@ -524,6 +540,7 @@ class SimplicialComplex:
         :returns: an index"""
         return self._rep.indexOf(s)
 
+
     def maxOrder(self) -> int:
         """Return the largest order of simplices in the complex, that is
         to say, the largest order for which a call to :meth:`simplicesOfOrder`
@@ -532,17 +549,20 @@ class SimplicialComplex:
         :returns: the largest order that contains at least one simplex, or -1"""
         return self._rep.maxOrder()
 
+
     def numberOfSimplices(self) -> int:
         '''Return the number of simplices in the complex.
 
         :returns: the number of simplices'''
         return sum(self.numberOfSimplicesOfOrder())
 
+
     def __len__(self) -> int:
         '''Return the size of the complex, a synonym for :meth:`numberOfSimplices`.
 
         :returns: the size of the complex'''
         return self.numberOfSimplices()
+
 
     def numberOfSimplicesOfOrder(self) -> List[int]:
         """Return a list of the number of simplices
@@ -552,6 +572,7 @@ class SimplicialComplex:
         :returns: a list of number of simplices at each order"""
         return [len(self.simplicesOfOrder(k)) for k in range(self.maxOrder() + 1)]
 
+
     def simplices(self, reverse: bool = False) -> List[Simplex]:
         """Return all the simplices in the complex. The simplices are
         returned in order of their orders, 0-simplices first unless the
@@ -560,6 +581,7 @@ class SimplicialComplex:
         :param reverse: (optional) reverse the sort order if True
         :returns: a list of simplices"""
         return self._rep.simplices(reverse)
+
 
     def simplicesOfOrder(self, k: int) -> List[Simplex]:
         """Return all the simplices of the given order. This will
@@ -571,6 +593,7 @@ class SimplicialComplex:
         :param k: the desired order
         :returns: a set of simplices, which may be empty"""
         return self._rep.simplicesOfOrder(k)
+
 
     def simplexWithBasis(self, bs: List[Simplex], fatal: bool = False) -> Simplex:
         """Return the simplex with the given basis, if it exists
@@ -610,6 +633,7 @@ class SimplicialComplex:
         else:
             return None
 
+
     def simplexWithFaces(self, fs: List[Simplex]) -> Simplex:
         """Return the simplex that has the given simplices as faces.
 
@@ -638,6 +662,7 @@ class SimplicialComplex:
 
         return matches.pop() if matches else None
 
+
     def allSimplices(self, p: Callable[['SimplicialComplex', Simplex], bool],
                      reverse: bool = False) -> List[Simplex]:
         """Return all the simplices that match the given predicate, which should
@@ -649,6 +674,7 @@ class SimplicialComplex:
         :param reverse: (optional) reverse the order
         :returns: the set of simplices satisfying the predicate"""
         return [s for s in self.simplices(reverse) if p(self, s)]
+
 
     def anySimplex(self, p: Callable[['SimplicialComplex', Simplex], bool]) -> Optional[Simplex]:
         '''Return some simplex for which the predicate is true. The
@@ -674,12 +700,14 @@ class SimplicialComplex:
         :returns: True if the simplex is in the complex"""
         return self._rep.containsSimplex(s)
 
+
     def __contains__(self, s: Simplex) -> bool:
         """Dict-like interface to :meth:`containsSimplex`.
 
         :param s: the simplex
         :returns: True if the simplex is in the complex"""
         return self.containsSimplex(s)
+
 
     def containsSimplexWithBasis(self, bs: List[Simplex]) -> bool:
         """Test whether the complex contains a simplex with the given basis.
@@ -719,12 +747,14 @@ class SimplicialComplex:
         # if we get here, we've succeeded
         return True
 
+
     def __le__(self, c: 'SimplicialComplex') -> bool:
         '''True if this complex is a (possibly equal) sub-complex of c.
 
         :param c: the other complex
         :returns: True if this is a sub-complex of c'''
         return self.isSubComplexOf(c)
+
 
     def __lt__(self, c: 'SimplicialComplex') -> bool:
         '''True if this complex is a strictly smaller sub-complex of c.
@@ -733,12 +763,14 @@ class SimplicialComplex:
         :returns: True if this is a sub-complex of c and with fewer simplices'''
         return (self <= c) and len(self) < len(c)
 
+
     def __ge__(self, c: 'SimplicialComplex') -> bool:
         '''True if c is a sub-complex of this one. The dual of :meth:`__le__`.
 
         :param c: the other complex
         :returns: True if c is a sub-complex of this'''
         return c <= self
+
 
     def __gt__(self, c: 'SimplicialComplex') -> bool:
         '''True if c is a structly smaller sub-complex of this one.
@@ -748,6 +780,7 @@ class SimplicialComplex:
         :returns: True if c is a sub-complex of this and has fewer simplices'''
         return c < self
 
+
     def __eq__(self, c: 'SimplicialComplex') -> bool:
         '''True if the two complexes have the same simplices with the same
         relationships. Note that this does not compare simplex attributes:
@@ -756,6 +789,7 @@ class SimplicialComplex:
         :param c: the other complex
         :returns: True if the two complexes are equal'''
         return (self <= c) and len(self) == len(c)
+
 
     def __ne__(self, c: 'SimplicialComplex') -> bool:
         '''True if the two complexes differ topologically.
@@ -775,12 +809,14 @@ class SimplicialComplex:
         :returns: a dict of attributes"""
         return self._rep.getAttributes(s)
 
+
     def setAttributes(self, s: Simplex, attr: Attributes):
         """Set the attributes associated with a simplex.
 
         :param s: the simplex
         :param attr: a dict of attributes"""
         self._rep.setAttributes(s, attr)
+
 
     def __getitem__(self, s: Simplex) -> Attributes:
         """Return the attributes associated with the given simplex.
@@ -789,6 +825,7 @@ class SimplicialComplex:
         :param s: the simplex
         :returns: a dict of attributes"""
         return self.getAttributes(s)
+
 
     def __setitem__(self, s: Simplex, attr: Attributes):
         """Set the attributes associated with a simplex.
@@ -808,6 +845,7 @@ class SimplicialComplex:
         :returns: a set of faces"""
         return self._rep.faces(s)
 
+
     def cofaces(self, s: Simplex) -> Set[Simplex]:
         '''Return the simplices the given simnplex is a face of. This
         is not transitive: all the simplices returned will be of an order
@@ -820,6 +858,7 @@ class SimplicialComplex:
         :returns: a list of simplices'''
         return self._rep.cofaces(s)
 
+
     def faceOf(self, s: Simplex) -> Set[Simplex]:
         """Return the simplices that the given simplex is a face of.
         A synonym of :meth:`cofaces`.
@@ -827,6 +866,7 @@ class SimplicialComplex:
         :param s: the simplex
         :returns: a list of simplices"""
         return self.cofaces(s)
+
 
     def _partOf(self, s: Simplex, k: int) -> Set[Simplex]:
         """Internal method to find the star of a simplex. The simplices
@@ -839,6 +879,7 @@ class SimplicialComplex:
             ps.add((k + 1, f))
             ps.update(self._partOf(f, k + 1))
         return ps
+
 
     def partOf(self, s: Simplex, reverse: bool = False, exclude_self: bool = False) -> Set[Simplex]:
         """Return the transitive closure of all simplices of which the simplex
@@ -881,6 +922,7 @@ class SimplicialComplex:
         # return the list
         return sps
 
+
     def basisOf(self, s: Simplex) -> Set[Simplex]:
         """Return the basis of a simplex, the set of 0-simplices that
         define it. Is s is an 0-simplex then it is its own basis
@@ -888,6 +930,7 @@ class SimplicialComplex:
         :param s: the simplex
         :returns: the set of 0-simplices that form the basis of s"""
         return self._rep.basisOf(s)
+
 
     def closureOf(self, s: Simplex, reverse: bool = False, exclude_self: bool = False) -> Set[Simplex]:
         """Return the closure of a simplex. The closure is defined
@@ -1003,7 +1046,7 @@ class SimplicialComplex:
 
         # fill in defaults
         if p is None:
-            p = self.orderOf(ss[0])
+            p = self.orderOf((list(ss))[0])
 
         # check all simplices
         for s in ss:
@@ -1023,12 +1066,44 @@ class SimplicialComplex:
                     return False
         return True
 
+
+    def chainVector(self, ss: Set[Simplex], p: int = None) -> numpy.ndarray:
+        '''Generate a column vector representation of a p-chain.
+
+        The vector is suitable for multiplying on the left by a boundary
+        or coboundary matrix operator. Using this method ensures that the
+        simplices appear in the correct indices.
+
+        :param ss: the p-chain
+        :param p: (optional) the order (defaults to the order of the first simplex in the chain)
+        :returns: a column vector
+        '''
+
+        # check we have a p-chain
+        self.isChain(ss, p, fatal=True)
+
+        # if we get here we have a p-chain, so extract its dimension if we need to
+        if p is None:
+            p = self.orderOf((list(ss))[0])
+
+        # build the vector
+        d = self.numberOfSimplicesOfOrder()[p]
+        chain = numpy.zeros([d, 1])
+        for s in ss:
+            i = self.indexOf(s)
+            chain[i, 1] = 1
+
+        return chain
+
+
     def boundary(self, ss: Set[Simplex]) -> Set[Simplex]:
-        """Return the :term:`boundary` of the given :term:`p-chain`. This will be a (p - 1)-chain
-        of simplices from the complex.
+        """Return the :term:`boundary` of the given :term:`p-chain`.
+        This will be a (p - 1)-chain of simplices from the complex.
 
         :param ss: a chain (list) of simplices
-        :returns: the boundary of the chain"""
+        :returns: the boundary of the chain
+
+        """
 
         # an empty p-chain has no boundary
         ss = list(ss)
@@ -1049,10 +1124,11 @@ class SimplicialComplex:
             bs ^= fs
         return bs
 
+
     def boundaryOperator(self, k: int) -> numpy.ndarray:
         """Return the :term:`boundary operator` of the k-simplices in
-        the complex (usually denoted :math:`\\partial_k`) as a `numpy`
-        matrix. The columns correspond to simplices of order k while
+        the complex (usually denoted :math:`\\delta_k`) as a `numpy`
+        array. The columns correspond to simplices of order k while
         rows correspond to simplices of order (k - 1). The matrix has
         a 1 when a (k - 1) simplex is a face of the corresponding
         k-simplex, and 0 otherwise.
@@ -1066,6 +1142,25 @@ class SimplicialComplex:
 
         """
         return self._rep.boundaryOperator(k)
+
+
+    def coboundaryOperator(self, k: int) -> numpy.ndarray:
+        '''Return the :term`coboundary operator` of the k-simplices in
+        the complex (usuallly denoted :math:`\\delta^k`) as a
+        `numpy` array. The columns correspond to simplices of order (k + 1)
+        while the rows correspond to simplices of order k. The
+        matrix has a 1 when a k-simplex is a face of the corresponding
+        (k + 1)-simplex, and 0 otherwise.
+
+        The coboundary matrix of order k is simply the transpose of
+        the bounndary matrix of order (k + 1).
+
+        :param k: the order
+        :returns: the coboundary matrix
+
+        '''
+        return self.boundaryOperator(k + 1).T
+
 
     def disjoint(self, ss: Set[Simplex]) -> bool:
         """Test whether the elements of a set of simplices are disjoint,
@@ -1094,18 +1189,21 @@ class SimplicialComplex:
         # if we get here, all the simplices were disjoint
         return True
 
+
     def _reduceBoundaries(self, B: numpy.ndarray,
-                          rLabels: List[int], cLabels: List[int],
-                          x: int = 0) -> Tuple[numpy.ndarray, List[int], List[int]]:
+                          rLabels: List[List[int]], cLabels: List[List[int]],
+                          x: int = 0) -> Tuple[numpy.ndarray, List[List[int]], List[List[int]]]:
         """Compute the Smith normal form, keeping track of the labels on
         rows and columns so we can extract the resulting basis vectors.
 
         :param B: the boundary matrix to reduce
-        :param
+        :param rls: the row ((k - 1)-simplex) labels
+        :param cls: the column labels (k-simplex)
         :param x: the row/column being reduced, initially 0
-        :returns: the Smith Normal Form of the boundary operator matrix"""
+        :returns: the reduced matrix and basis labels"""
 
         # check we're still in scope
+        print(B.shape)
         (rb, cb) = B.shape
         if x >= min([rb, cb]):
             # no, return the reduced matrix
@@ -1149,6 +1247,7 @@ class SimplicialComplex:
         # if we get here, we're fully reduced
         return (B, rLabels, cLabels)
 
+
     def smithNormalForm(self, k: int) -> numpy.ndarray:
         """Reduce a boundary operator matrix to Smith Normal Form, which has a leading diagonal
         of ones for some prefix of its leading diagonal and is zero everywhere else.
@@ -1164,7 +1263,9 @@ class SimplicialComplex:
             (snfB, _, _) = self._reduceBoundaries(self.boundaryOperator(k).copy(), rls, cls)
         return snfB
 
+
     def Z(self, ks: Optional[List[int]] = None) -> Dict[int, Set[Simplex]]:
+
         '''Return a list of the basis of the group of non-boundary k-chains for
         the requested orders, usually denoted :math:`Z_k`.
 
@@ -1198,6 +1299,7 @@ class SimplicialComplex:
             boundaries[k] = chains
 
         return boundaries
+
 
     def bettiNumbers(self, ks: Optional[List[int]] = None) -> List[int]:
         """Return a dict of Betti numbers for the different dimensions
@@ -1257,6 +1359,7 @@ class SimplicialComplex:
         # check we only have 2 or 0 in all positions
         return numpy.all(numpy.logical_or(s == 2, s == 0))
 
+
     def _completePotentialSimplices(self, nss: Dict[int, Set[int]]):
         """Grow a flag complex via the addition of the given simplices. The
         intuition is that adding a small number of new simplices leads to a
@@ -1297,6 +1400,7 @@ class SimplicialComplex:
                             nss[k].add(i)
                             maxk = k
 
+
     def flagComplex(self) -> 'SimplicialComplex':
         """Generate the :term:`flag complex` of this complex. The flag complex
         is formed by creating all the "implied" simplices for which all
@@ -1320,6 +1424,7 @@ class SimplicialComplex:
         flag._completePotentialSimplices(nss)
 
         return flag
+
 
     def growFlagComplex(self, newSimplices: Set[Simplex]):
         """Grow the :term:`flag complex` incrementally  by filling-in any
