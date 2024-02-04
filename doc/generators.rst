@@ -23,4 +23,3 @@ Structures
 ----------
 
 .. autofunction:: ring
-
