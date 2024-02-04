@@ -362,5 +362,122 @@ class HomologyTests(unittest.TestCase):
                     raise Exception('Incorrect basis')
 
 
+    # ---------- Chain vectors ----------
+
+    def testEmptyChainVector(self):
+        '''Test we can create an empty chain vector.'''
+        c = SimplicialComplex()
+        n0 = 0
+        n1 = 1
+        n2 = 2
+        n3 = 3
+        n4 = 4
+        t012 = c.addSimplexWithBasis([0, 1, 2])
+        t013 = c.addSimplexWithBasis([0, 1, 3])
+        t023 = c.addSimplexWithBasis([0, 2, 3])
+        t123 = c.addSimplexWithBasis([1, 2, 3])
+        l04 = c.addSimplexWithBasis([0, 4])
+        l42 = c.addSimplexWithBasis([4, 2])
+        v = c.chainVector([])
+        self.assertCountEqual(v.shape, (5, 1))
+
+    def testSingletonChainVector(self):
+        '''Test we can create a chain vector of one simplex.'''
+        c = SimplicialComplex()
+        n0 = 0
+        n1 = 1
+        n2 = 2
+        n3 = 3
+        n4 = 4
+        t012 = c.addSimplexWithBasis([0, 1, 2])
+        t013 = c.addSimplexWithBasis([0, 1, 3])
+        t023 = c.addSimplexWithBasis([0, 2, 3])
+        t123 = c.addSimplexWithBasis([1, 2, 3])
+        l04 = c.addSimplexWithBasis([0, 4])
+        l42 = c.addSimplexWithBasis([4, 2])
+        v = c.chainVector([n1])
+        self.assertCountEqual(v.shape, (5, 1))
+        for i in c.simplicesOfOrder(0):
+            self.assertEqual(v[i, 0],
+                             1 if i == n1 else 0)
+
+    def testFullChainVector(self):
+        '''Test we can create a chain vector of all simplex.'''
+        c = SimplicialComplex()
+        n0 = 0
+        n1 = 1
+        n2 = 2
+        n3 = 3
+        n4 = 4
+        t012 = c.addSimplexWithBasis([0, 1, 2])
+        t013 = c.addSimplexWithBasis([0, 1, 3])
+        t023 = c.addSimplexWithBasis([0, 2, 3])
+        t123 = c.addSimplexWithBasis([1, 2, 3])
+        l04 = c.addSimplexWithBasis([0, 4])
+        l42 = c.addSimplexWithBasis([4, 2])
+        v = c.chainVector([n1, n3, n2, n4, n0])
+        self.assertCountEqual(v.shape, (5, 1))
+        ss = c.simplicesOfOrder(0)
+        for i in range(len(ss)):
+            self.assertEqual(v[i, 0], 1)
+
+    def testChainVectorBadDimensions(self):
+        '''Test we can't create a chain vector of a non-chain.'''
+        c = SimplicialComplex()
+        n0 = 0
+        n1 = 1
+        n2 = 2
+        n3 = 3
+        n4 = 4
+        t012 = c.addSimplexWithBasis([0, 1, 2])
+        t013 = c.addSimplexWithBasis([0, 1, 3])
+        t023 = c.addSimplexWithBasis([0, 2, 3])
+        t123 = c.addSimplexWithBasis([1, 2, 3])
+        l04 = c.addSimplexWithBasis([0, 4])
+        l42 = c.addSimplexWithBasis([4, 2])
+        with self.assertRaises(ValueError):
+            v = c.chainVector([n1, n3, l04, n2, n4])
+
+    def testChainVectorDimensionsUnmatched(self):
+        '''Test we can't create a chain vector where the p-chain dimensions are wrong.'''
+        c = SimplicialComplex()
+        n0 = 0
+        n1 = 1
+        n2 = 2
+        n3 = 3
+        n4 = 4
+        t012 = c.addSimplexWithBasis([0, 1, 2])
+        t013 = c.addSimplexWithBasis([0, 1, 3])
+        t023 = c.addSimplexWithBasis([0, 2, 3])
+        t123 = c.addSimplexWithBasis([1, 2, 3])
+        l04 = c.addSimplexWithBasis([0, 4])
+        l42 = c.addSimplexWithBasis([4, 2])
+        with self.assertRaises(ValueError):
+            v = c.chainVector([n1, n3, n2, n4], 1)
+
+
+    def testChainVectorHigher(self):
+        '''Test we can create a chain of nhigher simplices.'''
+        c = SimplicialComplex()
+        n0 = 0
+        n1 = 1
+        n2 = 2
+        n3 = 3
+        n4 = 4
+        t012 = c.addSimplexWithBasis([0, 1, 2])
+        t013 = c.addSimplexWithBasis([0, 1, 3])
+        t023 = c.addSimplexWithBasis([0, 2, 3])
+        t123 = c.addSimplexWithBasis([1, 2, 3])
+        l04 = c.addSimplexWithBasis([0, 4])
+        l42 = c.addSimplexWithBasis([4, 2])
+        chain = [t012, t013]
+        v = c.chainVector(chain)
+        self.assertCountEqual(v.shape, (4, 1))
+        ss = c.simplicesOfOrder(2)
+        for i in range(len(ss)):
+            self.assertEqual(v[i, 0],
+                             1 if ss[i] in chain else 0)
+
+
 if __name__ == '__main__':
     unittest.main()

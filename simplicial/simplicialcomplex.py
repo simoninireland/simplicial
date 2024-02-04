@@ -1074,6 +1074,9 @@ class SimplicialComplex:
         or coboundary matrix operator. Using this method ensures that the
         simplices appear in the correct indices.
 
+        A chain vector with no simplices and no dim,ension is assumed to
+        be the empty vector for 0-simplices.
+
         :param ss: the p-chain
         :param p: (optional) the order (defaults to the order of the first simplex in the chain)
         :returns: a column vector
@@ -1084,14 +1087,19 @@ class SimplicialComplex:
 
         # if we get here we have a p-chain, so extract its dimension if we need to
         if p is None:
-            p = self.orderOf((list(ss))[0])
+            if len(ss) == 0:
+                # no dim,ension either, assume 0
+                p = 0
+            else:
+                # extract the order from the first simplex
+                p = self.orderOf((list(ss))[0])
 
         # build the vector
         d = self.numberOfSimplicesOfOrder()[p]
         chain = numpy.zeros([d, 1])
         for s in ss:
             i = self.indexOf(s)
-            chain[i, 1] = 1
+            chain[i, 0] = 1
 
         return chain
 
