@@ -19,6 +19,7 @@
 
 import unittest
 import copy
+import numpy
 from simplicial import *
 from networkx import Graph
 
@@ -256,6 +257,105 @@ class GraphRepTests(unittest.TestCase):
         self.assertEqual(c.maxOrder(), 0)
         self.assertCountEqual(c.simplicesOfOrder(0), [n3, n2])
         self.assertEqual(len(list(c.simplicesOfOrder(1))), 0)
+
+
+    def testBoundaryMatrix(self):
+        '''Test we build the correct boundary matrices.'''
+        rep = GraphRepresentation()
+        n1 = rep.addSimplex()
+        n2 = rep.addSimplex()
+        n3 = rep.addSimplex()
+        e1 = rep.addSimplex(fs=[n1, n2])
+        e2 = rep.addSimplex(fs=[n1, n3])
+
+        # boundaries of nodes should all be empty
+        b0 = rep.boundaryOperator(0)
+        self.assertEqual(b0.shape, (1, 3))
+        self.assertTrue(not b0.any())
+
+        # check boundaries of edges
+        b1 = rep.boundaryOperator(1)
+        self.assertEqual(b1.shape, (3, 2))
+        in1 = rep.indexOf(n1)
+        in2 = rep.indexOf(n2)
+        in3 = rep.indexOf(n3)
+        ie1 = rep.indexOf(e1)
+        ie2 = rep.indexOf(e2)
+        self.assertEqual(b1[in1, ie1], 1)
+        self.assertEqual(b1[in1, ie2], 1)
+        self.assertEqual(b1[in2, ie1], 1)
+        self.assertEqual(b1[in2, ie2], 0)
+        self.assertEqual(b1[in3, ie1], 0)
+        self.assertEqual(b1[in3, ie2], 1)
+
+
+    def testBoundaryChains(self):
+        '''Test the boundary of a boundary is empty.'''
+        rep = GraphRepresentation()
+        n1 = rep.addSimplex()
+        n2 = rep.addSimplex()
+        n3 = rep.addSimplex()
+        e1 = rep.addSimplex(fs=[n1, n2])
+        e2 = rep.addSimplex(fs=[n1, n3])
+
+        b0 = rep.boundaryOperator(0)
+        b1 = rep.boundaryOperator(1)
+        in1 = rep.indexOf(n1)
+        in2 = rep.indexOf(n2)
+        in3 = rep.indexOf(n3)
+        ie1 = rep.indexOf(e1)
+        ie2 = rep.indexOf(e2)
+
+        # an edge (in matrix form)
+        e = numpy.zeros([2, 1])
+        e[ie1, 0] = 1
+
+        # boundary of an edge
+        b = b1 @ e
+        self.assertEqual(b[in1, 0], 1)
+        self.assertEqual(b[in2, 0], 1)
+        self.assertEqual(b[in3, 0], 0)
+
+        # boundary of boundary
+        bb = b0 @ b1 @ e
+        self.assertTrue(not bb.any())
+
+        # boundary of the two edges (using modulo 2 homology)
+        et = numpy.ones([2, 1])
+        bt = (b1 @ et) % 2
+        self.assertEqual(bt[in1, 0], 0)
+        self.assertEqual(bt[in2, 0], 1)
+        self.assertEqual(bt[in3, 0], 1)
+
+
+
+    # def testCoboundaryMatrix(self):
+    #     '''Test we build the correct coboundary matrices.'''
+
+    #     # we do this test through a "proper" complex (using the
+    #     # GraphRepresentation) to call the cobundaryMatrix() operator
+
+    #     c = SimplicialComplex(GraphRepresentation())
+    #     n1 = c.addSimplex()
+    #     n2 = c.addSimplex()
+    #     n3 = c.addSimplex()
+    #     e1 = c.addSimplex(fs=[n1, n2])
+    #     e2 = caddSimplex(fs=[n1, n3])
+
+    #     # check coboundaries of nodes
+    #     b1 = ccoboundaryOperator(1)
+    #     self.assertEqual(b1.shape, (2, 3))
+    #     in1 = cindexOf(n1)
+    #     in2 = cindexOf(n2)
+    #     in3 = cindexOf(n3)
+    #     ie1 = cindexOf(e1)
+    #     ie2 = cindexOf(e2)
+    #     self.assertEqual(b1[in1, ie1], 1)
+    #     self.assertEqual(b1[in1, ie2], 1)
+    #     self.assertEqual(b1[in2, ie1], 1)
+    #     self.assertEqual(b1[in2, ie2], 0)
+    #     self.assertEqual(b1[in3, ie1], 0)
+    #     self.assertEqual(b1[in3, ie2], 1)
 
 
 if __name__ == '__main__':

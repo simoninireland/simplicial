@@ -207,7 +207,7 @@ class GraphRepresentation(Representation):
         '''Return the index of the simplex.
 
         At present this operation is linear in the number of
-        simplices: it should probably be optimised./
+        simplices: it should probably be optimised.
 
         :param s: the simplex
         :returns: its index within its order
@@ -215,9 +215,9 @@ class GraphRepresentation(Representation):
         '''
         k= self.orderOf(s)
         if k == 0:
-            return list(self._graph,nodes).indexOf(s)
+            return list(self._graph.nodes).index(s)
         else:
-            return self._edgeOrder.indexOf(s)
+            return self._edgeOrder.index(s)
 
 
     def basisOf(self, s: Simplex) -> Set[Simplex]:
@@ -260,7 +260,7 @@ class GraphRepresentation(Representation):
             return chain.from_iterable([self.simplicesOfOrder(0), self.simplicesOfOrder(1)])
 
 
-    def simplicesOfOrder(self, k: int) -> Iterator[Simplex]:
+    def simplicesOfOrder(self, k: int) -> List[Simplex]:
         '''Return all the simplices of the given order. All orders
         greater than 1 are empty, but asking for them doesn't cause an
         exception. The simplices are returned in "canonical" order,
@@ -273,12 +273,12 @@ class GraphRepresentation(Representation):
         '''
         if k == 0:
             # return the nodes in networkx order
-            return iter(self._graph.nodes)
+            return list(self._graph.nodes)
         elif k == 1:
             # return in the order we maintain
-            return iter(self._edgeOrder)
+            return list(self._edgeOrder)
         else:
-            return iter([])
+            return []
 
 
     def containsSimplex(self, s: Simplex) -> bool:
@@ -333,7 +333,7 @@ class GraphRepresentation(Representation):
         :returns: a set of faces'''
         k = self.orderOf(s)
         if k == 0:
-            # nodes don;t have faces
+            # nodes don't have faces
             return set()
         else:
             # the faces of an edge are the same as its basis
@@ -369,14 +369,13 @@ class GraphRepresentation(Representation):
             return numpy.zeros([1, self._graph.number_of_nodes()])
         elif k == 1:
             # construct the boundary matrix by enumeration
-            b =  numpy.zeros([self._graph.number_of_edges(), self._graph.number_of_nodes()])
-            nodes = list(self._graph.nodes)
+            b =  numpy.zeros([self._graph.number_of_nodes(), self._graph.number_of_edges()])
             for e in self._edges.keys():
                 (l, r) = self._edges[e]
-                i = self._edgeOrder[e]
-                b[i, self.nodes[l]] = 1
-                b[i, self.nodes[r]] = 1
-                return b
+                i = self.indexOf(e)
+                b[self.indexOf(l), i] = 1
+                b[self.indexOf(r), i] = 1
+            return b
         else:
             # return a null boundary operator
             return numpy.zeros([0, 0])
