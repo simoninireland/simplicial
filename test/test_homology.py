@@ -1,6 +1,6 @@
 # Tests of homology operations in simplicial complex class
 #
-# Copyright (C) 2017--2019 Simon Dobson
+# Copyright (C) 2017--2024 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -45,6 +45,9 @@ class HomologyTests(unittest.TestCase):
         self.assertFalse(c.isChain([ 12, 1, 3 ], p = 1))
         with self.assertRaises(Exception):
             c.isChain([ 1, 3, 12 ], fatal = True)
+
+        # test it works with sets of simplices rather than lists
+        self.assertTrue(c.isChain(set([ 1, 2, 3 ])))
 
     def testBoundaryMissing(self):
         """Test the boundary of an empty p-chain."""
