@@ -9,11 +9,10 @@ Simplicial complexes
 .. toctree::
    :maxdepth: 2
 
-   base
+   simplicialcomplex
    filtration
    eulerintegrator
-
-:ref:`generators`
+   generators
 
 :ref:`file`
 
@@ -35,4 +34,5 @@ Representations
    :maxdepth: 2
 
    rep
-   simplicialcomplex
+   referencerep
+   graphrep
