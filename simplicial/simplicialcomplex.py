@@ -293,7 +293,7 @@ class SimplicialComplex:
 
     # ---------- Relabelling ----------
 
-    def _createRelabelling(self, rename: Optional[Renaming]) -> Renaming:
+    def _createRelabelling(self, rename: Optional[Renaming]) -> Callable[[Simplex], Simplex]:
         '''Private method to create a relabelling function that's safe to be called
         multiple times with the same simplex. This just simplifies the user interface
         as the user-supplied function needn't worry about its own consistency.
