@@ -38,6 +38,7 @@ SOURCES_CODE = \
 	simplicial/utils.py \
 	simplicial/rep.py \
 	simplicial/referencerep.py \
+	simplicial/graphrep.py \
 	simplicial/simplicialcomplex.py \
 	simplicial/generators.py \
 	simplicial/filtration.py \
@@ -54,6 +55,7 @@ SOURCES_TESTS = \
 	test/test_filtration.py \
 	test/test_eulerintegrator.py \
 	test/test_homology.py \
+	test/test_cohomology.py \
 	test/test_flag.py \
 	test/test_compose.py \
 	test/test_vr.py \
@@ -72,6 +74,7 @@ SOURCES_DOCUMENTATION = \
 	doc/reference.rst \
 	doc/rep.rst \
 	doc/referencerep.rst \
+	doc/graphrep.rst \
 	doc/simplicialcomplex.rst \
 	doc/filtration.rst \
 	doc/eulerintegrator.rst \
