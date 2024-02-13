@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-from typing import List
+from typing import List, cast
 from simplicial import SimplicialComplex, Simplex, Embedding
 
 
@@ -31,7 +31,7 @@ class TriangularLattice(SimplicialComplex):
     """
 
     def __init__(self, r: int, c: int):
-        super(TriangularLattice, self).__init__()
+        super().__init__()
         self._rows = r
         self._columns = c
 
@@ -119,18 +119,18 @@ class TriangularLattice(SimplicialComplex):
 
 
 class TriangularLatticeEmbedding(Embedding):
-    """A regular embedding of a triangular lattice into a plane. The default is
+    """A regular embedding of a :class:`TriangularLattice` into a plane. The default is
     to embed into a unit plane, but this can be scaled as required. The lattice
     can be distorted by providing explicit positions for 0-simplices as required.
 
-    :param c: the complex
+    :param c: the triangular lattice
     :param h: height of the plane (defaults to 1.0)
     :param w: width of the plane (defaults to 1.0)
 
     """
 
-    def __init__(self, c: SimplicialComplex, h: float = 1.0, w: float = 1.0):
-        super(TriangularLatticeEmbedding, self).__init__(c, 2)
+    def __init__(self, c: TriangularLattice, h: float = 1.0, w: float = 1.0):
+        super().__init__(c, 2)
         self._height = h
         self._width = w
 
@@ -153,7 +153,7 @@ class TriangularLatticeEmbedding(Embedding):
         :returns: the position of the simplex"""
 
         # extract simplex index
-        c = self.complex()
+        c = cast(TriangularLattice, self.complex())
         n = c.indexOf(s)
 
         # convert index to (row, column) co-ordinates

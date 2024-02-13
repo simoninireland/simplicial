@@ -35,7 +35,7 @@ class Isomorphism(UserDict[L, R]):
     -> k) in the reverse table. The :meth:`reverse` property
     makes the reverse accessible.
 
-    The superclass constructor copies anmy initial data using a call
+    The superclass constructor copies any initial data using a call
     to :meth:`__setitem__`, which therefore sets the reverse mapping
     too.
 
@@ -70,7 +70,7 @@ class Isomorphism(UserDict[L, R]):
     def __delitem__(self, k: L):
         '''Delete a key.
 
-        The reverse mapping (the value to whioch k is mapped) is also
+        The reverse mapping (the value to which k is mapped) is also
         deleted. Reversing the reverse results in the original
         isomorphism. Any assignments made to the forward mapping are
         reflected in the revsre; similarly any assignments made in the
@@ -89,9 +89,12 @@ class Isomorphism(UserDict[L, R]):
         '''The reverse mapping.
 
         If there is a mapping (k -> v) in the forward, there
-        is also a mapping (v->k) in the reverse.
+        is also a mapping (v -> k) in the reverse.
 
-        :returns: the rever mapping
+        Forward and reverse arte views onto the same underlying data:
+        if an item is removed from one, it's removed from the other.
+
+        :returns: the reverse mapping
 
         '''
         rev = Isomorphism()
