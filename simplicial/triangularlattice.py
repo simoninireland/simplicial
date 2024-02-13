@@ -165,7 +165,8 @@ class TriangularLatticeEmbedding(Embedding):
         # compute position and return it
         rh = (self.height() + 0.0) / nr           # row height
         cw = (self.width() + 0.0) / (2 * nc)      # column width
-        y = self.height() - rh * i
+        #y = self.height() - rh * i
+        y = rh * i
         if i % 2 == 0:
             x = cw * (j * 2)
         else:
