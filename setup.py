@@ -25,7 +25,7 @@ with open('README.rst') as f:
     longDescription = f.read()
 
 setup(name='simplicial',
-      version='1.0.1',
+      version='1.1.1',
       description='Simplicial topology in Python',
       long_description=longDescription,
       url='http://github.com/simoninireland/simplicial',
@@ -47,4 +47,4 @@ setup(name='simplicial',
                 'simplicial.drawing',
                 ],
       zip_safe=False,
-      install_requires=[ "numpy", "scipy", "matplotlib",  ])
+      install_requires=[ "numpy", "networkx", "scipy", "matplotlib",  ])

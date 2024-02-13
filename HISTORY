@@ -1,4 +1,11 @@
-Version 1.0.1
+Version 1.1.1
+
+   - Changed newSimplex() on representation to use faces rather than dimension
+   - Added an Isomorphiosm class to simplify some mappings
+   - Added GraphRepresentation for more efficient low-order complexes
+   - Added a method for extracting the coboundary matrix of a complex
+
+Version 1.0.1 (16Sep2022)
 
    - Fixed coding style to conform (largely) to Python Black
    - Separated main interface from representation
