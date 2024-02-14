@@ -1,6 +1,6 @@
 # Makefile for simplicial
 #
-# Copyright (C) 2017--2023 Simon Dobson
+# Copyright (C) 2017--2024 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -40,6 +40,7 @@ SOURCES_CODE = \
 	simplicial/referencerep.py \
 	simplicial/graphrep.py \
 	simplicial/simplicialcomplex.py \
+	simplicial/subcomplex.py \
 	simplicial/generators.py \
 	simplicial/filtration.py \
 	simplicial/eulerintegrator.py \
