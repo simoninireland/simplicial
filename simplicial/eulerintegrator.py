@@ -36,13 +36,13 @@ class EulerIntegrator:
     number. Overriding the :meth:`metric` method generates different
     metrics.
 
-     The metric should be a non-negative number. The metric assignment
-     has to be monotone with respect to simplex order: the metric
-     associated with a simplex `s` should be greater than or equal to
-     the values associated with all simplices in the closure of `s`,
-     i.e., all faces of `s`, or faces of those faces, and so
-     forth. This isn't (currently) checked, but the integration will
-     behave unpredictably if the condition doesn't hold.
+    The metric should be a non-negative number. The metric assignment
+    has to be monotone with respect to simplex order: the metric
+    associated with a simplex `s` should be greater than or equal to
+    the values associated with all simplices in the closure of `s`,
+    i.e., all faces of `s`, or faces of those faces, and so
+    forth. This isn't (currently) checked, but the integration will
+    behave unpredictably if the condition doesn't hold.
 
     :param a: the attribute on simplices defining the metric to integrate against
     :param default_value: the default value if the attribute is missing (defaults to 0)
