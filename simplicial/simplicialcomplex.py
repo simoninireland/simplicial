@@ -495,6 +495,25 @@ class SimplicialComplex:
         return self
 
 
+    def subcomplex(self, bs: List[Simplex]) -> 'SimplicialComplex':
+        '''Create a sub-complex view of an underlying complex. The
+        sub-complex consists of all the simplices in this complex
+        having a basis in the given elements.
+
+        Unlike :meth:`restrictBasisTo` this operation is non-destructive.
+
+        The view returned in "live", in the sense that its simplices
+        are those of the underlying complex reflecting any changes
+        made to that complex. Any simplices added to the view
+        are added to the underlying complex.
+
+        :param bs: the basis set of the sub-complex
+        :returns: a view over this basis
+
+        '''
+        raise NotImplementedError('subcomplex')
+
+
     # ---------- Skeletonising a complex ----------
 
     def skeleton(self, d: int):
@@ -551,6 +570,7 @@ class SimplicialComplex:
 
 
     def numberOfSimplices(self) -> int:
+
         '''Return the number of simplices in the complex.
 
         :returns: the number of simplices'''
