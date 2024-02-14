@@ -119,9 +119,12 @@ class TriangularLattice(SimplicialComplex):
 
 
 class TriangularLatticeEmbedding(Embedding):
-    """A regular embedding of a :class:`TriangularLattice` into a plane. The default is
-    to embed into a unit plane, but this can be scaled as required. The lattice
-    can be distorted by providing explicit positions for 0-simplices as required.
+    """A regular embedding of a :class:`TriangularLattice` into a
+    plane. The default is to embed into a unit 2d plane. The lattice
+    can be distorted by providing explicit positions for 0-simplices.
+
+    The bottom-left simplex (roq 0, column 0) is always at the
+    lower-left of the field. The next row is indented from the left.
 
     :param c: the triangular lattice
     :param h: height of the plane (defaults to 1.0)
@@ -149,6 +152,8 @@ class TriangularLatticeEmbedding(Embedding):
     def computePositionOf(self, s: Simplex) -> List[float]:
         """Compute the position of the given simplex.
 
+        We fill the rows first, starting at the bottom left.
+
         :param s: the simplex
         :returns: the position of the simplex"""
 
@@ -167,9 +172,8 @@ class TriangularLatticeEmbedding(Embedding):
         cw = (self.width() + 0.0) / (2 * nc)      # column width
         #y = self.height() - rh * i
         y = rh * i
-        if i % 2 == 0:
-            x = cw * (j * 2)
-        else:
-            # shift along for odd-numbered rows
-            x = cw * ((j * 2) + 1)
+        x = cw * (j * 2)
+        if i % 2 != 0:
+            # shift along for indented rows
+            x += cw
         return [x, y]

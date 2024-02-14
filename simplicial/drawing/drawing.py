@@ -1,6 +1,6 @@
 # Drawing routines for simplicial complexes
 #
-# Copyright (C) 2017--2019 Simon Dobson
+# Copyright (C) 2017--2024 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -20,66 +20,68 @@
 import collections
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from typing import Iterable, Callable, Union, Tuple
-from simplicial import SimplicialComplex, Simplex, Embedding
-
-# Helper type for colours (not defined by matplotlib)
-Color = Union[str,                                # named colours
-              Tuple[float, float, float],         # RGB triples
-              Tuple[float, float, float, float]]  # RGBA quads
+from matplotlib.lines import Line2D
+from matplotlib.patches import Circle, Polygon
+from simplicial import SimplicialComplex, Embedding
 
 
-def draw_complex(c: SimplicialComplex, em: Embedding,
-                 ax: mpl.axes.Axes = None,
-                 color: Iterable[Color] = None,
-                 color_simplex: Callable[[SimplicialComplex, Simplex, int], Color] = None,
-                 node_size: float = 0.02):
+def drawComplex(c: SimplicialComplex, em: Embedding,
+                ax = None, backgroundColour = '0.95',
+                subfieldXY = None, subfieldWH = None,
+                simplexColour = None, simplexSize = 0.02):
     """Draw a simplicial complex embedded in space.
 
-    The colours of the simplices are taken either from the color
-    array or from the color_simplex function: the latter overrrides
-    the former if both are provided.
+    The colours of simplices are taken from simplexColour which can be
+    a none for a default palette, a constant, a list of colours per
+    order, a dict mapping simplex to colour, or a function taking the
+    complex, simplex, and order and returning a colour.
 
     At present we only deal with simplices of order 2 and less.
 
     :param c: the complex
     :param em: embedding providing the positions of the 0-simplices
     :param ax: the axes to draw in (defaults to main axes)
-    :param color: an array of colours for the different simplex orders (defaults to a "reasonable" scheme)
-    :param color_simplex: a function from complex, simplex and order to a colour (defaults to order color)
-    :param node_size: the size of the node (0-simplex) markers"""
+    :param backgroundColour: the background colour for the field (default '0.95')
+    :param subfieldXY: the bottom-left corner of the sub-field to draw (default all)
+    :param subfieldWH: the width and heigh of the sub-field to draw (default all)
+    :param simplexColour: simplex colours
+    :param simplexSize: the size of the node (0-simplex) markers
+
+    """
 
     # fill in the argument defaults where not specified
     if ax is None:
         # main figure axes
         ax = plt.gca()
-    no = c.maxOrder()
-    if color is None:
-        # a simple colour scheme that seems to work
-        color = ['blue', 'black', 'red']
+    if subfieldXY is None:
+        subfieldXY = [0.0, 0.0]
+    if subfieldWH is None:
+        subfieldWH = [1.0 - subfieldXY[0], 1.0 - subfieldXY[1]]
+    if simplexColour is None:
+        # no colour, use a default of black for nodes and edges
+        # and light grey for triangles
+        palette = ['k', 'k', '0.75']
+        col = lambda c, s, k: palette[k]
+    elif type(simplexColour) is list:
+        # list of colours per simplex order
+        col = lambda c, s, k: simplexColour[k]
+    elif type(simplexColour) is dict:
+        # dict of individual simplex colours
+        col = lambda c, s, k: simplexColour[s]
+    elif callable(simplexColour):
+        # function from complex, simplex, and order to colour
+        col = simplexColour
     else:
-        if isinstance(color, collections.Sequence):
-            # make sure we have enough colours for all the simplex orders
-            if len(color) < no:
-                color.append(['blue'] * ((no + 1) - len(color)))
-    if color_simplex is None:
-        # no per-node colours, default to the color array
-        color_simplex = lambda a, b, o: color[o]
-
-    # set up the axes
-    ax.set_xlim([-0.2, 1.2])      # axes bounded around 1
-    ax.set_ylim([-0.2, 1.2])
-    ax.grid(False)                # no grid
-    ax.get_xaxis().set_ticks([])  # no ticks on the axes
-    ax.get_yaxis().set_ticks([])
+        # fixed colour
+        col = lambda c, s, k: simplexColour
 
     # draw the node markers
     for s in c.simplicesOfOrder(0):
         (x, y) = em[s]
-        circ = plt.Circle([x, y],
-                          radius=node_size,
-                          edgecolor='black', facecolor=color_simplex(c, s, 0),
-                          zorder=3)
+        circ = Circle([x, y],
+                      radius=simplexSize,
+                      edgecolor='black', facecolor=col(c, s, 0),
+                      zorder=3)
         ax.add_patch(circ)
 
     # draw the edges
@@ -87,9 +89,9 @@ def draw_complex(c: SimplicialComplex, em: Embedding,
         fs = list(c.basisOf(s))
         (x0, y0) = em[fs[0]]
         (x1, y1) = em[fs[1]]
-        line = plt.Line2D([x0, x1], [y0, y1],
-                          color='black', # color = color_simplex(c, s, 1),
-                          zorder=2)
+        line = Line2D([x0, x1], [y0, y1],
+                      color=col(c, s, 1),
+                      zorder=2)
         ax.add_line(line)
 
     # fill in the triangles
@@ -98,7 +100,23 @@ def draw_complex(c: SimplicialComplex, em: Embedding,
         (x0, y0) = em[fs[0]]
         (x1, y1) = em[fs[1]]
         (x2, y2) = em[fs[2]]
-        tri = plt.Polygon([[x0, y0], [x1, y1], [x2, y2]],
-                          edgecolor='black', facecolor=color_simplex(c, s, 2),
-                          zorder=1)
+        tri = Polygon([[x0, y0], [x1, y1], [x2, y2]],
+                      edgecolor='black', facecolor=col(c, s, 2),
+                      zorder=1)
         ax.add_patch(tri)
+
+    # configure the axes
+    ax.set_xlim(subfieldXY[0], subfieldXY[0] + subfieldWH[0])
+    ax.set_ylim(subfieldXY[1], subfieldXY[1] + subfieldWH[1])
+
+    if subfieldXY == [0.0, 0.0] and subfieldWH == [1.0, 1.0]:
+        # no ticks for the full field
+        ax.set_xticks([])
+        ax.set_yticks([])
+    else:
+        # show extent for a subfield
+        ax.set_xticks([subfieldXY[0], subfieldXY[0] + subfieldWH[0]])
+        ax.set_yticks([subfieldXY[1], subfieldXY[1] + subfieldWH[1]])
+
+    # set the background colour
+    ax.set_facecolor(backgroundColour)

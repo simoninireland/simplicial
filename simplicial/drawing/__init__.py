@@ -1,7 +1,7 @@
 # Initialisation for simplicial's drawing routines
 #
-# Copyright (C) 2017 Simon Dobson
-# 
+# Copyright (C) 2017--2024 Simon Dobson
+#
 # This file is part of simplicial, simplicial topology in Python.
 #
 # Simplicial is free software: you can redistribute it and/or modify
@@ -17,4 +17,4 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-from .drawing import draw_complex
+from .drawing import drawComplex

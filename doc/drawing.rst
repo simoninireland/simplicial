@@ -25,4 +25,4 @@ automatic layout generation yet.
 Drawing a complex
 -----------------
 
-.. autofunction:: draw_complex
+.. autofunction:: drawComplex
