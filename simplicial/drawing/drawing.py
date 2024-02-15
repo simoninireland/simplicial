@@ -17,12 +17,88 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-import collections
-import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
-from matplotlib.patches import Circle, Polygon
+from matplotlib.collections import PatchCollection
+from matplotlib.path import Path
+from matplotlib.patches import Circle, Polygon, PathPatch
 from simplicial import SimplicialComplex, Embedding
+
+
+# Default palette for simplices of different orders
+palette = ['k', 'k', '0.75']
+
+
+def patchesForComplex(c: SimplicialComplex, em: Embedding,
+                      simplexColour = None, simplexSize = 0.02):
+    '''Return a list of patch collections for the complex.
+
+    We currently only handle simplices up to and including :math:`k = 2`.
+
+    This function is the building block for :func:`drawComplex`
+    and other plotting functions. It only needs to be called directly if
+    some more complicated plotting is required.
+
+    :param c: the complex
+    :param em: embedding providing the positions of the 0-simplices
+    :param simplexColour: simplex colours
+    :param simplexSize: the size of the node (0-simplex) markers
+
+    '''
+
+    # build the colour mapping as a function
+    if simplexColour is None:
+        # no colour, use the default palette
+        col = lambda c, s, k: palette[k]
+    elif type(simplexColour) is list:
+        # list of colours per simplex order
+        col = lambda c, s, k: simplexColour[k]
+    elif type(simplexColour) is dict:
+        # dict of individual simplex colours
+        col = lambda c, s, k: simplexColour[s]
+    elif callable(simplexColour):
+        # function from complex, simplex, and order to colour
+        col = simplexColour
+    else:
+        # fixed colour for all simplices
+        col = lambda c, s, k: simplexColour
+
+    # draw the node markers
+    nodes = []
+    for s in c.simplicesOfOrder(0):
+        (x, y) = em[s]
+        circ = Circle([x, y],
+                      radius=simplexSize,
+                      edgecolor='black', facecolor=col(c, s, 0))
+        nodes.append(circ)
+
+    # draw the edges
+    edges = []
+    for s in c.simplicesOfOrder(1):
+        fs = list(c.basisOf(s))
+        (x0, y0) = em[fs[0]]
+        (x1, y1) = em[fs[1]]
+        line = PathPatch(Path([(x0, y0), (x1, y1)]),
+                         color=col(c, s, 1))
+        edges.append(line)
+
+    # fill in the triangles
+    triangles = []
+    for s in c.simplicesOfOrder(2):
+        fs = list(c.basisOf(s))
+        (x0, y0) = em[fs[0]]
+        (x1, y1) = em[fs[1]]
+        (x2, y2) = em[fs[2]]
+        tri = Polygon([[x0, y0], [x1, y1], [x2, y2]],
+                      edgecolor='None', facecolor=col(c, s, 2))
+        triangles.append(tri)
+
+    # construct the patch collections and return
+    # (We ned to do this because the zorder binds to the patch collection,
+    # not to the individual patches.)
+    nodePatches = PatchCollection(nodes, zorder=3, match_original=True)
+    edgePatches = PatchCollection(edges, zorder=2, match_original=True)
+    trianglePatches = PatchCollection(triangles, zorder=1, match_original=True)
+    return [nodePatches, edgePatches, trianglePatches]
 
 
 def drawComplex(c: SimplicialComplex, em: Embedding,
@@ -57,53 +133,11 @@ def drawComplex(c: SimplicialComplex, em: Embedding,
         subfieldXY = [0.0, 0.0]
     if subfieldWH is None:
         subfieldWH = [1.0 - subfieldXY[0], 1.0 - subfieldXY[1]]
-    if simplexColour is None:
-        # no colour, use a default of black for nodes and edges
-        # and light grey for triangles
-        palette = ['k', 'k', '0.75']
-        col = lambda c, s, k: palette[k]
-    elif type(simplexColour) is list:
-        # list of colours per simplex order
-        col = lambda c, s, k: simplexColour[k]
-    elif type(simplexColour) is dict:
-        # dict of individual simplex colours
-        col = lambda c, s, k: simplexColour[s]
-    elif callable(simplexColour):
-        # function from complex, simplex, and order to colour
-        col = simplexColour
-    else:
-        # fixed colour
-        col = lambda c, s, k: simplexColour
 
-    # draw the node markers
-    for s in c.simplicesOfOrder(0):
-        (x, y) = em[s]
-        circ = Circle([x, y],
-                      radius=simplexSize,
-                      edgecolor='black', facecolor=col(c, s, 0),
-                      zorder=3)
-        ax.add_patch(circ)
-
-    # draw the edges
-    for s in c.simplicesOfOrder(1):
-        fs = list(c.basisOf(s))
-        (x0, y0) = em[fs[0]]
-        (x1, y1) = em[fs[1]]
-        line = Line2D([x0, x1], [y0, y1],
-                      color=col(c, s, 1),
-                      zorder=2)
-        ax.add_line(line)
-
-    # fill in the triangles
-    for s in c.simplicesOfOrder(2):
-        fs = list(c.basisOf(s))
-        (x0, y0) = em[fs[0]]
-        (x1, y1) = em[fs[1]]
-        (x2, y2) = em[fs[2]]
-        tri = Polygon([[x0, y0], [x1, y1], [x2, y2]],
-                      edgecolor='black', facecolor=col(c, s, 2),
-                      zorder=1)
-        ax.add_patch(tri)
+    # draw the complex
+    pcs = patchesForComplex(c, em, simplexColour, simplexSize)
+    for pc in pcs:
+        ax.add_collection(pc)
 
     # configure the axes
     ax.set_xlim(subfieldXY[0], subfieldXY[0] + subfieldWH[0])

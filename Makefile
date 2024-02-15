@@ -47,6 +47,7 @@ SOURCES_CODE = \
 	simplicial/triangularlattice.py \
 	simplicial/embedding.py \
 	simplicial/drawing/drawing.py \
+	simplicial/drawing/draw_euler.py \
 	simplicial/file/json_simplicial.py
 
 # Test suite
