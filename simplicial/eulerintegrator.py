@@ -95,23 +95,22 @@ class EulerIntegrator:
 
         # the initial level set is the whole complex, and we take a copy
         # because levelSet() is destructive
-        levelSet = copy.deepcopy(c)
+        d = copy.deepcopy(c)
 
         # compute maximum "height"
-        maxHeight = max([self.metric(levelSet, s) for s in levelSet.simplices()])
+        maxHeight = max([self.metric(d, s) for s in d.simplices()])
 
         # perform the integration over the level sets
+        levelSet = d
         a = 0
         for l in range(maxHeight):
             # compute the Euler characteristic of the level set
+            levelSet = self.levelSet(levelSet, l)
             chi = levelSet.eulerCharacteristic()
             #print('level {level}, chi = {chi}'.format(level = l, chi = chi))
 
             # add to the integral
             a += chi
-
-            # form the next level set from this one
-            levelSet = self.levelSet(levelSet, l)
 
         # return the accumulated integral
         return a
