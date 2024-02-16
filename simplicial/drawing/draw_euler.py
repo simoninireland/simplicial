@@ -27,12 +27,17 @@ def drawEulerIntegral(c: SimplicialComplex, em: Embedding,
                       attr = 'count', backgroundColour = '0.95',
                       subfieldXY = None, subfieldWH = None,
                       simplexColour = None, simplexSize = 0.02,
-                      showLevelSets = True, showEulerCharacteristics = False):
+                      showLevelSets = True,
+                      showEulerCharacteristics = False,
+                      eulerCharacteristicsColour ='k', eulerCharacteristicsFontSize = 'small',
+                      showMetrics = False,
+                      metricsColour = 'k', metricsFontSize = 'small'):
     '''Draw the sequence of subcomplexes induced by the Euler integral
     over the given complex, drawn using the embedding.
 
-    There need to be one more axes provided than the maximum height of the
-    complex, to allow for the base.
+    There need to be one more set of axes provided than the maximum
+    height of the complex, to allow for the base complex to be drawn
+    as well.
 
     At present we only deal with simplices of order 2 and less.
 
@@ -46,7 +51,12 @@ def drawEulerIntegral(c: SimplicialComplex, em: Embedding,
     :param simplexColour: simplex colours
     :param simplexSize: the size of the node (0-simplex) markers
     :param showLevelSets: show the level set of each plot (defaul True)
-    :param showEulerCharacteristics: show trhe Euler characteristics of each level set (default False)
+    :param showEulerCharacteristics: show the Euler characteristics of each level set (default False)
+    :param eulerCharacteristicsColour: annotation colour (default black)
+    :param eulerCharacteristicsFontSize: annotation font size (default 'small')
+    :param showMetrics: show metric at each 0-simplex (default False)
+    :param metricsColour: colour for metrics (default black)
+    :param metricsFontSize: font size for metrics (default 'small')
 
     '''
 
@@ -71,6 +81,30 @@ def drawEulerIntegral(c: SimplicialComplex, em: Embedding,
         for pc in pcs:
             ax.add_collection(pc)
 
+        # add metric
+        if showMetrics:
+            for s in c.simplicesOfOrder(0):
+                ax.annotate(c[s][attr],
+                            xy=em[s],
+                            xytext=(-simplexSize, -simplexSize), textcoords='offset pixels',
+                            color=metricsColour, fontsize=metricsFontSize)
+
+        # add level set
+        if showLevelSets:
+            if h == -1:
+                ax.set_title(f'Base')
+            else:
+                ax.set_title('$\\{ h > ' + f'{h}' + ' \\}$')
+
+        # add Euler characteristic
+        if showEulerCharacteristics:
+            chi = levelSet.eulerCharacteristic()
+            if h > -1:
+                chiString = '$\\chi(\\{ h > ' + f'{h}' + ' \\}) = ' + f'{chi}' + '$'
+                ax.annotate(chiString,
+                            (0.05, 0.05), xycoords='axes fraction',
+                            color=eulerCharacteristicsColour, fontsize=eulerCharacteristicsFontSize)
+
         # configure the axes
         ax.set_xlim(subfieldXY[0], subfieldXY[0] + subfieldWH[0])
         ax.set_ylim(subfieldXY[1], subfieldXY[1] + subfieldWH[1])
@@ -86,20 +120,5 @@ def drawEulerIntegral(c: SimplicialComplex, em: Embedding,
 
         # set the background colour
         ax.set_facecolor(backgroundColour)
-
-        # add level set
-        if showLevelSets:
-            if h == -1:
-                ax.set_title(f'Base')
-            else:
-                ax.set_title('$\\{ h > ' + f'{h}' + ' \\}$')
-
-        # add Euler characteristic
-        if showEulerCharacteristics:
-            chi = levelSet.eulerCharacteristic()
-            if h > -1:
-                chiString = '$\\chi(\\{ h > ' + f'{h}' + ' \\}) = ' + f'{chi}' + '$'
-                ax.annotate(chiString,
-                            (0.05, 0.05), xycoords='axes fraction')
 
         h += 1
