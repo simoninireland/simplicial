@@ -34,10 +34,6 @@ def patchesForComplex(c: SimplicialComplex, em: Embedding,
 
     We currently only handle simplices up to and including :math:`k = 2`.
 
-    This function is the building block for :func:`drawComplex`
-    and other plotting functions. It only needs to be called directly if
-    some more complicated plotting is required.
-
     :param c: the complex
     :param em: embedding providing the positions of the 0-simplices
     :param simplexColour: simplex colours
