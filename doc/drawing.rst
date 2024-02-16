@@ -26,3 +26,23 @@ Drawing a complex
 -----------------
 
 .. autofunction:: drawComplex
+
+This routine is a wrapper for a more basic routine that creates patch
+collections representing the simplices of different orders.
+
+.. autofunction:: patchesForComplex
+
+This function is the building block for :func:`drawComplex`
+and other plotting functions. It only needs to be called directly if
+some more complicated plotting is required.
+
+
+Drawing an Euler characteristic integration
+-------------------------------------------
+
+Euler characteristic integration using :class:`EulerIntegrator` can be
+hard to understand. This function draws the "flooding landscape"
+associated with the integral based on the level sets for the
+integration metric.
+
+.. autofunction:: drawEulerIntegral
