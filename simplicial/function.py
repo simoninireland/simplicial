@@ -28,6 +28,10 @@ A = TypeVar('A')
 class SimplicialFunction:
     '''A total function from simplices to values.
 
+    Simplicial functions can be used to capture a range of operations
+    on complxes, each with particular constraints on the range of values
+    produced.
+
     :param c: the simplicial complex
     '''
 
