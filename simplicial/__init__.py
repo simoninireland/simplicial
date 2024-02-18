@@ -47,6 +47,9 @@ from .referencerep import ReferenceRepresentation
 from .graphrep import GraphRepresentation
 from .simplicialcomplex import SimplicialComplex
 
+# simplicial functions
+from .function import SimplicialFunction, AttributeSF, ComputedSF
+
 # generator functions for common complexes
 from .generators import k_simplex, k_skeleton, k_void, ring
 
