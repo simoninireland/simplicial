@@ -40,6 +40,7 @@ SOURCES_CODE = \
 	simplicial/referencerep.py \
 	simplicial/graphrep.py \
 	simplicial/simplicialcomplex.py \
+	simplicial/function.py \
 	simplicial/subcomplex.py \
 	simplicial/generators.py \
 	simplicial/filtration.py \
