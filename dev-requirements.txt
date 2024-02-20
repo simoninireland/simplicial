@@ -1,6 +1,5 @@
 wheel
 mypy
-tox
 coverage
 rope
 sphinx
@@ -9,9 +8,7 @@ sphinx-autodoc-typehints
 sphinxcontrib-bibtex
 doc8
 twine
-black
-jedi
-jedi-language-server
 pylint
 flake8
 rope
+pytest
