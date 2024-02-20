@@ -40,35 +40,34 @@ for visualisation (although this still needs a lot more work).
 # utilities
 from .utils  import Isomorphism
 
-# representation and computation
+# Representations
 from .types import Simplex, Attributes, Renaming
 from .rep import Representation
 from .referencerep import ReferenceRepresentation
 from .graphrep import GraphRepresentation
+
+# Top-level complexes
 from .simplicialcomplex import SimplicialComplex
 
-# simplicial functions
-from .function import SimplicialFunction, AttributeSF, ComputedSF
+# Simplicial functions
+from .function import SimplicialFunction, SFRepresentation, AttributeSFRepresentation, ComputedSFRepresentation, LiteralSFRepresentation
+from .dvf import DiscreteVector, DiscreteVectorField
 
-# generator functions for common complexes
+# Generator functions for common complexes
 from .generators import k_simplex, k_skeleton, k_void, ring
 
-# sequences of complexes ordered by inclusion
+# Sequences of complexes ordered by inclusion
 from .filtration import Filtration
 
 # Euler integration
 from .eulerintegrator import EulerIntegrator
 
-# spatial embeddings and computations
+# Spatial embeddings and computations
 from .embedding import Embedding
 
-# some sample figures
+# Specific complexes
 from .triangularlattice import TriangularLattice, TriangularLatticeEmbedding
 #from .toroidallattice import ToroidalLattice
 
-# file I/O
+# File I/O
 from . import file
-
-# drawing support
-#import simplicial.drawing
-#from simplicial.drawing import *
