@@ -65,7 +65,7 @@ class DiscreteVectorField(SimplicialFunction[DiscreteVector]):
 
     '''
 
-    NULL_VECTOR: Final[DiscreteVector] = (None, 0.0)     #: The null vector.
+    NULL_VECTOR: Final[DiscreteVector] = (None, 0.0)     #: The discrete null vector.
 
 
     def __init__(self, c: SimplicialComplex,
@@ -92,7 +92,7 @@ class DiscreteVectorField(SimplicialFunction[DiscreteVector]):
         # check for sense
         c = self.complex()
         if not (isNullVector(v) or (s in c.faces(s)) or (s in c.cofaces(s))):
-            raise ValueError(f'Vector does not point in a legal direction for {s}')
+            raise ValueError(f'Vector is non-null and does not point in a legal direction for {s}')
 
         # if we get here, do the assignment
         super()[s] = v
