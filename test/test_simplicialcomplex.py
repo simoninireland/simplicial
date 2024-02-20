@@ -901,6 +901,22 @@ class SimplicialComplexTests(unittest.TestCase):
             self.assertTrue(c.containsSimplex(s))
         self.assertFalse(c.containsSimplex(5))
 
+    def testContainsErrors(self):
+        """Test we can raise excepotions for non-contained simplices when asked."""
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+        for s in c.simplices():
+            self.assertTrue(c.containsSimplex(s, fatal=True))
+        self.assertFalse(c.containsSimplex(5))
+        with self.assertRaises(ValueError):
+            c.containsSimplex(5g, fatal=True)
+
     def testContainsBasis(self):
         """Test we can check containment of a basis correctly."""
         c = SimplicialComplex()

@@ -713,12 +713,18 @@ class SimplicialComplex:
 
     # ---------- Testing for simplices ----------
 
-    def containsSimplex(self, s: Simplex) -> bool:
+    def containsSimplex(self, s: Simplex, fatal: bool = False) -> bool:
         """Test whether the complex contains the given simplex.
+
+        Setting fatal to True causes an exception to be raised if
+        trhe simplex is not part of the complex.
 
         :param s: the simplex
         :returns: True if the simplex is in the complex"""
-        return self._rep.containsSimplex(s)
+        c = self._rep.containsSimplex(s)
+        if fatal and not c:
+            raise ValueError(f'{s} is not part of the complex')
+        return c
 
 
     def __contains__(self, s: Simplex) -> bool:
