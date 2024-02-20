@@ -61,6 +61,7 @@ SOURCES_TESTS = \
 	test/test_cohomology.py \
 	test/test_flag.py \
 	test/test_compose.py \
+	test/test_function.py \
 	test/test_vr.py \
 	test/test_triangularlattice.py \
 	test/test_randomplanes.py \
