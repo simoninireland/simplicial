@@ -113,7 +113,7 @@ class SimplicialComplex:
         :returns: the name of the new simplex"""
         return self._rep.addSimplex(fs, id, attr)
 
-    def isBasis(self, bs: List[Simplex], fatal: bool = False):
+    def isBasis(self, bs: Set[Simplex], fatal: bool = False):
         """Return True if the given set of simplices is a basis, that is,
         a set of 0-simplices. The simplices must already exist in the complex.
         The operation returns a boolean unless fatal is True, in which
@@ -615,7 +615,7 @@ class SimplicialComplex:
         return self._rep.simplicesOfOrder(k)
 
 
-    def simplexWithBasis(self, bs: List[Simplex], fatal: bool = False) -> Simplex:
+    def simplexWithBasis(self, bs: Set[Simplex], fatal: bool = False) -> Simplex:
         """Return the simplex with the given basis, if it exists
         in the complex. If no such simplex exists, or if the given
         set is not a basis, then None is returned; if fatal is True, then
@@ -998,6 +998,42 @@ class SimplicialComplex:
             for fk in range(0, topk + 1):
                 ss = ss + list(cs[fk])
         return ss
+
+
+    def oppositeSimplex(self, s: Simplex, b: Simplex) -> Simplex:
+        '''Return the face opposite the given basis element in a simplex.
+
+        The opposite face is defined as the face of the simplex
+        that doesn't contain the basis element -- which is uniquely
+        defined. By definition, for a k-simplex the face will be
+        a (k - 1)-simplex not containing the basis element in its basis.
+
+        An exception is raised if the basis element isn't an 0-simplex or
+        isn't part of the given simplex' basis. An exception is also
+        raised if the given simplex is an 0-simplex, which can't have
+        an opposite face.
+
+        :param s: the simplex
+        :param b: the basis element
+        :returns: the opposite face
+        '''
+
+        # ensure the simplex isn't an 0-simplex
+        if self.orderOf(s) == 0:
+            raise ValueError(f'Can\t take the opposite face of 0-simplex {s}')
+
+        # ensure we have a basis element
+        self.ensureBasis([b])
+
+        # ensure it's part of the simplex' basis
+        if b not in self.basisOf(s):
+            raise ValueError(f'Simplex {b} is not in the basis of {s}')
+
+        # find the opposite face, which is the simplex having the
+        # basis of the given simplex without the given basis element
+        oppBasis = self.basisOf(s)
+        oppBasis.remove(b)
+        return self.simplexWithBasis(oppBasis)
 
 
     # ---------- Generalised degree ----------

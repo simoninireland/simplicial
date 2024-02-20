@@ -1238,6 +1238,76 @@ class SimplicialComplexTests(unittest.TestCase):
                     self.fail("Simplices not in reverse-order order")
 
 
+    def testOppositeTriangle(self):
+        '''Test we can retrieve the opposite simplex ina triangle.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+        c.addSimplex(id = 123, fs = [ 12, 23, 31 ])
+
+        opp = c.oppositeSimplex(123, 1)
+        self.assertEqual(opp, 23)
+
+
+    def testOppositeEdge(self):
+        '''Test we can retrieve the opposite simplex in an edge.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+
+        opp = c.oppositeSimplex(12, 1)
+        self.assertEqual(opp, 2)
+
+
+    def testOppositeWrong(self):
+        '''Test we fail if the simplex isn't in the basis.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+
+        with self.assertRaises(ValueError):
+            c.oppositeSimplex(12, 4)
+
+
+    def testOppositeNotBasis(self):
+        '''Test we fail if we provided a non-basis simplex.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+        c.addSimplex(id = 2)
+        c.addSimplex(id = 3)
+        c.addSimplex(id = 4)
+        c.addSimplex(id = 12, fs = [ 1, 2 ])
+        c.addSimplex(id = 23, fs = [ 2, 3 ])
+        c.addSimplex(id = 31, fs = [ 3, 1 ])
+
+        with self.assertRaises(ValueError):
+            c.oppositeSimplex(12, 13)
+
+
+    def testOppositeNode(self):
+        '''Test we fail if we ask for the opposite face of an 0-simplex.'''
+        c = SimplicialComplex()
+        c.addSimplex(id = 1)
+
+        with self.assertRaises(ValueError):
+            c.oppositeSimplex(1, 1)
+
+
     # ---------- Deletion----------
 
     def testDelete1( self ):
