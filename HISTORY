@@ -4,6 +4,7 @@ Version 1.1.1
    - Added an Isomorphiosm class to simplify some mappings
    - Added GraphRepresentation for more efficient low-order complexes
    - Added a method for extracting the coboundary matrix of a complex
+   - Added simplicial functions with various representations
 
 Version 1.0.1 (16Sep2022)
 
