@@ -59,6 +59,7 @@ SOURCES_TESTS = \
 	test/test_eulerintegrator.py \
 	test/test_homology.py \
 	test/test_cohomology.py \
+	test/test_morse.py \
 	test/test_flag.py \
 	test/test_compose.py \
 	test/test_function.py \
