@@ -41,6 +41,7 @@ class SFRepresentation(Generic[A]):
 
         :params c: the complex'''
         self._complex = c
+        self.reset()
 
 
     def complex(self) -> SimplicialComplex:
@@ -213,13 +214,23 @@ class SimplicialFunction(Generic[A]):
     - a default value
 
     These are used to choose an appropriate representation,
-    repectively using the funciton, the attributes, or a literal
+    repectively using the function, the attributes, or a literal
     function where youn provide the mapping manually. It is also
     possible to provide a specific representation. (This approach is
     awkward, but it saves exposing all the representations in
     application code.)
 
-    :param c: the simplicial complex
+    A simplicial function is "really" a function from complex and
+    simplex to value. However, given the expense of computing some
+    functions, we essentially curry the function by providing the
+    complex separately, and treating the result as a function from
+    simplex to value. This allows representations to pre-compute
+    values or cache them to improve performance. The function can be
+    "re-curried" at any time by calling :meth:`setComplex`, which will
+    reset any optimisations. Clearly it makes no sense to call the
+    function until a complex hae been set.
+
+    :param c: (optional) the simplicial complex
     :param f: (optional) a function to determine values
     :param attr: (optional) an attribute name
     :param default: (optional) default value
@@ -227,7 +238,7 @@ class SimplicialFunction(Generic[A]):
 
     '''
 
-    def __init__(self, c: SimplicialComplex,
+    def __init__(self, c: SimplicialComplex = None,
                  f:  Callable[[SimplicialComplex, Simplex], A] = None,
                  attr: str = None,
                  default: A = None,
@@ -245,6 +256,15 @@ class SimplicialFunction(Generic[A]):
 
 
     # ---------- Access ----------
+
+    def setComplex(self, c: SimplicialComplex):
+        '''Reset the underlying complex that is the domain
+        of the function. This allows the same function to be used
+        across complexes if desired.
+
+        :params c: the complex'''
+        self._representation.setComplex(c)
+
 
     def complex(self) -> SimplicialComplex:
         '''Return the underlying complex that is the domain
