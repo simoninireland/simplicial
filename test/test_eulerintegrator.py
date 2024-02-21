@@ -26,21 +26,21 @@ class EulerIntegratorTests(unittest.TestCase):
         """Test we can integrate a single simplex with no height attribute."""
         c = SimplicialComplex()
         c.addSimplex(id = 1)
-        i = EulerIntegrator('height')
+        i = EulerIntegrator(SimplicialFunction(attr='height', default=0))
         self.assertEqual(i.integrate(c), 0)
 
     def test1simplex0(self):
         """Test we can integrate a single simplex with height zero."""
         c = SimplicialComplex()
         c.addSimplex(id = 1, attr = dict(height = 0))
-        i = EulerIntegrator('height')
+        i = EulerIntegrator(SimplicialFunction(attr='height', default=0))
         self.assertEqual(i.integrate(c), 0)
 
     def test1simplex1(self):
         """Test we can integrate a single simplex with height one."""
         c = SimplicialComplex()
         c.addSimplex(id = 1, attr = dict(height = 1))
-        i = EulerIntegrator('height')
+        i = EulerIntegrator(SimplicialFunction(attr='height', default=0))
         self.assertEqual(i.integrate(c), 1)
 
 

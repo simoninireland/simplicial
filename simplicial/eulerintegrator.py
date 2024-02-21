@@ -1,6 +1,6 @@
 # Euler characteristic integration
 #
-# Copyright (C) 2017--2019 Simon Dobson
+# Copyright (C) 2017--2024 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -18,7 +18,7 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import copy
-from simplicial import SimplicialComplex, Simplex
+from simplicial import SimplicialComplex, Simplex, SimplicialFunction
 
 
 class EulerIntegrator:
@@ -30,11 +30,6 @@ class EulerIntegrator:
     characteristic over them. By choosing a suitable collection of
     sub-complexes, different problems can be represented as integrals
     of this kind.
-
-    The default implementation integrates using the value of a
-    selected attribute of simplices, which should contain a
-    number. Overriding the :meth:`metric` method generates different
-    metrics.
 
     The metric should be a non-negative number. The metric assignment
     has to be monotone with respect to simplex order: the metric
@@ -49,22 +44,9 @@ class EulerIntegrator:
 
     """
 
-    def __init__(self, a: str = None, default_value: int = 0):
-        self._attribute = a
-        self._defaultValue = 0
+    def __init__(self, f: SimplicialFunction):
+        self._f = f
 
-    def metric(self, c: SimplicialComplex, s: Simplex):
-        """Return the metric for the given simplex. The default reads the value
-        of the attribute given when the integrator was created: if the simplex
-        has no such attribute then the metric is 0.
-
-        :param c: the complex
-        :param s: the simplex
-        :returns: the metric"""
-        if self._attribute in c[s].keys():
-            return c[s][self._attribute]
-        else:
-            return self._defaultValue
 
     def levelSet(self, c: SimplicialComplex, l: int) -> SimplicialComplex:
         """Form the level set of the complex c at the value l. The level set
@@ -81,10 +63,11 @@ class EulerIntegrator:
 
         # extract all the basis simplices whose associated metric
         # is greater than l
-        bs = c.allSimplices(lambda c, s: c.orderOf(s) == 0 and self.metric(c, s) > l)
+        bs = c.allSimplices(lambda c, s: c.orderOf(s) == 0 and self._f(s) > l)
 
         # create a sub-complex at this level
         return c.restrictBasisTo(bs)
+
 
     def integrate(self, c: SimplicialComplex) -> int:
         """Perform an integration of the Euler characteristic across the
@@ -96,9 +79,10 @@ class EulerIntegrator:
         # the initial level set is the whole complex, and we take a copy
         # because levelSet() is destructive
         d = copy.deepcopy(c)
+        self._f.setComplex(d)
 
         # compute maximum "height"
-        maxHeight = max([self.metric(d, s) for s in d.simplices()])
+        maxHeight = max([self._f(s) for s in d.simplices()])
 
         # perform the integration over the level sets
         levelSet = d

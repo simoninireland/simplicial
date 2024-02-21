@@ -6,6 +6,8 @@ Version 1.1.1
    - Added a method for extracting the coboundary matrix of a complex
    - Added simplicial functions with various representations
    - Added the basic elements of discrete Morse theory
+   - Generalised Euler characteristic integration to work with arbitrary
+     simplicial functions
 
 Version 1.0.1 (16Sep2022)
 
