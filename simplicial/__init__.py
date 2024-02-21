@@ -68,6 +68,3 @@ from .embedding import Embedding
 # Specific complexes
 from .triangularlattice import TriangularLattice, TriangularLatticeEmbedding
 #from .toroidallattice import ToroidalLattice
-
-# File I/O
-from . import file
