@@ -76,7 +76,7 @@ class DiscreteVectorField(SimplicialFunction[DiscreteVector]):
         super().__init__(c, f, attr, default, rep)
 
 
-    # ---------- Adding vectors ----------
+    # ---------- Access ----------
 
     def __setitem__(self, s: Simplex, v: DiscreteVector):
         '''If setting is allowed, ensure that the new value is
@@ -99,3 +99,9 @@ class DiscreteVectorField(SimplicialFunction[DiscreteVector]):
 
 
     # ---------- Tests ----------
+
+    def isMorseField(self):
+        '''A morse field is a discrete vector field induced by a Morse
+        function over a complex.
+
+        '''

@@ -308,3 +308,64 @@ class SimplicialFunction(Generic[A]):
 
         '''
         self._representation.setValueForSimplex(s, v)
+
+
+    # ---------- Discrete Morse theory ----------
+
+    def isMorse(self) -> bool:
+        '''A discrete Morse function is a simplicial function :math:`f` such that:
+
+        - at each simplex :math:`s`, for each simplex :math:`s < l`, there is
+          at most one :math:`l` such that :math:`f(s) >= f(l)`; or
+        - at each simplex :math:`s`, for each simplex :math:`l < s`, there is
+          at most one :math:`l` such that :math:`f(l) >= fsl)`.
+
+        Put another way, a Morse function generally increases with dimension
+        except in at most one direction. This implies that the values
+        of the simplicial function can be compared with <= and >=.
+
+        Testing that a function is Morse is expensive, with worst-case
+        time complexity of :math:`O(|s|^2)$ time for a complex with
+        :math:`|s|` simplices.
+
+        '''
+        c = self.complex()
+
+        maxOrder = c.maxOrder()
+        for k in range(maxOrder + 1):
+            ss = c.simplicesOfOrder(k)
+            for s in ss:
+                v = self[s]
+
+                # test all faces
+                vs = sum([1 if self[l] >= v else 0 for l in c.faces(s)])
+                if vs > 1:
+                    return False
+
+                # test all cofaces
+                vs = sum([1 if self[l] <= v else 0 for l in c.cofaces(s)])
+                if vs > 1:
+                    return False
+
+        # if we get here the values were all correct
+        return True
+
+
+    def isMorseCritical(self, s: Simplex) -> bool:
+        '''Test whether the given simplex is critical in the sense of
+        Morse theory.
+
+        :param s: the simplex
+        :returns: True if the simplex is critical'''
+        c = self.complex()
+        v = self[s]
+
+        # test all faces
+        vs = sum([1 if self[l] >= v else 0 for l in c.faces(s)])
+        if vs > 0:
+            return False
+
+        # test all cofaces
+        vs = sum([1 if self[l] <= v else 0 for l in c.cofaces(s)])
+        if vs > 0:
+            return False
