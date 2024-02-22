@@ -1602,5 +1602,57 @@ class SimplicialComplexTests(unittest.TestCase):
         self.assertEqual(c.degreeOf(2, 15), 1)
 
 
+    # ---------- Factor graphs ----------
+
+    def testEmptyFactorGraph(self):
+        '''Test we correctly create an empty factor graph.'''
+        c = SimplicialComplex()
+        g = c.factorGraph()
+        self.assertEqual(g.order(), 0)
+
+
+    def testSingletonFactorGraph(self):
+        '''Test we correctly create the factor graph of the simplest complex.'''
+        c = SimplicialComplex()
+        n1 = c.addSimplex(id = 1)
+        g = c.factorGraph()
+
+        self.assertEqual(g.order(), 1)
+        self.assertCountEqual(g.nodes, [n1])
+
+
+    def testSingleEdgeFactorGraph(self):
+        '''Test we correctly create the factor graph of a complex with a single edge.'''
+        c = SimplicialComplex()
+        n1 = c.addSimplex(id = 1)
+        n2 = c.addSimplex(id = 2)
+        e1 = c.addSimplex(fs=[n1, n2], id = 12)
+        g = c.factorGraph()
+
+        self.assertEqual(g.order(), 3)
+        self.assertCountEqual(g.nodes, [n1, n2, e1])
+        self.assertCountEqual(g.edges, [(n1, e1), (n2, e1)])
+
+
+    def testSingleTriangleFactorGraph(self):
+        '''Test we correctly create the factor graph of a complex with a triangle edge.'''
+        c = SimplicialComplex()
+        n1 = c.addSimplex(id = 1)
+        n2 = c.addSimplex(id = 2)
+        n3 = c.addSimplex(id = 3)
+        e1 = c.addSimplex(id = 12, fs = [ 1, 2 ])
+        e2 = c.addSimplex(id = 13, fs = [ 1, 3 ])
+        e3 = c.addSimplex(id = 23, fs = [ 2, 3 ])
+        t1 = c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
+        g = c.factorGraph()
+
+        self.assertEqual(g.order(), 7)
+        self.assertCountEqual(g.nodes, [n1, n2, n3, e1, e2, e3, t1])
+        self.assertCountEqual(g.edges, [(n1, e1), (n2, e1),
+                                        (n1, e2), (n3, e2),
+                                        (n2, e3), (n3, e3),
+                                        (e1, t1), (e2, t1), (e3, t1)])
+
+
 if __name__ == '__main__':
     unittest.main()
