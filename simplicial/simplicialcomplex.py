@@ -22,6 +22,7 @@ import itertools
 from typing import Dict, List, Callable, Set, Tuple, Optional
 import numpy
 from scipy.special import comb
+from networkx import Graph
 from simplicial import Representation, ReferenceRepresentation, Simplex, Attributes, Renaming
 
 
@@ -1043,24 +1044,26 @@ class SimplicialComplex:
         an m-simplex, the d-degree is the number of simplices of order
         d incident on s.
 
-        For d < m the generalised degree provides no information, as
+        For :math:`d < m` the generalised degree provides no information, as
         the number of incident simplices is defined by the closure
         property of the complex as :math:`\\binom{m + 1}{d + 1}`.
 
-        Generalised degree is not defined for d = m and an exception
+        Generalised degree is not defined for :math:`d = m` and an exception
         is raised.
 
-        For d > m the generalised degree reflects the degree to which
-        simplices are shared faces of higher-order simplices, for example
-        where a point is the meeting-point of two triangles, or an edge
-        is shared between two triangles.
+        For :math:`d > m` the generalised degree reflects the degree
+        to which simplices are shared faces of higher-order simplices,
+        for example where a point is the meeting-point of two
+        triangles, or an edge is shared between two triangles.
 
-        The 1-degree of an 0-simplex is the sdame as the normal (network)
+        The 1-degree of an 0-simplex is the same as the normal (network)
         degree of the 1-skeleton of the complex.
 
         :param d: the degree
         :param s: the simplex
-        :returns: the generalised d-degree of s"""
+        :returns: the generalised d-degree of s
+
+        """
         m = self.orderOf(s)
 
         if d < m:
@@ -1086,6 +1089,54 @@ class SimplicialComplex:
             euler += p * orders[k]
             p *= -1
         return euler
+
+
+    # ---------- Factor graph extraction ----------
+
+    def factorGraph(self) -> Graph:
+        '''Return the factor graph of the complex.
+
+        Factor graphs break-out the higher-order structure of a
+        complex into a layered graph representation. This can be
+        useful for confirming some properties.
+
+        The factor graph of a simplicial complex consists of several
+        layers of node:
+
+        - a layer of nodes representing the 0-simplices of the complex
+        - for each :math:`k > 0` a node representing each k-simplex
+
+        The edges of the factor graph exist between the layers: there
+        are *no* edges *within* layers. If n is a node representing a
+        k-simplex, there is an edge from n to every (k - 1)-simplex
+        that is a face of the k-simplex corresponding to n. (An
+        equivalent way to see this is that there is an edge from every
+        k-simplex to every (k + 1)-simplex of which it is a face.)
+
+        Each node in the graph is named according to the name of the
+        corresponding simplex. There is no intrinsic indictation in
+        the graph of the order of the corresponding node, but these
+        can be determined with reference to the original complex
+        through the correspondence of simplex and node names.
+
+        :returns: the factor graph
+
+        '''
+        g = Graph()
+
+        # add nodes representing the simplices
+        for s in self.simplices():
+            g.add_node(s)
+
+        # add the face/coface relationships as edges
+        maxOrder = self.maxOrder()
+        for k in range(maxOrder):
+            for s in self.simplicesOfOrder(k):
+                cs = self.cofaces(s)
+                for c in cs:
+                    g.add_edge(s, c)
+
+        return g
 
 
     # ---------- Homology ----------
