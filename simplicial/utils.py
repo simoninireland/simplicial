@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 
 from collections import UserDict
-from typing import TypeVar, Dict
+from typing import TypeVar, Dict, Generic
 
 
 # ---------- Isomorphisms ----------
@@ -27,7 +27,7 @@ L = TypeVar('L')
 R = TypeVar('R')
 
 
-class Isomorphism(UserDict[L, R]):
+class Isomorphism(UserDict, Generic[L, R]):
     '''An isomorphism between two sets.
 
     An isomorphism is basically two hash tables back to back. Any
