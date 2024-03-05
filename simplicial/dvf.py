@@ -24,15 +24,6 @@ from simplicial import SimplicialComplex, Simplex, SimplicialFunction, SFReprese
 # Type aliases
 DiscreteVector = Tuple[Simplex, float]  #: A discrete vector with a direction (simplex) and magnitude.
 
-# Helper functions
-def isNullVector(dv: DiscreteVector):
-    '''Test if the given vector is the null vector, having a
-    direction of None and magnitude of 0.0.
-
-    :param dv: the vector
-    :returns: True if the vector is null'''
-    return (dv[0] is None and dv[1] == 0.0)
-
 
 class DiscreteVectorField(SimplicialFunction[DiscreteVector]):
     '''A discrete vector field over a simplicial complex.
@@ -51,11 +42,14 @@ class DiscreteVectorField(SimplicialFunction[DiscreteVector]):
     the length of the arrow.
 
     The default constructor takes a range of parameters to cover the
-    different common cases as with :class:`SimplicialFunction`.
+    different common cases as with :class:`SimplicialFunction`, or an
+    explicitly-chosen representation.
 
-    No checks are made on the sense of the attribute or functional cases,
-    for example ensuring that the vector points in the right direction.
-    For the literal case, however, a check is made on direction.
+    No checks are made on the sense of the attribute or functional
+    cases, for example ensuring that the vector points in the right
+    direction. For the literal case, however, a check is made on
+    direction when a vector is added. (The field can also be rendered
+    invalid by removing simplcies from the underlying complex.)
 
     :param c: the simplicial complex
     :param f: (optional) a function to determine values
@@ -66,6 +60,16 @@ class DiscreteVectorField(SimplicialFunction[DiscreteVector]):
     '''
 
     NULL_VECTOR: Final[DiscreteVector] = (None, 0.0)     #: The discrete null vector.
+
+
+    @staticmethod
+    def isNullVector(dv: DiscreteVector):
+        '''Test if the given vector is the null vector, having a
+        direction of None and magnitude of 0.0.
+
+        :param dv: the vector
+        :returns: True if the vector is null'''
+        return (dv[0] is None and dv[1] == 0.0)
 
 
     def __init__(self, c: SimplicialComplex,
@@ -91,7 +95,7 @@ class DiscreteVectorField(SimplicialFunction[DiscreteVector]):
 
         # check for sense
         c = self.complex()
-        if not (isNullVector(v) or (s in c.faces(s)) or (s in c.cofaces(s))):
+        if not (self.isNullVector(v) or (s in c.faces(s)) or (s in c.cofaces(s))):
             raise ValueError(f'Vector is non-null and does not point in a legal direction for {s}')
 
         # if we get here, do the assignment
@@ -105,3 +109,4 @@ class DiscreteVectorField(SimplicialFunction[DiscreteVector]):
         function over a complex.
 
         '''
+        pass
