@@ -230,10 +230,11 @@ class SimplicialFunction(Generic[A]):
 
     These are used to choose an appropriate representation,
     repectively using the function, the attributes, or a literal
-    function where youn provide the mapping manually. It is also
-    possible to provide a specific representation. (This approach is
-    awkward, but it saves exposing all the representations in
-    application code.)
+    function where youn provide the mapping manually. (This approach
+    is awkward, but it saves exposing all the representations in
+    application code.) It is also possible to provide a specific
+    representation which, if given, takes precedence over the other
+    parameters (which are ignored).
 
     A simplicial function is "really" a function from complex and
     simplex to value. However, given the expense of computing some
