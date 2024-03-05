@@ -49,10 +49,10 @@ class DiscreteVectorField(SimplicialFunction[DiscreteVector]):
     cases, for example ensuring that the vector points in the right
     direction. For the literal case, however, a check is made on
     direction when a vector is added. (The field can also be rendered
-    invalid by removing simplcies from the underlying complex.)
+    invalid by removing simplicies from the underlying complex.)
 
-    :param c: the simplicial complex
-    :param f: (optional) a function to determine values
+    :param c: (optional) the simplicial complex
+    :param f: (optional) a function to determine vector values
     :param attr: (optional) an attribute name
     :param default: (optional) default value (defaults to a null vector)
     :param rep: (optional) representation
@@ -72,8 +72,8 @@ class DiscreteVectorField(SimplicialFunction[DiscreteVector]):
         return (dv[0] is None and dv[1] == 0.0)
 
 
-    def __init__(self, c: SimplicialComplex,
-                 f:  Callable[[SimplicialComplex, Simplex], DiscreteVector] = None,
+    def __init__(self, c: SimplicialComplex = None,
+                 f: Callable[[SimplicialComplex, Simplex], DiscreteVector] = None,
                  attr: str = None,
                  default: DiscreteVector = NULL_VECTOR,
                  rep: SFRepresentation[DiscreteVector] = None):
@@ -104,8 +104,8 @@ class DiscreteVectorField(SimplicialFunction[DiscreteVector]):
 
     # ---------- Tests ----------
 
-    def isMorseField(self):
-        '''A morse field is a discrete vector field induced by a Morse
+    def isMorseField(self) -> bool:
+        '''A Morse field is a discrete vector field induced by a Morse
         function over a complex.
 
         '''
