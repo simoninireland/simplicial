@@ -5,9 +5,9 @@ Simplicial function representations
 
 .. currentmodule:: simplicial
 
-Representations provide the underlying functionality for simplicial
-functions, which need different approaches to support different
-function types (see :ref:`function`).
+Representations provide the underlying implementations of
+:ref:`simplicial functions <function>`, which need different
+approaches to support different function types.
 
 
 :class:`SFRepresentation`: Abstract base class for function representations
