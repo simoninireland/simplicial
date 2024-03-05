@@ -10,8 +10,8 @@ functionality in ``simplicial``.
 
 .. autoclass:: SimplicialFunction
 
-Each simplicial function has an underlying representation that
-provides the underlying functionality (see :ref:`sfrep`).
+Each simplicial function has an underlying :ref:`representation <sfrep>`
+that provides the underlying functionality.
 
 
 Setting and resetting the complex
