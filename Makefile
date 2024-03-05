@@ -86,6 +86,8 @@ SOURCES_DOCUMENTATION = \
 	doc/generators.rst \
 	doc/embedding.rst \
 	doc/triangularlattice.rst \
+	doc/function.rst \
+	doc/sfrep.rst \
 	doc/drawing.rst \
 	doc/file.rst \
 	doc/installation.rst \

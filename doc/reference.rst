@@ -27,6 +27,16 @@ Embeddings
 
 :ref:`drawing`
 
+
+Simplicial functions
+--------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   function
+
+
 Representations
 ---------------
 
@@ -36,3 +46,4 @@ Representations
    rep
    referencerep
    graphrep
+   sfrep
