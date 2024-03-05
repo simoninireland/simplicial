@@ -28,6 +28,21 @@ A = TypeVar('A')
 # ---------- Representation ----------
 
 class SFRepresentation(Generic[A]):
+    '''The abstract base class of simplicial function representations.
+
+    A function needs to at least be able to return a value for every
+    simplex in its underlying complex. It may optionally allow values
+    to be set for specific simplices.
+
+    A function should be able to have its underlying complex
+    re-assigned.
+
+    Some functions arev expensive to compute, so it's entirely
+    permissible to cache values. In this case, the function should
+    also provide a :meth:`reset` method to clear the cache. Reset is
+    called automatically if the underlying complex is re-assigned.
+
+    '''
 
     def __init__(self):
         self._complex = None
@@ -228,7 +243,7 @@ class SimplicialFunction(Generic[A]):
     values or cache them to improve performance. The function can be
     "re-curried" at any time by calling :meth:`setComplex`, which will
     reset any optimisations. Clearly it makes no sense to call the
-    function until a complex hae been set.
+    function until a complex has been set.
 
     :param c: (optional) the simplicial complex
     :param f: (optional) a function to determine values
@@ -333,7 +348,8 @@ class SimplicialFunction(Generic[A]):
     # ---------- Discrete Morse theory ----------
 
     def isMorse(self) -> bool:
-        '''A discrete Morse function is a simplicial function :math:`f` such that:
+        '''A discrete Morse function is a simplicial function :math:`f`
+        such that:
 
         - at each simplex :math:`s`, for each simplex :math:`s < l`, there is
           at most one :math:`l` such that :math:`f(s) >= f(l)`; or
@@ -345,9 +361,10 @@ class SimplicialFunction(Generic[A]):
         of the simplicial function can be compared with <= and >=.
 
         Testing that a function is Morse is expensive, with worst-case
-        time complexity of :math:`O(|s|^2)$ time for a complex with
+        time complexity of :math:`O(|s|^2)` time for a complex with
         :math:`|s|` simplices.
 
+        :returns: True if the function is a Morse function
         '''
         c = self.complex()
 
