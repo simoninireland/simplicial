@@ -51,7 +51,7 @@ from .simplicialcomplex import SimplicialComplex
 
 # Simplicial functions
 from .function import SimplicialFunction, SFRepresentation, AttributeSFRepresentation, ComputedSFRepresentation, LiteralSFRepresentation
-from .dvf import DiscreteVector, DiscreteVectorField, isNullVector
+from .dvf import DiscreteVector, DiscreteVectorField
 
 # Generator functions for common complexes
 from .generators import k_simplex, k_skeleton, k_void, ring
