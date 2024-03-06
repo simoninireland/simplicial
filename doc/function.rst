@@ -21,6 +21,8 @@ Setting and resetting the complex
 
 .. automethod:: SimplicialFunction.complex
 
+.. automethod:: SimplicialFunction.representation
+
 .. automethod:: SimplicialFunction.reset
 
 
