@@ -25,7 +25,7 @@ from simplicial import SimplicialComplex, Simplex
 A = TypeVar('A')
 
 
-# ---------- Representation ----------
+# ---------- Abstract representation  ----------
 
 class SFRepresentation(Generic[A]):
     '''The abstract base class of simplicial function representations.
@@ -106,6 +106,8 @@ class SFRepresentation(Generic[A]):
         '''
         pass
 
+
+# ---------- Concrete representations  ----------
 
 class AttributeSFRepresentation(SFRepresentation[A]):
     '''A simplicial function representation based on an attribute of simplices
@@ -290,6 +292,13 @@ class SimplicialFunction(Generic[A]):
         return self._representation.complex()
 
 
+    def representation(self) -> SFRepresentation:
+        '''Return the underlying representation of the function.
+
+        :returns: the representation'''
+        return self._representation
+
+
     def reset(self):
         '''Reset the function if the underlying simplicial complex is changed.
         This allows representations to re-compute themselves, clear caches,
@@ -310,11 +319,14 @@ class SimplicialFunction(Generic[A]):
         alweays be returned for all simplices. Different representations
         may have different defaults.
 
+        This method is equivalent to :method:`__getitem__`, and by default
+        simply calls that method.
+
         :param s: the simplex
         :returns the value
 
         '''
-        return self._representation.valueForSimplex(s)
+        return self[s]
 
 
     def __getitem__(self, s: Simplex) -> A:
@@ -334,7 +346,7 @@ class SimplicialFunction(Generic[A]):
 
 
     def __setitem__(self, s: Simplex, v: A):
-        '''Retrieve the value associated with a simplex.
+        '''Set the value associated with a simplex.
 
         Not all representations allow explicit values to be set. If
         not, ValueError is raised.
