@@ -109,7 +109,7 @@ class Sheaf(SimplicialFunction[A]):
         '''Compute the value of the sheaf at s.
 
         This recursively descends from s to its basis, the values of
-        which are given directly by the repesentatrion. At higher
+        which are given directly by the repesentation. At higher
         simplices the values of the faces are restricted using the
         restriction map, and then all reduced using the reduction map
         to yield a value at s.
@@ -133,10 +133,6 @@ class Sheaf(SimplicialFunction[A]):
 
     def __getitem__(self, s: Simplex) -> A:
         '''Retrieve the value from the section at s.
-
-        If s is an 0-simplex, the value is as given by the representation.
-
-        If s is a higher simplex, the restriction maps are called.
 
         :param s: the simplex
         :returns the value
