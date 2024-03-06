@@ -41,6 +41,8 @@ SOURCES_CODE = \
 	simplicial/graphrep.py \
 	simplicial/simplicialcomplex.py \
 	simplicial/function.py \
+	simplicial/sheaf.py \
+	simplicial/dvf.py \
 	simplicial/subcomplex.py \
 	simplicial/generators.py \
 	simplicial/filtration.py \
@@ -63,6 +65,7 @@ SOURCES_TESTS = \
 	test/test_flag.py \
 	test/test_compose.py \
 	test/test_function.py \
+	test/test_sheaf.py \
 	test/test_vr.py \
 	test/test_triangularlattice.py \
 	test/test_randomplanes.py \

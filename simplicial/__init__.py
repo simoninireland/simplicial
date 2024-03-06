@@ -49,9 +49,10 @@ from .graphrep import GraphRepresentation
 # Top-level complexes
 from .simplicialcomplex import SimplicialComplex
 
-# Simplicial functions
+# Simplicial functions of different kinds
 from .function import SimplicialFunction, SFRepresentation, AttributeSFRepresentation, ComputedSFRepresentation, LiteralSFRepresentation
 from .dvf import DiscreteVector, DiscreteVectorField
+from .sheaf import RestrictionMap, ReductionMap, Sheaf
 
 # Generator functions for common complexes
 from .generators import k_simplex, k_skeleton, k_void, ring
