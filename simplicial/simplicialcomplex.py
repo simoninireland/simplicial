@@ -959,7 +959,7 @@ class SimplicialComplex:
         return self._rep.basisOf(s)
 
 
-    def closureOf(self, s: Simplex, reverse: bool = False, exclude_self: bool = False) -> Set[Simplex]:
+    def closureOf(self, s: Simplex, reverse: bool = False, exclude_self: bool = False) -> List[Simplex]:
         """Return the closure of a simplex. The closure is defined
         as the simplex plus all its faces, transitively down to its basis.
         If exclude_self is True, the closure excludes the simplex itself.
