@@ -91,6 +91,7 @@ SOURCES_DOCUMENTATION = \
 	doc/triangularlattice.rst \
 	doc/function.rst \
 	doc/sfrep.rst \
+	doc/sheaf.rst \
 	doc/drawing.rst \
 	doc/file.rst \
 	doc/installation.rst \

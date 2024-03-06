@@ -35,7 +35,7 @@ Simplicial functions
    :maxdepth: 2
 
    function
-
+   sheaf
 
 Representations
 ---------------
