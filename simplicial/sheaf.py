@@ -25,8 +25,8 @@ A = TypeVar('A')
 
 
 # Type aliases
-RestrictionMap = Callable[[SimplicialComplex, Simplex], A]         #: A restriction map from the stalk at a simplex to the stalk at its coface.
-ReductionMap = Callable[[SimplicialComplex, Simplex, List[A]], A]  #: A reduction map for selecting values from a stalk based on the values of its faces.
+RestrictionMap = Callable[[SimplicialComplex, Simplex, Simplex], A]         #: A restriction map from the stalk at a simplex to the stalk at its coface.
+ReductionMap = Callable[[SimplicialComplex, List[A], Simplex], A]           #: A reduction map for selecting values from a stalk based on the values of its faces.
 
 
 class Sheaf(SimplicialFunction[A]):
@@ -35,9 +35,10 @@ class Sheaf(SimplicialFunction[A]):
     A sheaf is a simplicial function with values provided explicitly for
     0-simplices. Values for higher simplices are computed using two maps:
 
-    - a *restriction map* that selects a value at each simplex; and
-    - a *reduction map* that takes the values selected for the faces
-      of a simplex and returns a single composite value.
+    - a *restriction map* that, given a simplex and a face of that
+      simplex, proposes a value based on the face's value; and a
+    - *reduction map* that takes the values proposed for the faces of
+      a simplex and returns a single composite value.
 
     By default the restriction map is the identity over the underlying
     function representation, and the reduction map forces the values at
@@ -50,6 +51,7 @@ class Sheaf(SimplicialFunction[A]):
     :param rep: (optional) representation
     :param restrict: (optional) the restriction map
     :param reduce: (optional) the reduction map
+
     '''
 
     def __init__(self, c: SimplicialComplex = None,
@@ -75,16 +77,18 @@ class Sheaf(SimplicialFunction[A]):
 
     # ---------- Default restriction and reduction maps ----------
 
-    def identity(self, c: SimplicialComplex, s: Simplex) -> A:
-        '''The identity restriction map simply passes a value through.
+    def identity(self, c: SimplicialComplex, f: Simplex, s: Simplex) -> A:
+        '''The identity restriction map simply passes a value through
+        from the face to the coface.
 
         :param c: the complex
-        :param s: the simplex
+        :param f: the simplex face
+        :param s: the simplex coface
         :returns: the value from the stalk of the sheaf at s'''
-        return self.representation().valueForSimplex(s)
+        return self.representation().valueForSimplex(f)
 
 
-    def equality(self, c: SimplicialComplex, s: Simplex, vs: List[A]) -> A:
+    def equality(self, c: SimplicialComplex, vs: List[A], s: Simplex) -> A:
         '''Reduce face stalk values by equality. Each value must be the
         same (equal), and this value is then used as the value in
         the stalk at s.
@@ -92,14 +96,14 @@ class Sheaf(SimplicialFunction[A]):
         If all values are not equal, and exception is raised.
 
         :param c: the complex
+        :param vs: the list of values proposed from the faces of s
         :param s: the simplex
-        :param vs: the list of values from the faces of s
         :returns: the value from the stalk of the sheaf at s
         '''
         v0 = vs[0]
-        for i in range(1, len(vs)):
-            if v0 != vs[i]:
-                raise ValueError(f'Values of face stalks of simplex {s} are not equal: {v0} and {vs[i]}')
+        for vi in vs[1:]:
+            if v0 != vi:
+                raise ValueError(f'Values of face stalks of simplex {s} are not equal: {v0} and {vi}')
         return v0
 
 
@@ -125,8 +129,8 @@ class Sheaf(SimplicialFunction[A]):
             return self.representation().valueForSimplex(s)
 
         # for higher simplices, recursively restrict and reduce
-        vs = [self._restrict(c, t) for t in c.faces(s)]
-        v = self._reduce(c, s, vs)
+        vs = [self._restrict(c, t, s) for t in c.faces(s)]
+        v = self._reduce(c, vs, s)
         print(f'{s} -> {v}')
         return v
 
