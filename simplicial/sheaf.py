@@ -26,7 +26,7 @@ A = TypeVar('A')
 
 # Type aliases
 RestrictionMap = Callable[[SimplicialComplex, Simplex, Simplex], A]         #: A restriction map from the stalk at a simplex to the stalk at its coface.
-ReductionMap = Callable[[SimplicialComplex, List[A], Simplex], A]           #: A reduction map for selecting values from a stalk based on the values of its faces.
+ReductionMap = Callable[[SimplicialComplex, List[A], Simplex], A]           #: A reduction map for selecting values from a stalk at a simplex based on the values of its faces.
 
 
 class Sheaf(SimplicialFunction[A]):
