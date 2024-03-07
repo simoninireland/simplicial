@@ -116,6 +116,7 @@ SOURCES_PAPER = \
 # Extras for the build and packaging system
 SOURCES_EXTRA = \
 	README.rst \
+	branches.org \
 	CITATION.cff \
 	LICENSE \
 	HISTORY

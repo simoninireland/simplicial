@@ -1,0 +1,13 @@
+* Source tree branches
+
+  - main :: The currently-released version of ~simplicial~. Only
+    changes with a new release.
+  - dev :: The development branch. Changes frequently, and not always
+    fully tested or functional.
+
+
+** Automation
+
+   The test suite runs at every commit to *main* or *dev*.
+
+   A release is created for every commit to *main*.
