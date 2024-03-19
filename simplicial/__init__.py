@@ -50,7 +50,7 @@ from .graphrep import GraphRepresentation
 from .simplicialcomplex import SimplicialComplex
 
 # Simplicial functions of different kinds
-from .function import SimplicialFunction, SFRepresentation, AttributeSFRepresentation, ComputedSFRepresentation, LiteralSFRepresentation
+from .function import SimplicialFunction, SFRepresentation, SFValueFunction, AttributeSFRepresentation, ComputedSFRepresentation, LiteralSFRepresentation, InferredSFRepresentation
 from .dvf import DiscreteVector, DiscreteVectorField
 from .sheaf import RestrictionMap, ReductionMap, Sheaf
 
