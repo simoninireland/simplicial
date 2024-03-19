@@ -34,7 +34,7 @@ class SheafTests(unittest.TestCase):
         e3 = c.addSimplex(fs=[n2, n3], id=23)
         t1 = c.addSimplex(fs=[e1, e2, e3], id=123)
 
-        F = Sheaf(c, f=lambda c, s: 1)  # constant function
+        F = Sheaf(c, f=lambda sf, c, s: 1)  # constant function
         for s in c.simplices():
             self.assertEqual(F[s], 1)
 
@@ -49,7 +49,11 @@ class SheafTests(unittest.TestCase):
         e3 = c.addSimplex(fs=[n2, n3], id=23)
         t1 = c.addSimplex(fs=[e1, e2, e3], id=123)
 
-        F = Sheaf(c, f=lambda c, s: s)   # identity on the simplex name, not constant
+        F = Sheaf(c, f=lambda sf, c, s: s)   # identity on the simplex name, not constant
         with self.assertRaises(ValueError):
             # default equality reduction map will fail
             F[e1]
+
+
+if __name__ == '__main__':
+    unittest.main()

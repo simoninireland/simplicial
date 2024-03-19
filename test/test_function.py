@@ -25,7 +25,9 @@ class SFTests(unittest.TestCase):
 
     def setUp(self):
         self._c = SimplicialComplex()
-        self._f = lambda c, s: s
+
+        # default function returns the name of the simplex
+        self._f = lambda sf, c, s: s
 
 
     # ---------- Literal representation ----------
@@ -88,7 +90,7 @@ class SFTests(unittest.TestCase):
             f['c']
 
 
-    # ---------- FUnctional representation ----------
+    # ---------- Computed representation ----------
 
     def testComputedEmpty(self):
         '''Test an empty representation.'''
@@ -96,7 +98,7 @@ class SFTests(unittest.TestCase):
 
 
     def testComputedRetrieve(self):
-        '''Testr we can retrieve values using the function.'''
+        '''Test we can retrieve values using the function.'''
         f = SimplicialFunction(self._c, f=self._f)
         self._c.addSimplex(id='a')
         self._c.addSimplex(id='b')
@@ -105,7 +107,7 @@ class SFTests(unittest.TestCase):
 
 
     def testComputedAdd(self):
-        '''Test we can'd add values.'''
+        '''Test we can't add values.'''
         f = SimplicialFunction(self._c, f=self._f)
         self._c.addSimplex(id='b')
         with self.assertRaises(ValueError):
@@ -119,6 +121,41 @@ class SFTests(unittest.TestCase):
         self._c.addSimplex(id='b')
         with self.assertRaises(ValueError):
             f['c']
+
+
+    # ---------- Inferred representastion ----------
+
+    def testInferredEmpty(self):
+        '''Test we can create a representation.'''
+        SimplicialFunction(self._c, rep=InferredSFRepresentation(self._f))
+
+
+    def testInferredLiterals(self):
+        '''Test we can retrieve literal values.'''
+        rep = InferredSFRepresentation(self._f)
+        f = SimplicialFunction(self._c, rep=rep)
+        self._c.addSimplex(id='a')
+        self._c.addSimplex(id='b')
+        rep.setValueForSimplex('a', 1)
+        self.assertEqual(f['a'], 1)
+        self.assertEqual(f['b'], 'b')
+
+
+    def testInferCorrect(self):
+        '''Test we can define an inference function that depends on the values of set simplices.'''
+
+        def sumOfFaceValues(sf, c, s):
+            '''Return the sum of values at the faces.'''
+            return sum([sf(f) for f in c.faces(s)])
+
+        rep = InferredSFRepresentation(sumOfFaceValues)
+        f = SimplicialFunction(self._c, rep=rep)
+        self._c.addSimplex(id='a')
+        self._c.addSimplex(id='b')
+        self._c.addSimplex(fs=['a', 'b'], id='ab')
+        rep.setValueForSimplex('a', 1)
+        rep.setValueForSimplex('b', 2)
+        self.assertEqual(f['ab'], 3)
 
 
 if __name__ == '__main__':

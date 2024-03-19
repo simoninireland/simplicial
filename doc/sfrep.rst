@@ -55,3 +55,14 @@ approaches to support different function types.
 .. automethod:: ComputedSFRepresentation.f
 
 .. automethod:: ComputedSFRepresentation.valueForSimplex
+
+
+:class:`InferredSFRepresentation`: Functions over simplices and explicit values
+-------------------------------------------------------------------------------
+
+.. autoclass:: InferredSFRepresentation
+   :show-inheritance:
+
+.. automethod:: InferredSFRepresentation.setValueForSimplex
+
+.. automethod:: InferredSFRepresentation.valueForSimplex

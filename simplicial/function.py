@@ -25,6 +25,10 @@ from simplicial import SimplicialComplex, Simplex
 A = TypeVar('A')
 
 
+# Helper type
+SFValueFunction = Callable[['SimplicialFunction', SimplicialComplex, Simplex], A]  #: Function for computing the value at a simplex.
+
+
 # ---------- Abstract representation  ----------
 
 class SFRepresentation(Generic[A]):
@@ -46,6 +50,7 @@ class SFRepresentation(Generic[A]):
 
     def __init__(self):
         self._complex = None
+        self._function = None
 
 
     # ---------- Access ----------
@@ -65,6 +70,20 @@ class SFRepresentation(Generic[A]):
 
         :returns: the complex'''
         return self._complex
+
+
+    def setFunction(self, sf: 'SimplicialFunction'):
+        '''Set the simplicial function being represented.
+
+        :params sf: the function'''
+        self._function = sf
+
+
+    def function(self) -> 'SimplicialFunction':
+        '''Return the simplicial functionbeing represented.
+
+        :returns: the function'''
+        return self._function
 
 
      # ---------- Sub-class interface ----------
@@ -169,9 +188,28 @@ class LiteralSFRepresentation(SFRepresentation[A]):
         self._dict[s] = v
 
 
+    def hasValue(self, s: Simplex, fatal: bool = False) -> bool:
+        '''Test if there is a value assigned to the simplex.
+        If fatal is True, then an exception is raised if there is no value.
+
+        Note that is a value isn't set and :meth:`valueForSimplex` is called,
+        the dewfault value will still be returned.
+
+        :param s: the simplex
+        :param fatal: (optional) if True, raise an exception for missing values (defaults to False)
+        :returns: True if a value has been set'''
+        if s in self._dict.keys():
+            return True
+        else:
+            if fatal:
+                raise ValueError(f'NMo value set for {s}')
+            else:
+                return False
+
+
     def valueForSimplex(self, s: Simplex) -> A:
-        '''Extract the attribute associated with the simplex.
-        If there is no such attribute, return the default value.
+        '''Extract the value associated with the simplex.
+        If there is no such value, return the default value.
 
         :param s: the simplex
         :returns: the attribute valuye on that simlex or the default value'''
@@ -191,7 +229,7 @@ class ComputedSFRepresentation(SFRepresentation[A]):
     :param f: function from complex and simplex to value
     '''
 
-    def __init__(self, f: Callable[[SimplicialComplex, Simplex], A]):
+    def __init__(self, f: SFValueFunction):
         super().__init__()
         self._f = f
 
@@ -211,7 +249,42 @@ class ComputedSFRepresentation(SFRepresentation[A]):
         :param s: the simplex
         :returns: the value for that simplex'''
         self.complex().containsSimplex(s, fatal=True)
-        return self.f()(self.complex(), s)
+        return self.f()(self.function(), self.complex(), s)
+
+
+class InferredSFRepresentation(ComputedSFRepresentation[A], LiteralSFRepresentation[A]):
+    '''
+    A mixed representation that takes both literal values *and*
+    a function. If a value is provided for a simplex, that is the value
+    of the function; otherwise the function is called to infer the value.
+
+    An exception is raised if there is not enough information available
+    to infer the value of any simplex: the conditions for this depend
+    on the inference function itself.
+    '''
+
+    def __init__(self, f: SFValueFunction):
+        super().__init__(f)
+
+
+    def setValueForSimplex(self, s: Simplex, v: A):
+        '''Set the value associated with a simplex.
+
+        :param s: the simplex
+        :param a: the value'''
+        LiteralSFRepresentation.setValueForSimplex(self, s, v)
+
+
+    def valueForSimplex(self, s: Simplex) -> A:
+        '''Return either the value set for the simplex or
+        a value inferred for it.
+
+        :param s: the simplex
+        :returns: the value'''
+        if self.hasValue(s):
+            return LiteralSFRepresentation.valueForSimplex(self, s)
+        else:
+            return ComputedSFRepresentation.valueForSimplex(self, s)
 
 
 # ---------- Top-level class ----------
@@ -257,7 +330,7 @@ class SimplicialFunction(Generic[A]):
     '''
 
     def __init__(self, c: SimplicialComplex = None,
-                 f:  Callable[[SimplicialComplex, Simplex], A] = None,
+                 f: SFValueFunction = None,
                  attr: str = None,
                  default: A = None,
                  rep: SFRepresentation[A] = None):
@@ -271,6 +344,7 @@ class SimplicialFunction(Generic[A]):
                 rep = LiteralSFRepresentation(default=default)
         self._representation = rep
         rep.setComplex(c)
+        rep.setFunction(self)
 
 
     # ---------- Access ----------
@@ -308,28 +382,9 @@ class SimplicialFunction(Generic[A]):
         self._representation.reset()
 
 
-    # ---------- Callable and dict interfaces ----------
+    # ---------- Access ----------
 
-    def __call__(self, s: Simplex) -> A:
-        '''Retrieve the value associated with a simplex. This method
-        makes trhe simplicial function behave like any other Python
-        function.
-
-        All simplicial functions are total, so a value will
-        alweays be returned for all simplices. Different representations
-        may have different defaults.
-
-        This method is equivalent to :method:`__getitem__`, and by default
-        simply calls that method.
-
-        :param s: the simplex
-        :returns the value
-
-        '''
-        return self[s]
-
-
-    def __getitem__(self, s: Simplex) -> A:
+    def valueForSimplex(self, s: Simplex) -> A:
         '''Retrieve the value associated with a simplex. This method
         allows the simplicial function to behave more like a Python
         dict.
@@ -345,7 +400,7 @@ class SimplicialFunction(Generic[A]):
         return self._representation.valueForSimplex(s)
 
 
-    def __setitem__(self, s: Simplex, v: A):
+    def setValueForSimplex(self, s: Simplex, v: A):
         '''Set the value associated with a simplex.
 
         Not all representations allow explicit values to be set. If
@@ -356,6 +411,51 @@ class SimplicialFunction(Generic[A]):
 
         '''
         self._representation.setValueForSimplex(s, v)
+
+
+    # ---------- Callable and dict interfaces ----------
+
+    def __call__(self, s: Simplex) -> A:
+        '''Retrieve the value associated with a simplex. This method
+        makes trhe simplicial function behave like any other Python
+        function.
+
+        All simplicial functions are total, so a value will
+        alweays be returned for all simplices. Different representations
+        may have different defaults.
+
+        This method is equivalent to :method:`valueForSimplex`, and by default
+        simply calls that method.
+
+        :param s: the simplex
+        :returns the value
+
+        '''
+        return self.valueForSimplex(s)
+
+
+    def __getitem__(self, s: Simplex) -> A:
+        '''Retrieve the value associated with a simplex.
+
+        This method is equivalent to :meth:`valueForSimplex`.
+
+        :param s: the simplex
+        :returns the value
+
+        '''
+        return self.valueForSimplex(s)
+
+
+    def __setitem__(self, s: Simplex, v: A):
+        '''Set the value associated with a simplex.
+
+            This method is equivalent to :meth:`setValueForSimplex`.
+
+        :param s: the simplex
+        :param v: the value
+
+        '''
+        self.setValueForSimplex(s, v)
 
 
     # ---------- Discrete Morse theory ----------

@@ -39,23 +39,27 @@ class MorseTests(unittest.TestCase):
 
     def testConstant(self):
         '''Test a constant function is not Morse.'''
-        f = SimplicialFunction(self._c, lambda c, s: 10)
+        f = SimplicialFunction(self._c, lambda sf, c, s: 10)
         self.assertFalse(f.isMorse())
 
 
     def testOrder(self):
         '''Test a simplex order function is Morse.'''
-        f = SimplicialFunction(self._c, lambda c, s: c.orderOf(s))
+        f = SimplicialFunction(self._c, lambda sf, c, s: c.orderOf(s))
         self.assertTrue(f.isMorse())
 
 
     def testOrderOneOff(self):
         '''Test we can have one direction of anti-sense.'''
-        f = SimplicialFunction(self._c, lambda c, s: c.orderOf(s) if s != 23 else 10)
+        f = SimplicialFunction(self._c, lambda sf, c, s: c.orderOf(s) if s != 23 else 10)
         self.assertTrue(f.isMorse())
 
 
     def testOrderTwoOff(self):
         '''Test we can't have more than one direction of anti-sense.'''
-        f = SimplicialFunction(self._c, lambda c, s: c.orderOf(s) if s not in [23, 13] else 10)
+        f = SimplicialFunction(self._c, lambda sf, c, s: c.orderOf(s) if s not in [23, 13] else 10)
         self.assertFalse(f.isMorse())
+
+
+if __name__ == '__main__':
+    unittest.main()

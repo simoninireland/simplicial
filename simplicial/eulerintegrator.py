@@ -18,7 +18,7 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import copy
-from simplicial import SimplicialComplex, Simplex, SimplicialFunction
+from simplicial import SimplicialComplex, SimplicialFunction
 
 
 class EulerIntegrator:
@@ -31,7 +31,7 @@ class EulerIntegrator:
     sub-complexes, different problems can be represented as integrals
     of this kind.
 
-    The metric should be a non-negative number. The metric assignment
+    The metric should be a non-negative integer. The metric assignment
     has to be monotone with respect to simplex order: the metric
     associated with a simplex `s` should be greater than or equal to
     the values associated with all simplices in the closure of `s`,
@@ -39,16 +39,11 @@ class EulerIntegrator:
     forth. This isn't (currently) checked, but the integration will
     behave unpredictably if the condition doesn't hold.
 
-    :param a: the attribute on simplices defining the metric to integrate against
-    :param default_value: the default value if the attribute is missing (defaults to 0)
+    Metrics can be defined using any :class:`SimplicialFunction`.
 
     """
 
-    def __init__(self, f: SimplicialFunction):
-        self._f = f
-
-
-    def levelSet(self, c: SimplicialComplex, l: int) -> SimplicialComplex:
+    def levelSet(self, c: SimplicialComplex, sf: SimplicialFunction[int], l: int) -> SimplicialComplex:
         """Form the level set of the complex c at the value l. The level set
         is the sub-complex for which the metrics associated with all simplices
         are greater than l. This is guaranteed to be a valid simplicial
@@ -58,38 +53,39 @@ class EulerIntegrator:
         set. Be sure to copy the complex first if it's going to be needed later.
 
         :param c: the complex
+        :param sf: the metric
         :param l: the level
         :returns: the sub-complex at level l"""
 
         # extract all the basis simplices whose associated metric
         # is greater than l
-        bs = c.allSimplices(lambda c, s: c.orderOf(s) == 0 and self._f(s) > l)
+        bs = c.allSimplices(lambda c, s: c.orderOf(s) == 0 and sf(s) > l)
 
         # create a sub-complex at this level
         return c.restrictBasisTo(bs)
 
 
-    def integrate(self, c: SimplicialComplex) -> int:
+    def integrate(self, c: SimplicialComplex, sf: SimplicialFunction[int]) -> int:
         """Perform an integration of the Euler characteristic across the
         simplicial complex c under the integrator's metric.
 
         :param c: the complex
+        :param sf: the metric
         :returns: the value of the integral"""
 
         # the initial level set is the whole complex, and we take a copy
         # because levelSet() is destructive
         d = copy.deepcopy(c)
-        self._f.setComplex(d)
 
         # compute maximum "height"
-        maxHeight = max([self._f(s) for s in d.simplices()])
+        maxHeight = max([sf(s) for s in d.simplices()])
 
         # perform the integration over the level sets
         levelSet = d
         a = 0
         for l in range(maxHeight):
             # compute the Euler characteristic of the level set
-            levelSet = self.levelSet(levelSet, l)
+            levelSet = self.levelSet(levelSet, sf, l)
             chi = levelSet.eulerCharacteristic()
             #print('level {level}, chi = {chi}'.format(level = l, chi = chi))
 
