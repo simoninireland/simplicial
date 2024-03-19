@@ -299,7 +299,7 @@ class SimplicialFunction(Generic[A]):
     The default constructor takes a range of parameters to cover the
     different common cases:
 
-    - a function from complex and simplex to value
+    - a function from simplicial function, complex, and simplex to value
     - a string, representing an attribute on simplices
     - a default value
 
@@ -307,9 +307,14 @@ class SimplicialFunction(Generic[A]):
     repectively using the function, the attributes, or a literal
     function where youn provide the mapping manually. (This approach
     is awkward, but it saves exposing all the representations in
-    application code.) It is also possible to provide a specific
-    representation which, if given, takes precedence over the other
-    parameters (which are ignored).
+    application code.)
+
+    It is also possible to provide a specific representation which, if
+    given, takes precedence over the other parameters (which are
+    ignored).
+
+    Another option is to override the :meth:`valueForSimplex` and
+    :meth:`setValueForSimplex` methods on this class.
 
     A simplicial function is "really" a function from complex and
     simplex to value. However, given the expense of computing some
