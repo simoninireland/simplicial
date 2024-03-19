@@ -314,7 +314,9 @@ class SimplicialFunction(Generic[A]):
     ignored).
 
     Another option is to override the :meth:`valueForSimplex` and
-    :meth:`setValueForSimplex` methods on this class.
+    :meth:`setValueForSimplex` methods on this class. In that case
+    your constructor and overrides are responsible for managing the
+    function's values.
 
     A simplicial function is "really" a function from complex and
     simplex to value. However, given the expense of computing some
@@ -348,8 +350,12 @@ class SimplicialFunction(Generic[A]):
             else:
                 rep = LiteralSFRepresentation(default=default)
         self._representation = rep
-        rep.setComplex(c)
-        rep.setFunction(self)
+
+        # if there is any kind of representation, bind it
+        # to this function
+        if rep is not None:
+            rep.setComplex(c)
+            rep.setFunction(self)
 
 
     # ---------- Access ----------
@@ -508,10 +514,13 @@ class SimplicialFunction(Generic[A]):
 
     def isMorseCritical(self, s: Simplex) -> bool:
         '''Test whether the given simplex is critical in the sense of
-        Morse theory.
+        Morse theory. The values of the simplicial function must be
+        comparable using <= and >=.
 
         :param s: the simplex
-        :returns: True if the simplex is critical'''
+        :returns: True if the simplex is critical
+
+        '''
         c = self.complex()
         v = self[s]
 
@@ -524,3 +533,6 @@ class SimplicialFunction(Generic[A]):
         vs = sum([1 if self[l] <= v else 0 for l in c.cofaces(s)])
         if vs > 0:
             return False
+
+        # if we get here, we passed
+        return True
