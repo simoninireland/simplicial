@@ -428,15 +428,15 @@ class SimplicialFunction(Generic[A]):
 
     def __call__(self, s: Simplex) -> A:
         '''Retrieve the value associated with a simplex. This method
-        makes trhe simplicial function behave like any other Python
+        makes the simplicial function behave like any other Python
         function.
 
         All simplicial functions are total, so a value will
         alweays be returned for all simplices. Different representations
         may have different defaults.
 
-        This method is equivalent to :method:`valueForSimplex`, and by default
-        simply calls that method.
+        This method is equivalent to :meth:`valueForSimplex`, and by
+        default simply calls that method.
 
         :param s: the simplex
         :returns the value
