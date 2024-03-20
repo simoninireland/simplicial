@@ -21,7 +21,8 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import PatchCollection
 from matplotlib.path import Path
 from matplotlib.patches import Circle, Polygon, PathPatch
-from simplicial import SimplicialComplex, Embedding
+from matplotlib.colors import Colormap
+from simplicial import SimplicialComplex, Embedding, SimplicialFunction
 
 
 # Default palette for simplices of different orders
@@ -29,34 +30,41 @@ palette = ['k', 'k', '0.75']
 
 
 def patchesForComplex(c: SimplicialComplex, em: Embedding,
-                      simplexColour = None, simplexSize = 0.02):
+                      sf: SimplicialFunction = None,
+                      simplexColours = None, simplexSize = 0.02):
     '''Return a list of patch collections for the complex.
 
     We currently only handle simplices up to and including :math:`k = 2`.
 
     :param c: the complex
     :param em: embedding providing the positions of the 0-simplices
-    :param simplexColour: simplex colours
-    :param simplexSize: the size of the node (0-simplex) markers
+    :param sf: (optional) the metric
+    :param simplexColours: (optional) simplex colours
+    :param simplexSize: (optional) the size of the node (0-simplex) markers
 
     '''
 
     # build the colour mapping as a function
-    if simplexColour is None:
+    if simplexColours is None:
         # no colour, use the default palette
         col = lambda c, s, k: palette[k]
-    elif type(simplexColour) is list:
+    elif isinstance(simplexColours, list):
         # list of colours per simplex order
-        col = lambda c, s, k: simplexColour[k]
-    elif type(simplexColour) is dict:
+        col = lambda c, s, k: simplexColours[k]
+    elif isinstance(simplexColours, dict):
         # dict of individual simplex colours
-        col = lambda c, s, k: simplexColour[s]
-    elif callable(simplexColour):
+        col = lambda c, s, k: simplexColours[s]
+    elif isinstance(simplexColours, Colormap):
+        # colour map accessed using metric
+        if sf is None:
+            raise ValueError('Need a metric to plot using a colourmap')
+        col = lambda c, s, k: simplexColours(sf(s))
+    elif callable(simplexColours):
         # function from complex, simplex, and order to colour
-        col = simplexColour
+        col = simplexColours
     else:
         # fixed colour for all simplices
-        col = lambda c, s, k: simplexColour
+        col = lambda c, s, k: simplexColours
 
     # draw the node markers
     nodes = []
@@ -98,6 +106,7 @@ def patchesForComplex(c: SimplicialComplex, em: Embedding,
 
 
 def drawComplex(c: SimplicialComplex, em: Embedding,
+                sf: SimplicialFunction = None,
                 ax = None, backgroundColour = '0.95',
                 subfieldXY = None, subfieldWH = None,
                 simplexColour = None, simplexSize = 0.02):
@@ -105,13 +114,16 @@ def drawComplex(c: SimplicialComplex, em: Embedding,
 
     The colours of simplices are taken from simplexColour which can be
     a none for a default palette, a constant, a list of colours per
-    order, a dict mapping simplex to colour, or a function taking the
-    complex, simplex, and order and returning a colour.
+    order, a dict mapping simplex to colour, a colourmap, or a
+    function taking the complex, simplex, and order and returning a
+    colour. When a colourmap is used, the simplicial function is
+    used to extract the appropriate colour (and so muct be present)
 
     At present we only deal with simplices of order 2 and less.
 
     :param c: the complex
     :param em: embedding providing the positions of the 0-simplices
+    :param sf: the metric
     :param ax: the axes to draw in (defaults to main axes)
     :param backgroundColour: the background colour for the field (default '0.95')
     :param subfieldXY: the bottom-left corner of the sub-field to draw (default all)
@@ -131,7 +143,7 @@ def drawComplex(c: SimplicialComplex, em: Embedding,
         subfieldWH = [1.0 - subfieldXY[0], 1.0 - subfieldXY[1]]
 
     # draw the complex
-    pcs = patchesForComplex(c, em, simplexColour, simplexSize)
+    pcs = patchesForComplex(c, em, sf, simplexColour, simplexSize)
     for pc in pcs:
         ax.add_collection(pc)
 
