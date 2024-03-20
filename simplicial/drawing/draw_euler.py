@@ -85,7 +85,11 @@ def drawEulerIntegral(c: SimplicialComplex, em: Embedding,
         if len(axs) < needAxes:
             raise ValueError(f'Not enough axes to draw integral ($h_{max} = {maxHeight}$)')
     if cmap is None:
+        # use the provided colourmap
         cmap = colormaps['Set1']
+    elif isinstance(cmap, str):
+        # use the named standard colourmap
+        cmap = colormaps[cmap]
 
     # plot each level set
     h = -1
