@@ -117,7 +117,7 @@ def drawComplex(c: SimplicialComplex, em: Embedding,
     order, a dict mapping simplex to colour, a colourmap, or a
     function taking the complex, simplex, and order and returning a
     colour. When a colourmap is used, the simplicial function is
-    used to extract the appropriate colour (and so muct be present)
+    used to extract the appropriate colour (and so must be present)
 
     At present we only deal with simplices of order 2 and less.
 
