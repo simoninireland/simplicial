@@ -334,7 +334,7 @@ class SimplicialFunction(Generic[A]):
     :param default: (optional) default value
     :param rep: (optional) representation
 
-    '''
+x    '''
 
     def __init__(self, c: SimplicialComplex = None,
                  f: SFValueFunction = None,
@@ -342,18 +342,18 @@ class SimplicialFunction(Generic[A]):
                  default: A = None,
                  rep: SFRepresentation[A] = None):
         if rep is None:
-            # choose a representation
+            # choose a representation based on what arguments
+            # we've been passed
             if f is not None:
                 rep = ComputedSFRepresentation(f)
             elif attr is not None:
                 rep = AttributeSFRepresentation(attr, default=default)
             else:
                 rep = LiteralSFRepresentation(default=default)
-        self._representation = rep
-
-        # if there is any kind of representation, bind it
-        # to this function
-        if rep is not None:
+            self._representation = rep
+        else:
+            # if there is any kind of representation, bind it
+            # to this function
             rep.setComplex(c)
             rep.setFunction(self)
 

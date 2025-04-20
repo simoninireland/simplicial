@@ -102,7 +102,7 @@ class SFTests(unittest.TestCase):
         f = SimplicialFunction(self._c, f=self._f)
         self._c.addSimplex(id='a')
         self._c.addSimplex(id='b')
-        self.assertEqual(f['a'], 'a')
+        self.asfsertEqual(f['a'], 'a')
         self.assertEqual(f['b'], 'b')
 
 
