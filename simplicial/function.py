@@ -350,12 +350,13 @@ x    '''
                 rep = AttributeSFRepresentation(attr, default=default)
             else:
                 rep = LiteralSFRepresentation(default=default)
-            self._representation = rep
-        else:
-            # if there is any kind of representation, bind it
-            # to this function
-            rep.setComplex(c)
-            rep.setFunction(self)
+
+        # if there is any kind of representation, bind it
+        # to this function
+        rep.setComplex(c)
+        rep.setFunction(self)
+
+        self._representation = rep
 
 
     # ---------- Access ----------
