@@ -1325,7 +1325,7 @@ class SimplicialComplex:
         :returns: the reduced matrix and basis labels"""
 
         # check we're still in scope
-        print(B.shape)
+        #print(B.shape)
         (rb, cb) = B.shape
         if x >= min([rb, cb]):
             # no, return the reduced matrix

@@ -131,7 +131,7 @@ class Sheaf(SimplicialFunction[A]):
         # for higher simplices, recursively restrict and reduce
         vs = [self._restrict(c, t, s) for t in c.faces(s)]
         v = self._reduce(c, vs, s)
-        print(f'{s} -> {v}')
+        #print(f'{s} -> {v}')
         return v
 
 
