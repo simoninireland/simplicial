@@ -1,6 +1,6 @@
 # Simplicial functions
 #
-# Copyright (C) 2024 Simon Dobson
+# Copyright (C) 2024--2025 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-from typing import TypeVar, Callable, Dict, Generic
+from typing import TypeVar, Callable, Dict, Generic, Iterable, Optional
 from simplicial import SimplicialComplex, Simplex
 
 
@@ -25,8 +25,9 @@ from simplicial import SimplicialComplex, Simplex
 A = TypeVar('A')
 
 
-# Helper type
+# Helper types
 SFValueFunction = Callable[['SimplicialFunction', SimplicialComplex, Simplex], A]  #: Function for computing the value at a simplex.
+SFPredicate = Callable[['SimplicialFunction', SimplicialComplex, Simplex], bool]  #: Predicate for filtering simplices based on the value assigned to the by the function.
 
 
 # ---------- Abstract representation  ----------
@@ -34,14 +35,10 @@ SFValueFunction = Callable[['SimplicialFunction', SimplicialComplex, Simplex], A
 class SFRepresentation(Generic[A]):
     '''The abstract base class of simplicial function representations.
 
-    A function needs to at least be able to return a value for every
-    simplex in its underlying complex. It may optionally allow values
-    to be set for specific simplices.
+    The function being represented can be partial, and not return
+    a value for every simplex in the complex.
 
-    A function should be able to have its underlying complex
-    re-assigned.
-
-    Some functions arev expensive to compute, so it's entirely
+    Some functions are expensive to compute, so it's entirely
     permissible to cache values. In this case, the function should
     also provide a :meth:`reset` method to clear the cache. Reset is
     called automatically if the underlying complex is re-assigned.
@@ -59,12 +56,15 @@ class SFRepresentation(Generic[A]):
         '''Set the underlying complex that is the domain
         of the function.
 
+        This automatically calls :meth:`reset` to reset any cached
+        values.
+
         :params c: the complex'''
         self._complex = c
         self.reset()
 
 
-    def complex(self) -> SimplicialComplex:
+    def complex(self) -> Optional[SimplicialComplex]:
         '''Return the underlying complex that is the domain
         of the function.
 
@@ -80,7 +80,7 @@ class SFRepresentation(Generic[A]):
 
 
     def function(self) -> 'SimplicialFunction':
-        '''Return the simplicial functionbeing represented.
+        '''Return the simplicial function being represented.
 
         :returns: the function'''
         return self._function
@@ -99,7 +99,50 @@ class SFRepresentation(Generic[A]):
         :param a: the value
 
         '''
-        raise ValueError('Can\'t set explicit values in simplicial function')
+        raise ValueError('Can\'t set explicit values in simplicial function representation')
+
+
+    def domain(self) -> Iterable[Simplex]:
+        '''Return the domain of the represented function.
+
+        This method must be overridden by sub-classes.
+
+        :returns: a set of simplices
+        '''
+        raise NotImplementedError('domain')
+
+
+    def inDomain(self, s: Simplex) -> bool:
+        '''Test whether a simplex is defined under the function.
+
+        The default simply enumerates the domain and checks for the simplex.
+        Representations may define more efficient approaches.
+
+        :param s: the simplex
+        :returns: True if the simplex is in the domain of the function
+        '''
+        return s in self.domain()
+
+
+    def size(self) -> int:
+        '''Return the size of the function's domain.
+
+        The default simply enumerates the domain and computes its length.
+        Representations may define more efficient approaches.
+
+        :returns: the number of simplices in the domain'''
+        return len(list(self.domain()))
+
+
+
+    def removeSimplex(self, s: Simplex, fatal: bool = False):
+        '''Remove the value associated with a simplex.
+
+        This method must be overridden by sub-classes.
+
+        :param s: the simplex
+        :param fatal:  (optional) if True, raise an exception for non-chain values (defaults to False)'''
+        raise NotImplementedError('valueForSimplex')
 
 
     def valueForSimplex(self, s: Simplex) -> A:
@@ -126,57 +169,94 @@ class SFRepresentation(Generic[A]):
         pass
 
 
+    def allSimplices(self, pred: SFPredicate) -> Iterable[Simplex]:
+        '''Return all the simplices matching a given predicate.
+
+        The set returned will be a (possibly equal) sub-set of the
+        simplices in the function's :meth:`domain`.
+
+        The default does a traverse of all the simplices: some
+        representations may have a more efficient approach.
+
+        :param pred: the predicate
+        :returns: a set of simplices
+
+        '''
+        sf = self.function()
+        c = self.complex()
+        return {s for s in self.domain() if pred(sf, c, s)}
+
+
+
 # ---------- Concrete representations  ----------
 
 class AttributeSFRepresentation(SFRepresentation[A]):
     '''A simplicial function representation based on an attribute of simplices
     in a complex.
 
-    Since the function needs to be total over the simplices, a default
-    value can be provided to be returned for simplices without the
-    given attribute.
-
-    The simplex must be part of the complex.
+    The domain of the function is the simplcies with the given attribute.
 
     :param attr: the attribute
     :param default: (optional) default value (defaults to None)
 
     '''
 
-    def __init__(self, attr: str, default: A = None):
+    def __init__(self, attr: str):
         super().__init__()
         self._attr = attr
-        self._default = default
+
+
+    def domain(self) -> Iterable[Simplex]:
+        '''Return the domain of the function, the simplices with the attribute.
+
+        :returns: all the simplices in the complex'''
+        return self.complex().allSimplices(lambda c, s: self._attr in c.getAttributes(s))
 
 
     def valueForSimplex(self, s: Simplex) -> A:
         '''Extract the attribute associated with the simplex.
+
         If there is no such attribute, return the default value.
 
         :param s: the simplex
         :returns: the attribute value on that simplex or the default value'''
-        self.complex().containsSimplex(s, fatal=True)
         return self.complex().getAttributes(s).get(self._attr, self._default)
 
 
 class LiteralSFRepresentation(SFRepresentation[A]):
     '''A simplicial function representation that stores arbitrary values
-    associated with simples.
-
-    Since the function needs to be total over the simplices, a default
-    value can be provided to be returned for simplices without the
-    given attribute.
-
-    The simplex must be part of the complex.
+    associated with simplices.
 
     :param default: (optional) default value (defaults to None)
 
     '''
 
-    def __init__(self, default: A = None):
+    def __init__(self):
         super().__init__()
-        self._default = default
         self._dict: Dict[Simplex, A] = dict()
+
+
+    def domain(self) -> Iterable[Simplex]:
+        '''Return the domain of the function, all the simplices with values assigned.
+
+        :returns: all the simplices in the complex'''
+        return self._dict.keys()
+
+
+    def size(self) -> int:
+        '''Return the size of the function's domain.
+
+        :returns: the number of simplices in the domain'''
+        return len(self._dict)
+
+
+    def inDomain(self, s: Simplex) -> bool:
+        '''Test whether a simplex is defined under the function.
+
+        :param s: the simplex
+        :returns: True if the simplex is in the domain of the function
+        '''
+        return s in self._dict.keys()
 
 
     def setValueForSimplex(self, s: Simplex, v: A):
@@ -188,12 +268,29 @@ class LiteralSFRepresentation(SFRepresentation[A]):
         self._dict[s] = v
 
 
+    def removeSimplex(self, s: Simplex, fatal: bool = False):
+        '''Remove the value associated with a simplex.
+
+        A value can be removed even if it isn't in the function unless
+        fatal is True, in whcih case a ValueError is raised. (The simplex
+        must always be part of the complex, however.)
+
+        :param s: the simplex
+        :param fatal: (optional) if True, raise an exception for non-function values (defaults to False)'''
+        self.complex().containsSimplex(s, fatal=True)
+        if s in self._dict.keys():
+            del self._dict[s]
+        else:
+            if fatal:
+                raise ValueError(f'Simplex {s} not included in the chain')
+
+
     def hasValue(self, s: Simplex, fatal: bool = False) -> bool:
         '''Test if there is a value assigned to the simplex.
         If fatal is True, then an exception is raised if there is no value.
 
         Note that is a value isn't set and :meth:`valueForSimplex` is called,
-        the dewfault value will still be returned.
+        the default value will still be returned.
 
         :param s: the simplex
         :param fatal: (optional) if True, raise an exception for missing values (defaults to False)
@@ -202,31 +299,28 @@ class LiteralSFRepresentation(SFRepresentation[A]):
             return True
         else:
             if fatal:
-                raise ValueError(f'NMo value set for {s}')
+                raise ValueError(f'No value set for {s}')
             else:
                 return False
 
 
     def valueForSimplex(self, s: Simplex) -> A:
         '''Extract the value associated with the simplex.
-        If there is no such value, return the default value.
 
         :param s: the simplex
-        :returns: the attribute valuye on that simlex or the default value'''
+        :returns: the attribute valuye on that simplex or the default value'''
         self.complex().containsSimplex(s, fatal=True)
-        return self._dict.get(s, self._default)
+        return self._dict.get(s)
 
 
 class ComputedSFRepresentation(SFRepresentation[A]):
     '''A simplicial function representation computed for each simplex.
 
-    This representation has no default value: the function passed
-    must therefore be total.
-
-    The simplex must be part of the complex. This is checked before
-    calling the function.
+    This representation has no default value: the function should
+    therefore be total.
 
     :param f: function from complex and simplex to value
+
     '''
 
     def __init__(self, f: SFValueFunction):
@@ -236,11 +330,25 @@ class ComputedSFRepresentation(SFRepresentation[A]):
 
     # ---------- Access ----------
 
-    def f(self) -> Callable[[SimplicialComplex, Simplex], A]:
+    def f(self) -> SFValueFunction:
         '''Return the underlying function
 
         :returns: the function'''
         return self._f
+
+
+    def domain(self) -> Iterable[Simplex]:
+        '''Return the domain of the function, which is the entire complex.
+
+        :returns: all the simplices in the complex'''
+        return self.complex().simplices()
+
+
+    def size(self) -> int:
+        '''Return the size of the function's domain.
+
+        :returns: the number of simplices in the domain'''
+        return len(self.complex())
 
 
     def valueForSimplex(self, s: Simplex) -> A:
@@ -290,7 +398,7 @@ class InferredSFRepresentation(ComputedSFRepresentation[A], LiteralSFRepresentat
 # ---------- Top-level class ----------
 
 class SimplicialFunction(Generic[A]):
-    '''A total function from simplices to values.
+    '''A (possibly partial) function from simplices to values.
 
     Simplicial functions can be used to capture a range of operations
     on complexes, each with particular constraints on the range of values
@@ -331,31 +439,28 @@ class SimplicialFunction(Generic[A]):
     :param c: (optional) the simplicial complex
     :param f: (optional) a function to determine values
     :param attr: (optional) an attribute name
-    :param default: (optional) default value
     :param rep: (optional) representation
     '''
 
-    def __init__(self, c: SimplicialComplex = None,
-                 f: SFValueFunction = None,
-                 attr: str = None,
-                 default: A = None,
-                 rep: SFRepresentation[A] = None):
+    def __init__(self, c: Optional[SimplicialComplex] = None,
+                 f: Optional[SFValueFunction] = None,
+                 attr: Optional[str] = None,
+                 rep: Optional[SFRepresentation[A]] = None):
         if rep is None:
             # choose a representation based on what arguments
             # we've been passed
             if f is not None:
                 rep = ComputedSFRepresentation(f)
             elif attr is not None:
-                rep = AttributeSFRepresentation(attr, default=default)
+                rep = AttributeSFRepresentation(attr)
             else:
-                rep = LiteralSFRepresentation(default=default)
+                rep = LiteralSFRepresentation()
+        self._representation = rep
 
         # if there is any kind of representation, bind it
         # to this function
-        rep.setComplex(c)
+        self.setComplex(c)
         rep.setFunction(self)
-
-        self._representation = rep
 
 
     # ---------- Access ----------
@@ -369,7 +474,7 @@ class SimplicialFunction(Generic[A]):
         self._representation.setComplex(c)
 
 
-    def complex(self) -> SimplicialComplex:
+    def complex(self) -> Optional[SimplicialComplex]:
         '''Return the underlying complex that is the domain
         of the function.
 
@@ -377,7 +482,7 @@ class SimplicialFunction(Generic[A]):
         return self._representation.complex()
 
 
-    def representation(self) -> SFRepresentation:
+    def representation(self) -> Optional[SFRepresentation]:
         '''Return the underlying representation of the function.
 
         :returns: the representation'''
@@ -393,9 +498,28 @@ class SimplicialFunction(Generic[A]):
         self._representation.reset()
 
 
-    # ---------- Access ----------
+    def domain(self) -> Iterable[Simplex]:
+        '''Return the domain of the function.
+
+        The domain is all the simplices for which
+        :meth:`valueForSimplex` will return a value.
+
+        :returns: the simplices over which the function is defined'''
+        return self._representation.domain()
+
+
+    def simplices(self) -> Iterable[Simplex]:
+        '''Return the simplices in the chain.
+
+        This is a synonym for :meth:`domain`.
+
+        :param s: the simplex
+        :returns: a set of simplices'''
+        return self.domain()
+
 
     def valueForSimplex(self, s: Simplex) -> A:
+
         '''Retrieve the value associated with a simplex. This method
         allows the simplicial function to behave more like a Python
         dict.
@@ -411,6 +535,17 @@ class SimplicialFunction(Generic[A]):
         return self._representation.valueForSimplex(s)
 
 
+    def removeSimplex(self, s: Simplex, fatal: bool = False):
+        '''Remove the value associated with a simplex.
+
+        Not all representations allow simplices to be removed. If
+        not, ValueError is raised.
+
+        :param s: the simplex
+        :param fatal:  (optional) if True, raise an exception for non-chain values (defaults to False)'''
+        return self._representation.removeSimplex(s, fatal)
+
+
     def setValueForSimplex(self, s: Simplex, v: A):
         '''Set the value associated with a simplex.
 
@@ -421,10 +556,31 @@ class SimplicialFunction(Generic[A]):
         :param v: the value
 
         '''
-        self._representation.setValueForSimplex(s, v)
+        return self._representation.setValueForSimplex(s, v)
 
 
-    # ---------- Callable and dict interfaces ----------
+    def setValuesForSimplices(self, m: Dict[Simplex, A]):
+        '''Set values for multiple simplices.
+
+        :param m: a map of simplex to value'''
+        for s in m.keys():
+            self.setValueForSimplex(s, m[s])
+
+
+    def allSimplices(self, pred: SFPredicate) -> Iterable[Simplex]:
+        '''Return all the simplices matching a given predicate.
+
+        The set returned will be a (possibly equal, possibly empty)
+        sub-set of the simplices in the domain of the function.
+
+        :param pred: the predicate
+        :returns: a set of simplices
+
+        '''
+        return self._representation.allSimplices(pred)
+
+
+    # ---------- Callable, iterable, and dict interfaces ----------
 
     def __call__(self, s: Simplex) -> A:
         '''Retrieve the value associated with a simplex. This method
@@ -460,13 +616,42 @@ class SimplicialFunction(Generic[A]):
     def __setitem__(self, s: Simplex, v: A):
         '''Set the value associated with a simplex.
 
-            This method is equivalent to :meth:`setValueForSimplex`.
+        This method is equivalent to :meth:`setValueForSimplex`.
 
         :param s: the simplex
         :param v: the value
 
         '''
         self.setValueForSimplex(s, v)
+
+
+    def __contains__(self, s: Simplex) -> bool:
+        '''Test whether a simplex is defined in the domain of the funciton.
+
+        :param s: the simplex
+        :returns: True if the simplex is assigned a value
+        '''
+        return self._representation.inDomain(s)
+
+
+    def __len__(self) -> int:
+        '''Return the length of the function, which is the size of its domain.
+
+        The use of len makes more sense for (co)chains.
+
+        :returns: the size of the domain
+        '''
+        return self._representation.size()
+
+
+    def __iter__(self) -> Iterable[Simplex]:
+        '''Return an iterator over the function.
+
+        This iterates the domain.
+
+        :returns: an iterator of simplices'''
+        return iter(self.simplices())
+
 
 
     # ---------- Discrete Morse theory ----------

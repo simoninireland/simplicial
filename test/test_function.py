@@ -1,6 +1,6 @@
 # Tests of simplicial functions and representations
 #
-# Copyright (C) 2024 Simon Dobson
+# Copyright (C) 2024--2025 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -34,12 +34,13 @@ class SFTests(unittest.TestCase):
 
     def testLiteralEmpty(self):
         '''Test an empty representation.'''
-        SimplicialFunction(self._c, default=10)
+        f = SimplicialFunction(self._c)
+        self.assertTrue(isinstance(f.representation(), LiteralSFRepresentation))
 
 
     def testLiteralAdd(self):
         '''Test we can add and retrieve values.'''
-        f = SimplicialFunction(self._c, default=10)
+        f = SimplicialFunction(self._c)
         self._c.addSimplex(id='b')
         self._c.addSimplex(id='c')
         f['b'] = 20
@@ -48,9 +49,19 @@ class SFTests(unittest.TestCase):
         self.assertEqual(f['c'], 30)
 
 
+    def testLiteralAddMulti(self):
+        '''Test we can add simplcies from a dict.'''
+        f = SimplicialFunction(self._c)
+        self._c.addSimplex(id='b')
+        self._c.addSimplex(id='c')
+        f.setValuesForSimplices(dict(b=20, c=30))
+        self.assertEqual(f['b'], 20)
+        self.assertEqual(f['c'], 30)
+
+
     def testLiteralMissingSimplex(self):
         '''Test we can't assign a value to, or retrieve a value from, a non-simplex.'''
-        f = SimplicialFunction(self._c, default=10)
+        f = SimplicialFunction(self._c)
         self._c.addSimplex(id='b')
         with self.assertRaises(ValueError):
             f['c'] = 20
@@ -58,25 +69,50 @@ class SFTests(unittest.TestCase):
             f['c']
 
 
+    def testLiteralRemove(self):
+        '''Test we can remove a simplex.'''
+        f = SimplicialFunction(self._c)
+        self._c.addSimplex(id='b')
+        self._c.addSimplex(id='c')
+        f['b'] = 20
+        f['c'] = 30
+        self.assertEqual(f['b'], 20)
+        self.assertEqual(f['c'], 30)
+        f.removeSimplex('c')
+        self.assertEqual(f['b'], 20)
+
+
+    def testLiteralDomain(self):
+        '''Test we can extract the domain.'''
+        f = SimplicialFunction(self._c)
+        self._c.addSimplex(id='b')
+        self._c.addSimplex(id='c')
+        f['b'] = 20
+        f['c'] = 30
+        self.assertCountEqual(f.domain(), ['b', 'c'])
+        self.assertIn('b', f)
+        self.assertNotIn('d', f)
+
+
     # ---------- Attribute representation ----------
 
     def testAttributeEmpty(self):
         '''Test an empty representation.'''
-        SimplicialFunction(self._c, attr='test', default=10)
+        f = SimplicialFunction(self._c, attr='test')
+        self.assertTrue(isinstance(f.representation(), AttributeSFRepresentation))
 
 
     def testAttributeAdd(self):
         '''Test we can retrieve values from attributes.'''
-        f = SimplicialFunction(self._c, attr='test', default=10)
+        f = SimplicialFunction(self._c, attr='test')
         self._c.addSimplex(id='a', attr={'test': 30})
         self._c.addSimplex(id='b')
         self.assertEqual(f['a'], 30)
-        self.assertEqual(f['b'], 10)   # default
 
 
     def testAttributeAdd(self):
         '''Test we can'd add values.'''
-        f = SimplicialFunction(self._c,attr='test', default=10)
+        f = SimplicialFunction(self._c,attr='test')
         self._c.addSimplex(id='b')
         with self.assertRaises(ValueError):
             f['b'] = 30
@@ -84,17 +120,28 @@ class SFTests(unittest.TestCase):
 
     def testAttributeMissingSimplex(self):
         '''Test we can't retrieve a value from a non-simplex.'''
-        f = SimplicialFunction(self._c, default=10)
+        f = SimplicialFunction(self._c)
         self._c.addSimplex(id='b')
         with self.assertRaises(ValueError):
             f['c']
+
+
+    def testAttributeDomain(self):
+        '''Test we can extract the domain.'''
+        f = SimplicialFunction(self._c, attr='test')
+        self._c.addSimplex(id='a', attr={'test': 30})
+        self._c.addSimplex(id='b')
+        self.assertCountEqual(f.domain(), ['a'])
+        self.assertIn('a', f)
+        self.assertNotIn('b', f)
 
 
     # ---------- Computed representation ----------
 
     def testComputedEmpty(self):
         '''Test an empty representation.'''
-        SimplicialFunction(self._c, f=self._f)
+        f = SimplicialFunction(self._c, f=self._f)
+        self.assertTrue(isinstance(f.representation(), ComputedSFRepresentation))
 
 
     def testComputedRetrieve(self):
@@ -156,6 +203,29 @@ class SFTests(unittest.TestCase):
         rep.setValueForSimplex('a', 1)
         rep.setValueForSimplex('b', 2)
         self.assertEqual(f['ab'], 3)
+
+
+    # ---------- High-level functions ----------
+
+    def testFunctionFilter(self):
+        '''Test we can filter simplcies by predicate.'''
+        f = SimplicialFunction(self._c)
+        self._c.addSimplex(id='b')
+        self._c.addSimplex(id='c')
+        f['b'] = 20
+        f['c'] = 30
+        self.assertCountEqual(f.allSimplices(lambda sf, c, s: sf[s] > 25), ['c'])
+
+
+    def testFunctionIterator(self):
+        '''Test we can iterate over simplices in a funmction.'''
+        f = SimplicialFunction(self._c)
+        self._c.addSimplex(id='b')
+        self._c.addSimplex(id='c')
+        self._c.addSimplex(id='d')
+        f['b'] = 20
+        f['c'] = 30
+        self.assertCountEqual(list(f), ['b', 'c'])
 
 
 if __name__ == '__main__':
