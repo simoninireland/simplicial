@@ -10,11 +10,41 @@ Simplicial complexes
    :maxdepth: 2
 
    simplicialcomplex
-   filtration
-   eulerintegrator
    generators
 
 :ref:`file`
+
+
+Simplicial functions
+--------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   function
+
+
+Homology
+--------
+
+.. toctree::
+   :maxdepth: 2
+
+   chain
+   homology
+
+
+Structures built on complexes
+-----------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   filtration
+   sheaf
+   dvf
+   eulerintegrator
+
 
 Embeddings
 ----------
@@ -28,17 +58,8 @@ Embeddings
 :ref:`drawing`
 
 
-Simplicial functions
---------------------
-
-.. toctree::
-   :maxdepth: 2
-
-   function
-   sheaf
-
-Representations
----------------
+Concrete representations
+------------------------
 
 .. toctree::
    :maxdepth: 2

@@ -36,7 +36,7 @@ class Homology(Generic[A]):
 
     Homology is usually referred to as "hole detector": it finds
     missing simplices (at different dimensions) in a complex. Homology
-    is intimately tied to the idea of a :class;`Chain` of simplices
+    is intimately tied to the idea of a :class:`Chain` of simplices
     that form a path (at a particular dimension) through the complex.
     '''
 
@@ -54,6 +54,18 @@ class Homology(Generic[A]):
         raise NotImplementedError("isValidCoefficient")
 
 
+    def boundary(self, ss: 'Chain[int]') -> 'Chain[int]':
+        '''Return the :term:`boundary` of the given :term:`p-chain`.
+
+        This will be a (p - 1)-chain of simplices from the complex.
+
+        :param ss: a chain of simplices
+        :returns: the boundary of the chain
+
+        '''
+        raise NotImplementedError("boundary")
+
+
 # ---------- Standard homology theories ----------
 
 class HomologyZ2(Homology[int]):
@@ -61,8 +73,10 @@ class HomologyZ2(Homology[int]):
 
     This is the simplest homology theory, with chains consisting
     of simplices that are either present (mapped to 1) or not (mapped to 0).
-    This makes the operations a lot easier.'''
+    This makes the operations a lot easier and faster to implement.'''
 
+
+    # ---------- Coefficient checking ----------
 
     def isValidCoefficient(self, c) -> bool:
         '''Test whether a coefficient is valid under this homology theory.
@@ -77,13 +91,12 @@ class HomologyZ2(Homology[int]):
     # ---------- Boundaries ----------
 
     def boundary(self, ss: 'Chain[int]') -> 'Chain[int]':
-        """Return the :term:`boundary` of the given :term:`p-chain`.
-        This will be a (p - 1)-chain of simplices from the complex.
+        '''Return the :term:`boundary` of the given :term:`p-chain`.
 
         :param ss: a chain of simplices
         :returns: the boundary of the chain
 
-        """
+        '''
         p = ss.order()
         bs = Chain(ss.complex(), p - 1)
 

@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
-from typing import TypeVar, Optional, Iterable
+from typing import TypeVar, Optional
 from simplicial import SimplicialComplex, SimplicialFunction, SFRepresentation, LiteralSFRepresentation, Homology
 
 

@@ -23,7 +23,14 @@ approaches to support different function types.
 
 .. automethod:: SFRepresentation.setValueForSimplex
 
+.. automethod:: SFRepresentation.removeSimplex
+
 .. automethod:: SFRepresentation.reset
+
+.. automethod:: SFRepresentation.size
+
+.. automethod:: SFRepresentation.allSimplices
+
 
 
 :class:`AttributeSFRepresentation`: Functions from attributes
@@ -41,10 +48,6 @@ approaches to support different function types.
 .. autoclass:: LiteralSFRepresentation
    :show-inheritance:
 
-.. automethod:: LiteralSFRepresentation.valueForSimplex
-
-.. automethod:: LiteralSFRepresentation.setValueForSimplex
-
 
 :class:`ComputedSFRepresentation`: Functions over simplices
 -----------------------------------------------------------
@@ -54,15 +57,9 @@ approaches to support different function types.
 
 .. automethod:: ComputedSFRepresentation.f
 
-.. automethod:: ComputedSFRepresentation.valueForSimplex
-
 
 :class:`InferredSFRepresentation`: Functions over simplices and explicit values
 -------------------------------------------------------------------------------
 
 .. autoclass:: InferredSFRepresentation
    :show-inheritance:
-
-.. automethod:: InferredSFRepresentation.setValueForSimplex
-
-.. automethod:: InferredSFRepresentation.valueForSimplex

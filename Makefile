@@ -94,6 +94,8 @@ SOURCES_DOCUMENTATION = \
 	doc/triangularlattice.rst \
 	doc/function.rst \
 	doc/sfrep.rst \
+	doc/chain.rst \
+	doc/homology.rst \
 	doc/sheaf.rst \
 	doc/drawing.rst \
 	doc/file.rst \
