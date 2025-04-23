@@ -1,6 +1,6 @@
-# Tests of homology operations in simplicial complex class
+# Tests of homology operations
 #
-# Copyright (C) 2017--2024 Simon Dobson
+# Copyright (C) 2017--2025 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -18,8 +18,15 @@
 # along with Simplicial. If not, see <http://www.gnu.org/licenses/gpl.html>.
 
 import unittest
-import numpy
 from simplicial import *
+
+
+def chainFromList(c, p, l):
+    '''Construct a p-chain in Z_2 from a list of p-simplices in c.'''
+    ch = Chain(c, p)
+    ch.setValuesForSimplices({s: 1 for s in l})
+    return ch
+
 
 class HomologyTests(unittest.TestCase):
 
@@ -33,21 +40,33 @@ class HomologyTests(unittest.TestCase):
         c.addSimplex(id = 13, fs = [ 1, 3 ])
         c.addSimplex(id = 23, fs = [ 2, 3 ])
         c.addSimplex(id = 123, fs = [ 12, 23, 13 ])
-        self.assertTrue(c.isChain([]))
-        self.assertTrue(c.isChain([ 1 ]))
-        self.assertTrue(c.isChain([ 1, 2, 3 ]))
-        self.assertTrue(c.isChain([ 1, 3, 2 ]))
-        self.assertTrue(c.isChain([ 12, 13, 23 ]))
-        self.assertFalse(c.isChain([ 1, 3, 12 ]))
-        self.assertFalse(c.isChain([ 1, 3, 4 ]))
-        self.assertTrue(c.isChain([ 1, 2, 3 ], p = 0))
-        self.assertFalse(c.isChain([ 1, 2, 3 ], p = 2))
-        self.assertFalse(c.isChain([ 12, 1, 3 ], p = 1))
-        with self.assertRaises(Exception):
-            c.isChain([ 1, 3, 12 ], fatal = True)
+        self.assertTrue(chainFromList(c, 0, []).isChain())
+        self.assertTrue(chainFromList(c, 0, [1]).isChain())
+        self.assertTrue(chainFromList(c, 0, [1, 2]).isChain())
+        self.assertFalse(chainFromList(c, 0, [12, 23, 13]).isChain())
+        self.assertTrue(chainFromList(c, 1, [12, 23, 13]).isChain())
+        self.assertTrue(chainFromList(c, 2, [123]).isChain())
+        self.assertTrue(chainFromList(c, 0, [1, 2, 3]).isChain())
+        self.assertTrue(chainFromList(c, 0, [1, 3, 2]).isChain())
+        self.assertFalse(chainFromList(c, 0, [1, 3, 12]).isChain())
 
-        # test it works with sets of simplices rather than lists
-        self.assertTrue(c.isChain(set([ 1, 2, 3 ])))
+        # test homology coefficients
+        Z2 = HomologyZ2()
+        self.assertTrue(chainFromList(c, 0, [1, 2]).isChain(homology=Z2))
+        ch = Chain(c, 1)
+        ch.setValuesForSimplices({1: 1,
+                                  2: 2,   # not a legal coefficient in Z_2
+                                  3: 1})
+        self.assertFalse(ch.isChain(homology=Z2))
+
+        # can't have non-simplex in chain
+        with self.assertRaises(Exception):
+            self.assertFalse(chainFromList(c, 0, [1, 3, 4]).isChain())
+
+        # exception on failure
+        with self.assertRaises(Exception):
+            chainFromList(c, 0, [1, 3, 12]).isChain(fatal=True)
+
 
     def testBoundaryMissing(self):
         """Test the boundary of an empty p-chain."""

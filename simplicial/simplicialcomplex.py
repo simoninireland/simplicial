@@ -1,6 +1,6 @@
 # Base class for simplicial complexes
 #
-# Copyright (C) 2017--2024 Simon Dobson
+# Copyright (C) 2017--2025 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
@@ -1141,7 +1141,7 @@ class SimplicialComplex:
 
     # ---------- Homology ----------
 
-    def isChain(self, ss: Set[Simplex], p: int = None, fatal: bool = False) -> bool:
+    def isChain(self, ss: Set[Simplex], p: Optional[int] = None, fatal: bool = False) -> bool:
         """Test whether the given set of simplices is a p-chain for some order p. A
         p-chain is a collection of simplices of order p. If fatal is True then any
         missing or wrong-order simplices raise an exception.
@@ -1180,14 +1180,14 @@ class SimplicialComplex:
         return True
 
 
-    def chainVector(self, ss: Set[Simplex], p: int = None) -> numpy.ndarray:
+    def chainVector(self, ss: Set[Simplex], p: Optional[int] = None) -> numpy.ndarray:
         '''Generate a column vector representation of a p-chain.
 
         The vector is suitable for multiplying on the left by a boundary
         or coboundary matrix operator. Using this method ensures that the
         simplices appear in the correct indices.
 
-        A chain vector with no simplices and no dim,ension is assumed to
+        A chain vector with no simplices and no dimension is assumed to
         be the empty vector for 0-simplices.
 
         :param ss: the p-chain
@@ -1274,7 +1274,8 @@ class SimplicialComplex:
         (k + 1)-simplex, and 0 otherwise.
 
         The coboundary matrix of order k is simply the transpose of
-        the bounndary matrix of order (k + 1).
+        the boundary matrix of order (k + 1), which can be found using
+        :meth:`boundaryOperator`.
 
         :param k: the order
         :returns: the coboundary matrix

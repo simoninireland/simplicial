@@ -36,11 +36,14 @@ SOURCES_CODE_INIT = \
 	simplicial/file/__init__.py
 SOURCES_CODE = \
 	simplicial/utils.py \
+	simplicial/helpertypes.py \
 	simplicial/rep.py \
 	simplicial/referencerep.py \
 	simplicial/graphrep.py \
 	simplicial/simplicialcomplex.py \
 	simplicial/function.py \
+	simplicial/chain.py \
+	simplicial/homology.py \
 	simplicial/sheaf.py \
 	simplicial/dvf.py \
 	simplicial/subcomplex.py \

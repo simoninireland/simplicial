@@ -41,7 +41,7 @@ for visualisation (although this still needs a lot more work).
 from .utils  import Isomorphism
 
 # Representations
-from .types import Simplex, Attributes, Renaming
+from .helpertypes import Simplex, Attributes, Renaming
 from .rep import Representation
 from .referencerep import ReferenceRepresentation
 from .graphrep import GraphRepresentation
@@ -49,8 +49,12 @@ from .graphrep import GraphRepresentation
 # Top-level complexes
 from .simplicialcomplex import SimplicialComplex
 
-# Simplicial functions of different kinds
-from .function import SimplicialFunction, SFRepresentation, SFValueFunction, AttributeSFRepresentation, ComputedSFRepresentation, LiteralSFRepresentation, InferredSFRepresentation
+# Simplicial functions
+from .function import SimplicialFunction, SFRepresentation, SFValueFunction, SFPredicate,  AttributeSFRepresentation, ComputedSFRepresentation, LiteralSFRepresentation, InferredSFRepresentation
+
+# Homology
+from .homology import Homology, HomologyZ2
+from .chain import Chain
 from .dvf import DiscreteVector, DiscreteVectorField
 from .sheaf import RestrictionMap, ReductionMap, Sheaf
 
