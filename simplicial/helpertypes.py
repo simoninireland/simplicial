@@ -1,6 +1,6 @@
 # Helper types
 #
-# Copyright (C) 2017--2022 Simon Dobson
+# Copyright (C) 2017--2025 Simon Dobson
 #
 # This file is part of simplicial, simplicial topology in Python.
 #
